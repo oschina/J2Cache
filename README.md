@@ -47,3 +47,5 @@ slf-xxx.jar 是 ehcache 所需
 6. lib/jedis-2.2.1.jar  
 7. lib/jgroups-3.4.0.Final.jar  
 8. lib/slf4j-*.jar
+
+您可以使用ant和maven俩种方式构建项目。
