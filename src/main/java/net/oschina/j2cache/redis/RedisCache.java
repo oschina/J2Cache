@@ -1,6 +1,5 @@
 package net.oschina.j2cache.redis;
 
-import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -8,9 +7,11 @@ import java.util.Set;
 import redis.clients.jedis.Jedis;
 import net.oschina.j2cache.Cache;
 import net.oschina.j2cache.CacheException;
+import net.oschina.j2cache.util.SerializationUtils;
 
 /**
  * Redis 缓存实现
+ * 
  * @author winterlau
  */
 public class RedisCache implements Cache {
@@ -29,7 +30,7 @@ public class RedisCache implements Cache {
 			if (null == key)
 				return null;
 			byte[] b = cache.get((region + ":" + key).getBytes());
-			return b == null ? null : byte2obj(b);
+			return b == null ? null : SerializationUtils.deserialize(b);
 		} catch (Exception e) {
 			broken = true;
 			throw new CacheException(e);
@@ -47,7 +48,7 @@ public class RedisCache implements Cache {
 			Jedis cache = RedisCacheProvider.getResource();
 			try {
 				cache.set((region + ":" + key).getBytes(), value == null ? null
-						: obj2byte(value));
+						: SerializationUtils.serialize(value));
 			} catch (Exception e) {
 				broken = true;
 				throw new CacheException(e);
@@ -72,7 +73,8 @@ public class RedisCache implements Cache {
 			Set<byte[]> list = cache.keys(String.valueOf("*").getBytes());
 			if (null != list && list.size() > 0) {
 				for (byte[] bs : list) {
-					keys.add(bs == null ? null : byte2obj(bs));
+					keys.add(bs == null ? null : SerializationUtils
+							.deserialize(bs));
 				}
 			}
 			return keys;
@@ -124,40 +126,5 @@ public class RedisCache implements Cache {
 	@Override
 	public void destroy() throws CacheException {
 		this.clear();
-	}
-
-	private byte[] obj2byte(Object obj) {
-		ObjectOutputStream oos = null;
-		try {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			oos = new ObjectOutputStream(baos);
-			oos.writeObject(obj);
-			return baos.toByteArray();
-		} catch (IOException e) {
-			throw new CacheException(e);
-		} finally {
-			if (oos != null)
-				try {
-					oos.close();
-				} catch (IOException e) {
-				}
-		}
-	}
-
-	private Object byte2obj(byte[] bits) {
-		ObjectInputStream ois = null;
-		try {
-			ByteArrayInputStream bais = new ByteArrayInputStream(bits);
-			ois = new ObjectInputStream(bais);
-			return ois.readObject();
-		} catch (Exception e) {
-			throw new CacheException(e);
-		} finally {
-			if (ois != null)
-				try {
-					ois.close();
-				} catch (IOException e) {
-				}
-		}
 	}
 }
