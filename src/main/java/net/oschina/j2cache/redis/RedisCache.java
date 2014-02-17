@@ -70,11 +70,15 @@ public class RedisCache implements Cache {
 		Jedis cache = RedisCacheProvider.getResource();
 		try {
 			List<Object> keys = new ArrayList<Object>();
-			Set<byte[]> list = cache.keys(String.valueOf("*").getBytes());
+			Set<byte[]> list = cache.keys(String.valueOf(region + ":" + "*")
+					.getBytes());
 			if (null != list && list.size() > 0) {
 				for (byte[] bs : list) {
-					keys.add(bs == null ? null : SerializationUtils
-							.deserialize(bs));
+					if (null == bs)
+						continue;
+					String key = new String(bs);
+					key = key.replaceFirst(region + ":", "");
+					keys.add(key);
 				}
 			}
 			return keys;
@@ -90,7 +94,7 @@ public class RedisCache implements Cache {
 		boolean broken = false;
 		Jedis cache = RedisCacheProvider.getResource();
 		try {
-			cache.expire(String.valueOf(region + ":" + key).getBytes(), 0);
+			cache.expire((region + ":" + key).getBytes(), 0);
 		} catch (Exception e) {
 			broken = true;
 			throw new CacheException(e);

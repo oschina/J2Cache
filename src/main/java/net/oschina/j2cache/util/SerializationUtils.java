@@ -14,6 +14,14 @@ import net.sf.ehcache.CacheException;
 public class SerializationUtils {
 
 	public static byte[] serialize(Object obj) {
+		return fstserialize(obj);
+	}
+
+	public static Object deserialize(byte[] bytes) {
+		return fstdeserialize(bytes);
+	}
+
+	public static byte[] fstserialize(Object obj) {
 		ByteArrayOutputStream out = null;
 		FSTObjectOutput fout = null;
 		try {
@@ -39,7 +47,7 @@ public class SerializationUtils {
 		}
 	}
 
-	public static Object deserialize(byte[] bytes) {
+	public static Object fstdeserialize(byte[] bytes) {
 		FSTObjectInput in = null;
 		try {
 			in = new FSTObjectInput(new ByteArrayInputStream(bytes));
@@ -57,7 +65,7 @@ public class SerializationUtils {
 		}
 	}
 
-	public static byte[] sserialize(Object obj) {
+	public static byte[] javaserialize(Object obj) {
 		ObjectOutputStream oos = null;
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -70,12 +78,13 @@ public class SerializationUtils {
 			if (oos != null)
 				try {
 					oos.close();
+					oos = null;
 				} catch (IOException e) {
 				}
 		}
 	}
 
-	public static Object sdeserialize(byte[] bits) {
+	public static Object javadeserialize(byte[] bits) {
 		ObjectInputStream ois = null;
 		try {
 			ByteArrayInputStream bais = new ByteArrayInputStream(bits);
@@ -87,6 +96,7 @@ public class SerializationUtils {
 			if (ois != null)
 				try {
 					ois.close();
+					ois = null;
 				} catch (IOException e) {
 				}
 		}

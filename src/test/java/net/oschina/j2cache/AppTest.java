@@ -20,10 +20,10 @@ public class AppTest {
 		long length1 = 0;
 		for (int i = 1; i <= 100000; i++) {
 			List<TestObject> ob = (List<TestObject>) SerializationUtils
-					.sdeserialize(SerializationUtils.sserialize(list));
+					.javadeserialize(SerializationUtils.javaserialize(list));
 			if (i == 100000)
 				System.out.println(ob);
-			length1 += SerializationUtils.sserialize(list).length;
+			length1 += SerializationUtils.javaserialize(list).length;
 		}
 		System.out.println("100000次原生序列化测试："
 				+ (System.currentTimeMillis() - time1));
@@ -33,10 +33,10 @@ public class AppTest {
 		long length2 = 0;
 		for (int i = 1; i <= 100000; i++) {
 			List<TestObject> ob = (List<TestObject>) SerializationUtils
-					.deserialize(SerializationUtils.serialize(list));
+					.fstdeserialize(SerializationUtils.fstserialize(list));
 			if (i == 100000)
 				System.out.println(ob);
-			length2 += SerializationUtils.serialize(list).length;
+			length2 += SerializationUtils.fstserialize(list).length;
 		}
 		System.out.println("100000次FST序列化测试："
 				+ (System.currentTimeMillis() - time2));
