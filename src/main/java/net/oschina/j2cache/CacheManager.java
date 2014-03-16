@@ -2,7 +2,9 @@ package net.oschina.j2cache;
 
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Properties;
 
 import net.oschina.j2cache.ehcache.EhCacheProvider;
@@ -133,21 +135,38 @@ class CacheManager {
 	}
 	
 	/**
-	 * 清除缓冲中的某个数据
+	 * 清除缓存中的某个数据
 	 * @param level
 	 * @param name
 	 * @param key
 	 */
 	public final static void evict(int level, String name, Serializable key){
+		//batchEvict(level, name, Arrays.asList((Object)key));
+		
 		if(name!=null && key != null) {
             Cache cache =_GetCache(level, name, true);
             if (cache != null)
                 cache.remove(key);
         }
+        
+	}
+	
+	/**
+	 * 批量删除缓存中的一些数据
+	 * @param level
+	 * @param name
+	 * @param keys
+	 */
+	public final static void batchEvict(int level, String name, List<Object> keys) {
+		if(name!=null && keys != null && keys.size() > 0) {
+            Cache cache =_GetCache(level, name, true);
+            if (cache != null)
+                cache.batchRemove(keys);
+        }
 	}
 
 	/**
-	 * 清除缓冲中的某个数据
+	 * 清除缓存中的某个数据
 	 * @param level
 	 * @param name
 	 * @param key

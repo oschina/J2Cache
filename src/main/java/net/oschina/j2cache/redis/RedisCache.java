@@ -94,7 +94,7 @@ public class RedisCache implements Cache {
 		boolean broken = false;
 		Jedis cache = RedisCacheProvider.getResource();
 		try {
-			cache.expire((region + ":" + key).getBytes(), 0);
+			cache.del(region + ":" + key);
 		} catch (Exception e) {
 			broken = true;
 			throw new CacheException(e);
@@ -107,6 +107,30 @@ public class RedisCache implements Cache {
 	@Override
 	public void remove(Object key) throws CacheException {
 		remove(key, false);
+	}
+
+	/* (non-Javadoc)
+	 * @see net.oschina.j2cache.Cache#batchRemove(java.util.List)
+	 */
+	@Override
+	public void batchRemove(List<Object> keys) throws CacheException {
+		if(keys == null || keys.size() == 0)
+			return ;
+		boolean broken = false;
+		Jedis cache = RedisCacheProvider.getResource();
+		try {
+			String[] okeys = new String[keys.size()];
+			keys.toArray(okeys);
+			for(int i=0;i<okeys.length;i++){
+				okeys[i] = region + ':' + okeys[i];
+			}
+			cache.del(okeys);
+		} catch (Exception e) {
+			broken = true;
+			throw new CacheException(e);
+		} finally {
+			RedisCacheProvider.returnResource(cache, broken);
+		}
 	}
 
 	@Override

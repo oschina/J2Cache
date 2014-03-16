@@ -43,6 +43,13 @@ public interface Cache {
 	public void remove(Object key) throws CacheException;
 	
 	/**
+	 * Batch remove cache objects
+	 * @param keys
+	 * @throws CacheException
+	 */
+	public void batchRemove(List<Object> keys) throws CacheException;
+	
+	/**
 	 * Clear the cache
 	 */
 	public void clear() throws CacheException;
