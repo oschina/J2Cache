@@ -2,7 +2,6 @@ package net.oschina.j2cache;
 
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
