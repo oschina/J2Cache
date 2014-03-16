@@ -50,7 +50,7 @@ public class NullCache implements Cache {
 	 * @see net.oschina.j2cache.Cache#batchRemove(java.util.List)
 	 */
 	@Override
-	public void batchRemove(List<Object> keys) throws CacheException {	
+	public void batchRemove(List<String> keys) throws CacheException {	
 	}
 
 	/* (non-Javadoc)

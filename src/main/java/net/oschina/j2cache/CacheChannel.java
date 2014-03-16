@@ -2,6 +2,9 @@ package net.oschina.j2cache;
 
 import java.io.Serializable;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 import org.jgroups.JChannel;
 import org.jgroups.Message;
@@ -19,6 +22,8 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 	private final static String CONFIG_XML = "/network.xml";
 
 	private final static byte OPT_DELETE_KEY = 0x01;
+	private final static byte OPT_DELETE_KEYS = 0x02;
+	
 	public final static byte LEVEL_1 = 1;
 	public final static byte LEVEL_2 = 2;
 	
@@ -124,16 +129,22 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 	 * @param key
 	 */
 	public void evict(String region, String key) {
-		//删除一级缓存
-		CacheManager.evict(LEVEL_1, region, key);
-		
-		//删除二级缓存
-		CacheManager.evict(LEVEL_2, region, key);
-		
-		//发送广播
-		_sendEvictCmd(region, key);
+		CacheManager.evict(LEVEL_1, region, key); //删除一级缓存
+		CacheManager.evict(LEVEL_2, region, key); //删除二级缓存
+		_sendEvictCmd(region, key); //发送广播
 	}
 
+	/**
+	 * 批量删除缓存
+	 * @param region
+	 * @param keys
+	 */
+	public void batchEvict(String region, List<String> keys) {
+		CacheManager.batchEvict(LEVEL_1, region, keys);
+		CacheManager.batchEvict(LEVEL_2, region, keys);
+		_sendBatchEvictCmd(region, keys);
+	}
+	
 	/**
 	 * 为了保证每个节点缓存的一致，当某个缓存对象因为超时被清除时，应该通知群组其他成员
 	 */
@@ -164,6 +175,22 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 			log.error("Unable to delete cache,region="+region+",key="+key, e);
 		}
 	}
+
+	/**
+	 * 发送批量清除缓存的广播命令
+	 * @param region
+	 * @param keys
+	 */
+	private void _sendBatchEvictCmd(String region, List<String> keys) {
+		//发送广播
+		Command cmd = new Command(OPT_DELETE_KEYS, region, listToString(keys));
+		try {
+			Message msg = new Message(null, null, cmd.toBuffers());
+			channel.send(msg);
+		} catch (Exception e) {
+			log.error("Unable to batch delete cache,region="+region, e);
+		}
+	}
 	
 	/**
 	 * 删除一级缓存的键对应内容
@@ -173,6 +200,16 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 	protected void onDeleteCacheKey(String region, String key){
 		CacheManager.evict(LEVEL_1, region, key);
 		log.debug("Received cache evict message, region="+region+",key="+key);
+	}
+
+	/**
+	 * 删除一级缓存的键对应内容
+	 * @param region
+	 * @param key
+	 */
+	protected void onBatchDeleteCacheKey(String region, List<String> keys){
+		CacheManager.batchEvict(LEVEL_1, region, keys);
+		log.debug("Received cache evict message, region="+region+",keys="+keys);
 	}
 
 	/**
@@ -198,6 +235,10 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 			case OPT_DELETE_KEY:
 				onDeleteCacheKey(cmd.region, cmd.key);
 				break;
+			case OPT_DELETE_KEYS:
+				List<String> keys = stringToList(cmd.key);
+				onBatchDeleteCacheKey(cmd.region, keys);
+				break;
 			default:
 				log.warn("Unknown message type = " + cmd.operator);
 			}
@@ -210,6 +251,27 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 	 */
 	public void close(){
 		channel.close();
+	}
+	
+	private final static String separator = "\n";
+	
+	private static List<String> stringToList(String keys) {
+		List<String> lkeys = new ArrayList<String>();
+		StringTokenizer st = new StringTokenizer(keys, separator);
+		while(st.hasMoreTokens()){
+			lkeys.add(st.nextToken());
+		}
+		return lkeys;
+	}
+	
+	private static String listToString(List<String> keys) {
+		StringBuffer sb = new StringBuffer();
+		for(String key : keys){
+			if(sb.length() > 0)
+				sb.append(separator);
+			sb.append(key);
+		}
+		return sb.toString();
 	}
 	
 	/**

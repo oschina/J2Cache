@@ -113,7 +113,7 @@ public class RedisCache implements Cache {
 	 * @see net.oschina.j2cache.Cache#batchRemove(java.util.List)
 	 */
 	@Override
-	public void batchRemove(List<Object> keys) throws CacheException {
+	public void batchRemove(List<String> keys) throws CacheException {
 		if(keys == null || keys.size() == 0)
 			return ;
 		boolean broken = false;

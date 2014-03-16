@@ -156,7 +156,7 @@ class CacheManager {
 	 * @param name
 	 * @param keys
 	 */
-	public final static void batchEvict(int level, String name, List<Object> keys) {
+	public final static void batchEvict(int level, String name, List<String> keys) {
 		if(name!=null && keys != null && keys.size() > 0) {
             Cache cache =_GetCache(level, name, true);
             if (cache != null)
