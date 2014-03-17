@@ -7,7 +7,7 @@ package net.oschina.j2cache;
 public class CacheObject {
 
 	private String region;
-	private String key;
+	private Object key;
 	private Object value;
 	private byte level;
 	public String getRegion() {
@@ -16,10 +16,10 @@ public class CacheObject {
 	public void setRegion(String region) {
 		this.region = region;
 	}
-	public String getKey() {
+	public Object getKey() {
 		return key;
 	}
-	public void setKey(String key) {
+	public void setKey(Object key) {
 		this.key = key;
 	}
 	public Object getValue() {

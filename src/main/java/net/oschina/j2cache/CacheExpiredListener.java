@@ -11,6 +11,6 @@ public interface CacheExpiredListener {
 	 * @param region
 	 * @param key
 	 */
-	public void notifyElementExpired(String region, String key) ;
+	public void notifyElementExpired(String region, Object key) ;
 
 }

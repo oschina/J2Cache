@@ -1,7 +1,6 @@
 package net.oschina.j2cache;
 
 import java.io.InputStream;
-import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
@@ -87,7 +86,7 @@ class CacheManager {
 	 * @param key
 	 * @return
 	 */
-	public final static Object get(int level, String name, Serializable key){
+	public final static Object get(int level, String name, Object key){
 		//System.out.println("GET1 => " + name+":"+key);
 		if(name!=null && key != null) {
             Cache cache = _GetCache(level, name, true);
@@ -107,7 +106,7 @@ class CacheManager {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public final static <T> T get(int level, Class<T> resultClass, String name, Serializable key){
+	public final static <T> T get(int level, Class<T> resultClass, String name, Object key){
 		//System.out.println("GET2 => " + name+":"+key);
 		if(name!=null && key != null) {
             Cache cache =_GetCache(level, name, true);
@@ -124,7 +123,7 @@ class CacheManager {
 	 * @param key
 	 * @param value
 	 */
-	public final static void set(int level, String name, Serializable key, Serializable value){
+	public final static void set(int level, String name, Object key, Object value){
 		//System.out.println("SET => " + name+":"+key+"="+value);
 		if(name!=null && key != null && value!=null) {
             Cache cache =_GetCache(level, name, true);
@@ -139,15 +138,13 @@ class CacheManager {
 	 * @param name
 	 * @param key
 	 */
-	public final static void evict(int level, String name, Serializable key){
-		//batchEvict(level, name, Arrays.asList((Object)key));
-		
+	public final static void evict(int level, String name, Object key){
+		//batchEvict(level, name, java.util.Arrays.asList(key));
 		if(name!=null && key != null) {
             Cache cache =_GetCache(level, name, true);
             if (cache != null)
                 cache.evict(key);
         }
-        
 	}
 	
 	/**
@@ -156,26 +153,13 @@ class CacheManager {
 	 * @param name
 	 * @param keys
 	 */
-	public final static void evict(int level, String name, List<String> keys) {
+	@SuppressWarnings("rawtypes")
+	public final static void batchEvict(int level, String name, List keys) {
 		if(name!=null && keys != null && keys.size() > 0) {
             Cache cache =_GetCache(level, name, true);
             if (cache != null)
                 cache.evict(keys);
         }
-	}
-
-	/**
-	 * 清除缓存中的某个数据
-	 * @param level
-	 * @param name
-	 * @param key
-	 */
-	public final static void justEvict(int level, String name, Serializable key){
-		if(name!=null && key != null){
-			Cache cache = _GetCache(level, name, false);
-			if(cache != null)
-				cache.evict(key);
-		}
 	}
 
 }
