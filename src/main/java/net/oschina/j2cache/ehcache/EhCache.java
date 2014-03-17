@@ -189,7 +189,7 @@ public class EhCache implements Cache, CacheEventListener {
 	@Override
 	public void notifyElementExpired(Ehcache cache, Element elem) {
 		if(listener != null){
-			listener.notifyElementExpired(cache.getName(), (String)elem.getObjectKey());
+			listener.notifyElementExpired(cache.getName(), elem.getObjectKey());
 		}
 	}
 
