@@ -136,7 +136,8 @@ public class EhCache implements Cache, CacheEventListener {
 	 * @see net.oschina.j2cache.Cache#batchRemove(java.util.List)
 	 */
 	@Override
-	public void evict(List<String> keys) throws CacheException {
+	@SuppressWarnings("rawtypes")
+	public void evict(List keys) throws CacheException {
 		cache.removeAll(keys);
 	}
 

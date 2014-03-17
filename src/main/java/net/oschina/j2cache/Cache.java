@@ -47,7 +47,8 @@ public interface Cache {
 	 * @param keys
 	 * @throws CacheException
 	 */
-	public void evict(List<String> keys) throws CacheException;
+	@SuppressWarnings("rawtypes")
+	public void evict(List keys) throws CacheException;
 	
 	/**
 	 * Clear the cache
