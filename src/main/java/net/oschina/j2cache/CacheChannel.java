@@ -211,7 +211,10 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 		
 		try{
 			Command cmd = Command.parse(buffers);
-			//int region_name
+			
+			if(cmd == null)
+				return;
+			
 			switch(cmd.operator){
 			case OPT_DELETE_KEY:
 				onDeleteCacheKey(cmd.region, cmd.key);
@@ -270,19 +273,25 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 		}
 		
 		public static Command parse(byte[] buffers) {
-			int idx = 0;
-			byte opt = buffers[idx];
-			int r_len = buffers[++idx] << 8;
-			r_len += buffers[++idx];
-			String region = new String(buffers, ++idx, r_len);
-			idx += r_len;
-			int k_len = buffers[idx++] << 8;
-			k_len += buffers[idx++];
-			//String key = new String(buffers, idx, k_len);
-			byte[] keyBuffers = new byte[k_len];
-			System.arraycopy(buffers, idx, keyBuffers, 0, k_len);
-			Object key = SerializationUtils.deserialize(keyBuffers);
-			return new Command(opt, region, key);
+			Command cmd = null;
+			try{
+				int idx = 0;
+				byte opt = buffers[idx];
+				int r_len = buffers[++idx] << 8;
+				r_len += buffers[++idx];
+				String region = new String(buffers, ++idx, r_len);
+				idx += r_len;
+				int k_len = buffers[idx++] << 8;
+				k_len += buffers[idx++];
+				//String key = new String(buffers, idx, k_len);
+				byte[] keyBuffers = new byte[k_len];
+				System.arraycopy(buffers, idx, keyBuffers, 0, k_len);
+				Object key = SerializationUtils.deserialize(keyBuffers);
+				cmd = new Command(opt, region, key);
+			}catch(Exception e){
+				log.error("Unabled to parse received command.", e);
+			}
+			return cmd;
 		}
 	}
 	
