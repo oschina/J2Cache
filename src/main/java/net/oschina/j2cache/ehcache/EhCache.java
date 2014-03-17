@@ -119,7 +119,8 @@ public class EhCache implements Cache, CacheEventListener {
 	 * @param key the key of the element to remove
 	 * @throws CacheException
 	 */
-	public void remove(Object key) throws CacheException {
+	@Override
+	public void evict(Object key) throws CacheException {
 		try {
 			cache.remove( key );
 		}
@@ -135,7 +136,7 @@ public class EhCache implements Cache, CacheEventListener {
 	 * @see net.oschina.j2cache.Cache#batchRemove(java.util.List)
 	 */
 	@Override
-	public void batchRemove(List<String> keys) throws CacheException {
+	public void evict(List<String> keys) throws CacheException {
 		cache.removeAll(keys);
 	}
 

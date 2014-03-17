@@ -140,8 +140,8 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 	 * @param keys
 	 */
 	public void batchEvict(String region, List<String> keys) {
-		CacheManager.batchEvict(LEVEL_1, region, keys);
-		CacheManager.batchEvict(LEVEL_2, region, keys);
+		CacheManager.evict(LEVEL_1, region, keys);
+		CacheManager.evict(LEVEL_2, region, keys);
 		_sendBatchEvictCmd(region, keys);
 	}
 	
@@ -208,7 +208,7 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 	 * @param key
 	 */
 	protected void onBatchDeleteCacheKey(String region, List<String> keys){
-		CacheManager.batchEvict(LEVEL_1, region, keys);
+		CacheManager.evict(LEVEL_1, region, keys);
 		log.debug("Received cache evict message, region="+region+",keys="+keys);
 	}
 

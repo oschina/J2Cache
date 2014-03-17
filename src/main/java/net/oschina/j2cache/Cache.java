@@ -40,14 +40,14 @@ public interface Cache {
 	/**
 	 * Remove an item from the cache
 	 */
-	public void remove(Object key) throws CacheException;
+	public void evict(Object key) throws CacheException;
 	
 	/**
 	 * Batch remove cache objects
 	 * @param keys
 	 * @throws CacheException
 	 */
-	public void batchRemove(List<String> keys) throws CacheException;
+	public void evict(List<String> keys) throws CacheException;
 	
 	/**
 	 * Clear the cache

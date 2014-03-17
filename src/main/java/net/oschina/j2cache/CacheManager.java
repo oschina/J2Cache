@@ -145,7 +145,7 @@ class CacheManager {
 		if(name!=null && key != null) {
             Cache cache =_GetCache(level, name, true);
             if (cache != null)
-                cache.remove(key);
+                cache.evict(key);
         }
         
 	}
@@ -156,11 +156,11 @@ class CacheManager {
 	 * @param name
 	 * @param keys
 	 */
-	public final static void batchEvict(int level, String name, List<String> keys) {
+	public final static void evict(int level, String name, List<String> keys) {
 		if(name!=null && keys != null && keys.size() > 0) {
             Cache cache =_GetCache(level, name, true);
             if (cache != null)
-                cache.batchRemove(keys);
+                cache.evict(keys);
         }
 	}
 
@@ -174,7 +174,7 @@ class CacheManager {
 		if(name!=null && key != null){
 			Cache cache = _GetCache(level, name, false);
 			if(cache != null)
-				cache.remove(key);
+				cache.evict(key);
 		}
 	}
 

@@ -42,7 +42,7 @@ public class RedisCache implements Cache {
 	@Override
 	public void put(Object key, Object value) throws CacheException {
 		if (value == null)
-			remove(key);
+			evict(key);
 		else {
 			boolean broken = false;
 			Jedis cache = RedisCacheProvider.getResource();
@@ -105,7 +105,7 @@ public class RedisCache implements Cache {
 	}
 
 	@Override
-	public void remove(Object key) throws CacheException {
+	public void evict(Object key) throws CacheException {
 		remove(key, false);
 	}
 
@@ -113,7 +113,7 @@ public class RedisCache implements Cache {
 	 * @see net.oschina.j2cache.Cache#batchRemove(java.util.List)
 	 */
 	@Override
-	public void batchRemove(List<String> keys) throws CacheException {
+	public void evict(List<String> keys) throws CacheException {
 		if(keys == null || keys.size() == 0)
 			return ;
 		boolean broken = false;
