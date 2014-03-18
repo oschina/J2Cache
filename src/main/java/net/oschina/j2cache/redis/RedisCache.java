@@ -25,18 +25,16 @@ public class RedisCache implements Cache {
 	 * @param key
 	 * @return
 	 */
+	@SuppressWarnings("rawtypes")
 	private String getKeyName(Object key) {
-		if(String.class.equals(key.getClass()))
-			return region + ":S:" + key;
-		else
-		if(Integer.class.equals(key.getClass()))
+
+		if(key instanceof Number)
 			return region + ":I:" + key;
-		else
-		if(Long.class.equals(key.getClass()))
-			return region + ":L:" + key;
-		else
-		if(Byte.class.equals(key.getClass()))
-			return region + ":B:" + key;
+		else{
+			Class keyClass = key.getClass();
+			if(String.class.equals(keyClass) || StringBuffer.class.equals(keyClass) || StringBuilder.class.equals(keyClass))
+				return region + ":S:" + key;
+		}
 		return region + ":O:" + key;
 	}
 	
@@ -44,6 +42,8 @@ public class RedisCache implements Cache {
 		RedisCache cache = new RedisCache("User");
 		System.out.println(cache.getKeyName("Hello"));
 		System.out.println(cache.getKeyName(2));
+		System.out.println(cache.getKeyName((byte)2));
+		System.out.println(cache.getKeyName(2L));
 	}
 
 	@Override
