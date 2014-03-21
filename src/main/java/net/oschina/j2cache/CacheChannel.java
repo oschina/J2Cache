@@ -54,12 +54,16 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 		try{
 			CacheManager.initCacheProvider(this);
 			
+			long ct = System.currentTimeMillis();
+			
 			URL xml = CacheChannel.class.getResource(CONFIG_XML);
 			if(xml == null)
 				xml = getClass().getClassLoader().getParent().getResource(CONFIG_XML);
 			channel = new JChannel(xml);
 			channel.setReceiver(this);
 			channel.connect(this.name);
+			
+			log.info("Connected to channel:" + this.name + ", time " + (System.currentTimeMillis()-ct) + " ms.");
 
 		}catch(Exception e){
 			throw new CacheException(e);
