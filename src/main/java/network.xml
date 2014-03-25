@@ -1,8 +1,9 @@
 <config xmlns="urn:org:jgroups"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="urn:org:jgroups http://www.jgroups.org/schema/JGroups-3.0.xsd">
+        xsi:schemaLocation="urn:org:jgroups http://www.jgroups.org/schema/JGroups-3.4.xsd">
 
     <UDP
+         mcast_addr="${jgroups.udp.mcast_addr:235.5.5.5}"
          mcast_port="${jgroups.udp.mcast_port:45588}"
          tos="8"
          ucast_recv_buf_size="20M"
@@ -51,9 +52,11 @@
     <pbcast.STABLE stability_delay="1000" 
     			   desired_avg_gossip="50000"
                    max_bytes="4M"/>
-    <pbcast.GMS print_local_addr="true" 
+    <pbcast.GMS print_local_addr="true"
+    			print_physical_addrs="true"
     		    join_timeout="3000"
-                view_bundling="true"/>
+                view_bundling="true"
+                max_join_attempts="3"/>
                 
     <UFC max_credits="2M" min_threshold="0.4"/>
     <MFC max_credits="2M" min_threshold="0.4"/>

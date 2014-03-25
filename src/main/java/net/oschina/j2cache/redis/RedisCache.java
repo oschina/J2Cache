@@ -1,6 +1,10 @@
 package net.oschina.j2cache.redis;
 
+import java.io.IOException;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
 import net.oschina.j2cache.Cache;
@@ -14,6 +18,7 @@ import net.oschina.j2cache.util.SerializationUtils;
  */
 public class RedisCache implements Cache {
 
+	private final static Logger log = LoggerFactory.getLogger(RedisCache.class);
 	private String region;
 
 	public RedisCache(String region) {
@@ -48,19 +53,24 @@ public class RedisCache implements Cache {
 
 	@Override
 	public Object get(Object key) throws CacheException {
+		Object obj = null;
 		boolean broken = false;
 		Jedis cache = RedisCacheProvider.getResource();
 		try {
 			if (null == key)
 				return null;
 			byte[] b = cache.get(getKeyName(key).getBytes());
-			return b == null ? null : SerializationUtils.deserialize(b);
+			if(b != null)
+				obj = SerializationUtils.deserialize(b);
 		} catch (Exception e) {
+			log.error("Error occured when get data from L2 cache", e);
 			broken = true;
-			throw new CacheException(e);
+			if(e instanceof IOException)
+				evict(key);
 		} finally {
 			RedisCacheProvider.returnResource(cache, broken);
 		}
+		return obj;
 	}
 
 	@Override
