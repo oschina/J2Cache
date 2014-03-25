@@ -6,9 +6,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import org.jgroups.util.Util;
+
 import de.ruedigermoeller.serialization.FSTObjectInput;
 import de.ruedigermoeller.serialization.FSTObjectOutput;
-
 import net.sf.ehcache.CacheException;
 
 public class SerializationUtils {
@@ -33,17 +34,8 @@ public class SerializationUtils {
 		} catch (IOException e) {
 			throw new CacheException(e);
 		} finally {
-			try {
-				if (null != out) {
-					out.close();
-					out = null;
-				}
-				if (null != fout) {
-					fout.close();
-					out = null;
-				}
-			} catch (IOException e) {
-			}
+			Util.close(out);
+			Util.close(fout);
 		}
 	}
 
@@ -55,13 +47,7 @@ public class SerializationUtils {
 		} catch (Exception e) {
 			throw new CacheException(e);
 		} finally {
-			try {
-				if (null != in) {
-					in.close();
-					in = null;
-				}
-			} catch (IOException e) {
-			}
+			Util.close(in);
 		}
 	}
 
@@ -75,12 +61,7 @@ public class SerializationUtils {
 		} catch (IOException e) {
 			throw new CacheException(e);
 		} finally {
-			if (oos != null)
-				try {
-					oos.close();
-					oos = null;
-				} catch (IOException e) {
-				}
+			Util.close(oos);
 		}
 	}
 
@@ -93,12 +74,7 @@ public class SerializationUtils {
 		} catch (Exception e) {
 			throw new CacheException(e);
 		} finally {
-			if (ois != null)
-				try {
-					ois.close();
-					ois = null;
-				} catch (IOException e) {
-				}
+			Util.close(ois);
 		}
 	}
 
