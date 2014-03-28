@@ -5,9 +5,11 @@ import java.util.List;
 
 import net.oschina.j2cache.util.SerializationUtils;
 
+import org.jgroups.Address;
 import org.jgroups.JChannel;
 import org.jgroups.Message;
 import org.jgroups.ReceiverAdapter;
+import org.jgroups.View;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -230,6 +232,21 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 			log.error("Unable to handle received msg" , e);
 		}
 	}
+	
+	/**
+	 * 组中成员变化时
+	 */
+	public void viewAccepted(View view) {
+		StringBuffer sb = new StringBuffer("Group Members Changed, LIST: ");
+		List<Address> addrs = view.getMembers();
+ 		for(int i=0; i<addrs.size(); i++){
+ 			if(i > 0)
+ 				sb.append(',');
+			sb.append(addrs.get(i).toString());
+		}
+		log.info(sb.toString());
+	}
+	
 	/**
 	 * 关闭到通道的连接
 	 */
