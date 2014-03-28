@@ -283,15 +283,19 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 				byte opt = buffers[idx];
 				int r_len = buffers[++idx] << 8;
 				r_len += buffers[++idx];
-				String region = new String(buffers, ++idx, r_len);
-				idx += r_len;
-				int k_len = buffers[idx++] << 8;
-				k_len += buffers[idx++];
-				//String key = new String(buffers, idx, k_len);
-				byte[] keyBuffers = new byte[k_len];
-				System.arraycopy(buffers, idx, keyBuffers, 0, k_len);
-				Object key = SerializationUtils.deserialize(keyBuffers);
-				cmd = new Command(opt, region, key);
+				if(r_len > 0){
+					String region = new String(buffers, ++idx, r_len);
+					idx += r_len;
+					int k_len = buffers[idx++] << 8;
+					k_len += buffers[idx++];
+					if(k_len > 0){
+						//String key = new String(buffers, idx, k_len);
+						byte[] keyBuffers = new byte[k_len];
+						System.arraycopy(buffers, idx, keyBuffers, 0, k_len);
+						Object key = SerializationUtils.deserialize(keyBuffers);
+						cmd = new Command(opt, region, key);
+					}
+				}
 			}catch(Exception e){
 				log.error("Unabled to parse received command.", e);
 			}
