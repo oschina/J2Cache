@@ -1,6 +1,7 @@
 package net.oschina.j2cache.redis;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -137,12 +138,32 @@ public class RedisCache implements Cache {
 	@Override
 	@SuppressWarnings("rawtypes")
 	public List keys() throws CacheException {
-		throw new CacheException("Operation not supported.");
+		Jedis cache = RedisCacheProvider.getResource();
+		boolean broken = false;
+		try {
+			List<String> keys = new ArrayList<String>();
+			keys.addAll(cache.keys(region + ":*"));
+			return keys;
+		} catch (Exception e) {
+			broken = true;
+			throw new CacheException(e);
+		} finally {
+			RedisCacheProvider.returnResource(cache, broken);
+		}
 	}
 
 	@Override
 	public void clear() throws CacheException {
-		throw new CacheException("Operation not supported.");
+		Jedis cache = RedisCacheProvider.getResource();
+		boolean broken = false;
+		try {
+			cache.del(region + ":*");
+		} catch (Exception e) {
+			broken = true;
+			throw new CacheException(e);
+		} finally {
+			RedisCacheProvider.returnResource(cache, broken);
+		}
 	}
 
 	@Override
