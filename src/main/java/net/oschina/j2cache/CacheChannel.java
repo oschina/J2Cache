@@ -149,6 +149,19 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 		CacheManager.batchEvict(LEVEL_2, region, keys);
 		_sendEvictCmd(region, keys);
 	}
+
+	/**
+	 * Clear the cache
+	 */
+	public void clear(String region) throws CacheException {
+		CacheManager.clear(LEVEL_1, region);
+		CacheManager.clear(LEVEL_2, region);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public List keys(String region) throws CacheException {
+		return CacheManager.keys(LEVEL_1, region);
+	}
 	
 	/**
 	 * 为了保证每个节点缓存的一致，当某个缓存对象因为超时被清除时，应该通知群组其他成员

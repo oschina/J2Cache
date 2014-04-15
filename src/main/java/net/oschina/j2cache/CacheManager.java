@@ -89,7 +89,7 @@ class CacheManager {
 	public final static Object get(int level, String name, Object key){
 		//System.out.println("GET1 => " + name+":"+key);
 		if(name!=null && key != null) {
-            Cache cache = _GetCache(level, name, true);
+            Cache cache = _GetCache(level, name, false);
             if (cache != null)
                 return cache.get(key);
         }
@@ -109,7 +109,7 @@ class CacheManager {
 	public final static <T> T get(int level, Class<T> resultClass, String name, Object key){
 		//System.out.println("GET2 => " + name+":"+key);
 		if(name!=null && key != null) {
-            Cache cache =_GetCache(level, name, true);
+            Cache cache =_GetCache(level, name, false);
             if (cache != null)
                 return (T)cache.get(key);
         }
@@ -141,7 +141,7 @@ class CacheManager {
 	public final static void evict(int level, String name, Object key){
 		//batchEvict(level, name, java.util.Arrays.asList(key));
 		if(name!=null && key != null) {
-            Cache cache =_GetCache(level, name, true);
+            Cache cache =_GetCache(level, name, false);
             if (cache != null)
                 cache.evict(key);
         }
@@ -156,10 +156,25 @@ class CacheManager {
 	@SuppressWarnings("rawtypes")
 	public final static void batchEvict(int level, String name, List keys) {
 		if(name!=null && keys != null && keys.size() > 0) {
-            Cache cache =_GetCache(level, name, true);
+            Cache cache =_GetCache(level, name, false);
             if (cache != null)
                 cache.evict(keys);
         }
 	}
 
+	/**
+	 * Clear the cache
+	 */
+	public final static void clear(int level, String name) throws CacheException {
+        Cache cache =_GetCache(level, name, false);
+        if(cache != null)
+        	cache.clear();
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public final static List keys(int level, String name) throws CacheException {
+        Cache cache =_GetCache(level, name, false);
+		return (cache!=null)?cache.keys():null;
+	}
+	
 }
