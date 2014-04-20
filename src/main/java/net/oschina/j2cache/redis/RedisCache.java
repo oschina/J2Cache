@@ -27,29 +27,28 @@ public class RedisCache implements Cache {
 	}
 	
 	/**
-	 * 生成缓存的 key
+	 * 生成缓存的 key（避免类似字符串 "123" 和数值 123 的重叠
 	 * @param key
 	 * @return
 	 */
 	@SuppressWarnings("rawtypes")
-	private String getKeyName(Object key) {
-
+	private String genKeyName(Object key) {
 		if(key instanceof Number)
-			return region + ":I:" + key;
+			return "N:" + key;
 		else{
 			Class keyClass = key.getClass();
 			if(String.class.equals(keyClass) || StringBuffer.class.equals(keyClass) || StringBuilder.class.equals(keyClass))
-				return region + ":S:" + key;
+				return key.toString();
 		}
-		return region + ":O:" + key;
+		return "O:" + key;
 	}
 	
 	public static void main(String[] args) {
 		RedisCache cache = new RedisCache("User");
-		System.out.println(cache.getKeyName("Hello"));
-		System.out.println(cache.getKeyName(2));
-		System.out.println(cache.getKeyName((byte)2));
-		System.out.println(cache.getKeyName(2L));
+		System.out.println(cache.genKeyName("Hello"));
+		System.out.println(cache.genKeyName(2));
+		System.out.println(cache.genKeyName((byte)2));
+		System.out.println(cache.genKeyName(2L));
 	}
 
 	@Override
@@ -60,7 +59,7 @@ public class RedisCache implements Cache {
 		try {
 			if (null == key)
 				return null;
-			byte[] b = cache.get(getKeyName(key).getBytes());
+			byte[] b = cache.hget(region.getBytes(), genKeyName(key).getBytes());
 			if(b != null)
 				obj = SerializationUtils.deserialize(b);
 		} catch (Exception e) {
@@ -82,7 +81,7 @@ public class RedisCache implements Cache {
 			boolean broken = false;
 			Jedis cache = RedisCacheProvider.getResource();
 			try {
-				cache.set(getKeyName(key).getBytes(), SerializationUtils.serialize(value));
+				cache.hset(region.getBytes(), genKeyName(key).getBytes(), SerializationUtils.serialize(value));
 			} catch (Exception e) {
 				broken = true;
 				throw new CacheException(e);
@@ -102,7 +101,7 @@ public class RedisCache implements Cache {
 		boolean broken = false;
 		Jedis cache = RedisCacheProvider.getResource();
 		try {
-			cache.del(getKeyName(key));
+			cache.hdel(region.getBytes(), genKeyName(key).getBytes());
 		} catch (Exception e) {
 			broken = true;
 			throw new CacheException(e);
@@ -124,9 +123,9 @@ public class RedisCache implements Cache {
 		try {
 			String[] okeys = new String[keys.size()];
 			for(int i=0;i<okeys.length;i++){
-				okeys[i] = getKeyName(keys.get(i));
+				okeys[i] = genKeyName(keys.get(i));
 			}
-			cache.del(okeys);
+			cache.hdel(region, okeys);
 		} catch (Exception e) {
 			broken = true;
 			throw new CacheException(e);
@@ -142,7 +141,7 @@ public class RedisCache implements Cache {
 		boolean broken = false;
 		try {
 			List<String> keys = new ArrayList<String>();
-			keys.addAll(cache.keys(region + ":*"));
+			keys.addAll(cache.hkeys(region));
 			return keys;
 		} catch (Exception e) {
 			broken = true;
@@ -157,7 +156,7 @@ public class RedisCache implements Cache {
 		Jedis cache = RedisCacheProvider.getResource();
 		boolean broken = false;
 		try {
-			cache.del(region + ":*");
+			cache.del(region.getBytes());
 		} catch (Exception e) {
 			broken = true;
 			throw new CacheException(e);
@@ -168,6 +167,5 @@ public class RedisCache implements Cache {
 
 	@Override
 	public void destroy() throws CacheException {
-		this.clear();
 	}
 }

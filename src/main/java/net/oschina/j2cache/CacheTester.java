@@ -44,6 +44,11 @@ public class CacheTester {
 	            	System.out.printf("[%s,%s]=>null\n",cmds[1], cmds[2]);
 	            }
 	            else
+	            if("clear".equalsIgnoreCase(cmds[0])){
+	            	cache.clear(cmds[1]);
+	            	System.out.printf("Cache [%s] clear.\n" , cmds[1]);
+	            }
+	            else
 	            if("help".equalsIgnoreCase(cmds[0])){
 	            	printHelp();
 	            }
