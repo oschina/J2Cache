@@ -71,14 +71,6 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 			throw new CacheException(e);
 		}
 	}
-	
-	/**
-	 * 关闭缓存
-	 */
-	public void shutdown() {
-		CacheManager.shutdown(LEVEL_1);
-		CacheManager.shutdown(LEVEL_2);
-	}
 
     /**
 	 * 获取缓存中的数据
@@ -272,6 +264,8 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 	 * 关闭到通道的连接
 	 */
 	public void close(){
+		CacheManager.shutdown(LEVEL_1);
+		CacheManager.shutdown(LEVEL_2);
 		channel.close();
 	}
 	
