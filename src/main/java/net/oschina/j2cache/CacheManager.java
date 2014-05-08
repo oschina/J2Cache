@@ -78,6 +78,10 @@ class CacheManager {
 	private final static Cache _GetCache(int level, String cache_name, boolean autoCreate) {
 		return ((level==1)?l1_provider:l2_provider).buildCache(cache_name, autoCreate, listener);
 	}
+	
+	public final static void shutdown(int level) {
+		((level==1)?l1_provider:l2_provider).stop();
+	}
 
 	/**
 	 * 获取缓存中的数据
