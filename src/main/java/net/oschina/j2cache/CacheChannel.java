@@ -29,20 +29,13 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 	
 	private String name;
 	private JChannel channel;
-	private static CacheChannel instance;
+	private final static CacheChannel instance = new CacheChannel("default");
 	
 	/**
 	 * 单例方法
 	 * @return
 	 */
 	public final static CacheChannel getInstance(){
-		if(instance == null){
-			synchronized(CacheChannel.class){
-				if(instance == null){
-					instance = new CacheChannel("default");
-				}
-			}
-		}
 		return instance;
 	}
 	
