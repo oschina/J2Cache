@@ -29,7 +29,6 @@ public class SerializationUtils {
 			out = new ByteArrayOutputStream();
 			fout = new FSTObjectOutput(out);
 			fout.writeObject(obj);
-			fout.flush();
 			return out.toByteArray();
 		} catch (IOException e) {
 			throw new CacheException(e);
