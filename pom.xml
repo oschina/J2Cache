@@ -59,7 +59,7 @@
 		<dependency>
 			<groupId>de.ruedigermoeller</groupId>
 			<artifactId>fst</artifactId>
-			<version>1.52</version>
+			<version>1.58</version>
 		</dependency>
 	</dependencies>
 	<build>
