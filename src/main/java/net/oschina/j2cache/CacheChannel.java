@@ -1,5 +1,6 @@
 package net.oschina.j2cache;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
@@ -284,7 +285,13 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 		}
 		
 		public byte[] toBuffers(){
-			byte[] keyBuffers = SerializationUtils.fstserialize(key);
+			byte[] keyBuffers = null;
+			try {
+				keyBuffers = SerializationUtils.fstserialize(key);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			int r_len = region.getBytes().length;
 			int k_len = keyBuffers.length;
 

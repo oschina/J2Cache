@@ -66,7 +66,7 @@ public class RedisCache implements Cache {
 		} catch (Exception e) {
 			log.error("Error occured when get data from L2 cache", e);
 			broken = true;
-			if(e instanceof IOException)
+			if(e instanceof IOException || e instanceof NullPointerException)
 				evict(key);
 		} finally {
 			RedisCacheProvider.returnResource(cache, broken);
