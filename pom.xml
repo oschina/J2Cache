@@ -76,9 +76,10 @@
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
+        					<source>5</source>  
+        					<target>5</target>  
 							<encoding>UTF-8</encoding>
-							<outputDirectory>${project.build.directory}/classes
-							</outputDirectory>
+							<outputDirectory>${project.build.directory}/classes</outputDirectory>
 							<resources>
 								<resource>
 									<directory>src/main/java/</directory>
