@@ -287,7 +287,7 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 		public byte[] toBuffers(){
 			byte[] keyBuffers = null;
 			try {
-				keyBuffers = SerializationUtils.fstserialize(key);
+				keyBuffers = SerializationUtils.serialize(key);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * 缓存管理器
  * @author liudong
  */
-class CacheManager {
+public class CacheManager {
 
 	private final static Logger log = LoggerFactory.getLogger(CacheManager.class);
 	private final static String CONFIG_FILE = "/j2cache.properties";
@@ -24,6 +24,8 @@ class CacheManager {
 	private static CacheProvider l2_provider;
 	
 	private static CacheExpiredListener listener;
+	
+	private static String serializer ;
 	
 	public static void initCacheProvider(CacheExpiredListener listener){
 
@@ -48,9 +50,15 @@ class CacheManager {
 			CacheManager.l2_provider.start(getProviderProperties(props, CacheManager.l2_provider));
 			log.info("Using L2 CacheProvider : " + l2_provider.getClass().getName());
 			
+			CacheManager.serializer = props.getProperty("cache.serialization");
+			
 		}catch(Exception e){
 			throw new CacheException("Unabled to initialize cache providers", e);
 		}
+	}
+	
+	public final static String getSerializer() {
+		return serializer;
 	}
 	
 	private final static CacheProvider getProviderInstance(String value) throws Exception {
