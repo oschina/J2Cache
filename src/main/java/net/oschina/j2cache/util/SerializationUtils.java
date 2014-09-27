@@ -8,6 +8,9 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -22,6 +25,9 @@ import net.sf.ehcache.CacheException;
  * @author winterlau
  */
 public class SerializationUtils {
+
+	private final static Logger log = LoggerFactory.getLogger(SerializationUtils.class);
+	private static Serializer g_ser = null;
 	
 	public static void main(String[] args) throws IOException {
 		
@@ -45,22 +51,32 @@ public class SerializationUtils {
 	}
 
 	private static Serializer getSerializer() {
-		String ser = CacheManager.getSerializer();
-		if(ser == null || "".equals(ser.trim()))
-			return java_ser;
-		switch(ser){
-		case "java":
-			return java_ser;
-		case "fst":
-			return fst_ser;
-		case "kryo":
-			return kryo_ser;
+		if(g_ser == null) {
+			String ser = CacheManager.getSerializer();
+			if(ser == null || "".equals(ser.trim()))
+				g_ser = java_ser;
+			else{
+				switch(ser){
+				case "java":
+					g_ser = java_ser;
+					break;
+				case "fst":
+					g_ser = fst_ser;
+					break;
+				case "kryo":
+					g_ser = kryo_ser;
+					break;
+				default:
+					try {
+						g_ser = (Serializer)Class.forName(ser).newInstance();
+					} catch (Exception e) {
+						throw new CacheException("Cannot initialize Serializer named [" + ser + ']', e);
+					}
+				}
+			}
+			log.info("Using Serializer -> [" + g_ser.name() + ":" + g_ser.getClass().getName() + ']');
 		}
-		try {
-			return (Serializer)Class.forName(ser).newInstance();
-		} catch (Exception e) {
-			throw new CacheException("Cannot initialize Serializer named [" + ser + ']', e);
-		}
+		return g_ser;
 	}
 	
 	private final static Serializer fst_ser = new Serializer() {
