@@ -1,1 +1,1 @@
-java -Djava.ext.dirs=lib -cp target/classes net.oschina.j2cache.CacheTester
+java -Djava.ext.dirs=lib -cp target/classes:lib/objenesis-1.2.jar net.oschina.j2cache.CacheTester

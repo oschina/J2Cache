@@ -5,6 +5,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
+import java.util.List;
+
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 
 import de.ruedigermoeller.serialization.FSTObjectInput;
 import de.ruedigermoeller.serialization.FSTObjectOutput;
@@ -17,19 +23,17 @@ import net.sf.ehcache.CacheException;
  */
 public class SerializationUtils {
 	
-	private static Serializer getSerializer() {
-		String ser = CacheManager.getSerializer();
-		switch(ser){
-		case "java":
-			return java_ser;
-		case "fst":
-			return fst_ser;
+	public static void main(String[] args) throws IOException {
+		
+		List<String> obj = Arrays.asList("OSChina.NET","RunJS.cn","Team@OSC", "Git@OSC", "Sonar@OSC", "PaaS@OSC");
+		byte[] bits = serialize(obj);
+		for(byte b : bits){
+			System.out.print(Byte.toString(b)+" ");
 		}
-		try {
-			return (Serializer)Class.forName(ser).newInstance();
-		} catch (Exception e) {
-			throw new CacheException("Cannot initialize Serializer named [" + ser + ']', e);
-		}
+		System.out.println();
+		System.out.println(bits.length);
+		System.out.println(deserialize(bits));
+		
 	}
 	
 	public static byte[] serialize(Object obj) throws IOException {
@@ -40,7 +44,26 @@ public class SerializationUtils {
 		return getSerializer().deserialize(bytes);
 	}
 
-	final static Serializer fst_ser = new Serializer() {
+	private static Serializer getSerializer() {
+		String ser = CacheManager.getSerializer();
+		if(ser == null || "".equals(ser.trim()))
+			return java_ser;
+		switch(ser){
+		case "java":
+			return java_ser;
+		case "fst":
+			return fst_ser;
+		case "kryo":
+			return kryo_ser;
+		}
+		try {
+			return (Serializer)Class.forName(ser).newInstance();
+		} catch (Exception e) {
+			throw new CacheException("Cannot initialize Serializer named [" + ser + ']', e);
+		}
+	}
+	
+	private final static Serializer fst_ser = new Serializer() {
 
 		@Override
 		public String name() {
@@ -84,7 +107,7 @@ public class SerializationUtils {
 
 	};
 	
-	final static Serializer java_ser = new Serializer() {
+	private final static Serializer java_ser = new Serializer() {
 
 		@Override
 		public String name() {
@@ -123,6 +146,49 @@ public class SerializationUtils {
 				try {
 					ois.close();
 				} catch (IOException e) {}
+			}
+		}
+		
+	};
+	
+	private final static Serializer kryo_ser = new Serializer() {
+		
+		Kryo kryo = new Kryo();
+		
+		@Override
+		public String name() {
+			return "kryo";
+		}
+
+		@Override
+		public byte[] serialize(Object obj) throws IOException {
+			Output output = null;
+			try {
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				output = new Output(baos);
+				kryo.writeClassAndObject(output, obj);
+				output.flush();
+				return baos.toByteArray();
+			}finally{
+				if(output != null)
+					output.close();
+			}
+		}
+
+		@Override
+		public Object deserialize(byte[] bits) throws IOException {
+			if(bits == null || bits.length == 0)
+				return null;
+			Input ois = null;
+			try {
+				ByteArrayInputStream bais = new ByteArrayInputStream(bits);
+				ois = new Input(bais);
+				return kryo.readClassAndObject(ois);
+			} catch (Exception e) {
+				throw new CacheException(e);
+			} finally {
+				if(ois != null)
+					ois.close();
 			}
 		}
 		
