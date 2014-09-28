@@ -37,23 +37,22 @@ public class SerializationUtils {
 		if(ser == null || "".equals(ser.trim()))
 			g_ser = new JavaSerializer();
 		else{
-			switch(ser){
-			case "java":
-				g_ser = new JavaSerializer();
-				break;
-			case "fst":
-				g_ser = new FSTSerializer();
-				break;
-			case "kryo":
-				g_ser = new KryoSerializer();
-				break;
-			default:
-				try {
-					g_ser = (Serializer)Class.forName(ser).newInstance();
-				} catch (Exception e) {
-					throw new CacheException("Cannot initialize Serializer named [" + ser + ']', e);
-				}
-			}
+            if (ser.equals("java")) {
+                g_ser = new JavaSerializer();
+
+            } else if (ser.equals("fst")) {
+                g_ser = new FSTSerializer();
+
+            } else if (ser.equals("kryo")) {
+                g_ser = new KryoSerializer();
+
+            } else if (ser.equals("kryo_pool_ser")){
+                try {
+                    g_ser = (Serializer) Class.forName(ser).newInstance();
+                } catch (Exception e) {
+                    throw new CacheException("Cannot initialize Serializer named [" + ser + ']', e);
+                }
+            }
 		}
 		log.info("Using Serializer -> [" + g_ser.name() + ":" + g_ser.getClass().getName() + ']');
 	}

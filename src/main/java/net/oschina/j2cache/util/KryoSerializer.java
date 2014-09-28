@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+
 import net.sf.ehcache.CacheException;
 
 import com.esotericsoftware.kryo.Kryo;
@@ -20,8 +21,9 @@ import com.esotericsoftware.kryo.io.Output;
 public class KryoSerializer implements Serializer {
 
 	private final static Kryo kryo = new Kryo();
-	
-	@Override
+
+
+    @Override
 	public String name() {
 		return "kryo";
 	}
