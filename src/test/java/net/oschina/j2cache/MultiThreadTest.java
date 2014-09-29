@@ -3,6 +3,7 @@ package net.oschina.j2cache;
 import net.oschina.j2cache.util.SerializationUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -40,16 +41,13 @@ public class MultiThreadTest {
     public static void main(String[] args) {
 
         /**
-         * 使用kyro ，应该至少有一个默认的构造函数，否则无法反序列化。
+         * 使用kyro ，应该至少有一个默认的构造函数（如接口，抽象类），否则无法反序列化。
          *
          *  List<String> obj =Arrays.asList("OSChina.NET", "RunJS.cn", "Team@OSC", "Git@OSC", "Sonar@OSC", "PaaS@OSC");
-         *  obj  instance of interface   ,  所以是无法反序列化的  ，这点要注意 。
+         *  obj  instance of interface （List）  ,  所以是无法反序列化的  ，这点要注意 。
          */
-
-       final List<String> obj =Arrays.asList("OSChina.NET", "RunJS.cn", "Team@OSC", "Git@OSC", "Sonar@OSC", "PaaS@OSC");
-
         CacheManager.initCacheProvider(null);
-        //final List<String> obj = new ArrayList<String>();
+        final List<String> obj = new ArrayList<String>();
         obj.addAll(Arrays.asList("OSChina.NET", "RunJS.cn", "Team@OSC", "Git@OSC", "Sonar@OSC", "PaaS@OSC"));
         /**
          * 多线程测试
