@@ -7,9 +7,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-
-import net.sf.ehcache.CacheException;
-
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -52,8 +49,6 @@ public class KryoSerializer implements Serializer {
 			ByteArrayInputStream bais = new ByteArrayInputStream(bits);
 			ois = new Input(bais);
 			return kryo.readClassAndObject(ois);
-		} catch (Exception e) {
-			throw new CacheException(e);
 		} finally {
 			if(ois != null)
 				ois.close();
