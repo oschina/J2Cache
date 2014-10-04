@@ -6,19 +6,10 @@ package net.oschina.j2cache.util;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import net.sf.ehcache.CacheException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
-<<<<<<< HEAD
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-=======
-
->>>>>>> c49c6fcba5cb65984c6be67c1cabb70b4069d54b
 
 /**
  * 使用 Kryo 实现序列化

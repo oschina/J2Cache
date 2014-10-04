@@ -41,23 +41,13 @@ public class SerializationUtils {
         else {
             if (ser.equals("java")) {
                 g_ser = new JavaSerializer();
-
             } else if (ser.equals("fst")) {
                 g_ser = new FSTSerializer();
-
             } else if (ser.equals("kryo")) {
                 g_ser = new KryoSerializer();
-
-<<<<<<< HEAD
             } else if (ser.equals("kryo_pool_ser")){
             	g_ser = new KryoPoolSerializer();
-            }
-            else {
-=======
-            } else if (ser.equals("kryo_pool_ser")) {
-                g_ser = new KryoPoolSerializer();
             } else {
->>>>>>> c49c6fcba5cb65984c6be67c1cabb70b4069d54b
                 try {
                     g_ser = (Serializer) Class.forName(ser).newInstance();
                 } catch (Exception e) {
