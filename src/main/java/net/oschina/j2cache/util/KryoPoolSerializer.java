@@ -34,15 +34,13 @@ public class KryoPoolSerializer implements Serializer{
 
         /**
          * get o kryo object
-         *
-         * @return
+         * @return KryoHolder instance
          */
         KryoHolder get();
 
         /**
          * return object
-         *
-         * @param kryo
+         * @param kryo holder
          */
         void offer(KryoHolder kryo);
     }
@@ -64,15 +62,12 @@ public class KryoPoolSerializer implements Serializer{
          */
         private final Deque<KryoHolder> kryoHolderDeque=new ConcurrentLinkedDeque<KryoHolder>();
 
-        /**
-         *
-         */
         private KryoPoolImpl() {
 
         }
 
         /**
-         * @return
+         * @return KryoPool instance
          */
         public static KryoPool getInstance() {
             return Singleton.pool;
@@ -81,7 +76,7 @@ public class KryoPoolSerializer implements Serializer{
         /**
          * get o KryoHolder object
          *
-         * @return
+         * @return KryoHolder instance
          */
         @Override
         public KryoHolder get() {
@@ -91,8 +86,7 @@ public class KryoPoolSerializer implements Serializer{
 
         /**
          * create a new kryo object to application use
-         *
-         * @return
+         * @return KryoHolder instance
          */
         public KryoHolder creatInstnce() {
             Kryo kryo = new Kryo();
@@ -104,7 +98,7 @@ public class KryoPoolSerializer implements Serializer{
          * return object
          * Inserts the specified element at the tail of this queue.
          *
-         * @param kryoHolder
+         * @param kryoHolder ...
          */
         @Override
         public void offer(KryoHolder kryoHolder) {
@@ -124,6 +118,11 @@ public class KryoPoolSerializer implements Serializer{
         return "kryo_pool_ser";
     }
 
+    /**
+     * Serialize object
+     * @param obj what to serialize
+     * @return return serialize data
+     */
     @Override
     public byte[] serialize(Object obj) throws IOException {
         KryoHolder kryoHolder = null;
@@ -141,6 +140,11 @@ public class KryoPoolSerializer implements Serializer{
         }
     }
 
+    /**
+     * Deserialize data
+     * @param bytes what to deserialize
+     * @return object
+     */
     @Override
     public Object deserialize(byte[] bytes) throws IOException {
         KryoHolder kryoHolder = null;

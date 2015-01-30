@@ -34,7 +34,7 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 	
 	/**
 	 * 单例方法
-	 * @return
+	 * @return 返回 CacheChannel 单实例
 	 */
 	public final static CacheChannel getInstance(){
 		return instance;
@@ -42,8 +42,7 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 	
 	/**
 	 * 初始化缓存通道并连接
-	 * @param name
-	 * @throws CacheException
+	 * @param name: 缓存实例名称
 	 */
 	private CacheChannel(String name) throws CacheException {
 		this.name = name;
@@ -66,14 +65,11 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 		}
 	}
 
-    /**
+	/**
 	 * 获取缓存中的数据
-	 * @param <T>
-	 * @param level
-	 * @param resultClass
-	 * @param region
-	 * @param key
-	 * @return
+	 * @param region: Cache Region name
+	 * @param key: Cache key
+	 * @return cache object
 	 */
 	public CacheObject get(String region, Object key){
 		CacheObject obj = new CacheObject();
@@ -96,10 +92,9 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 	
 	/**
 	 * 写入缓存
-	 * @param level
-	 * @param region
-	 * @param key
-	 * @param value
+	 * @param region: Cache Region name
+	 * @param key: Cache key
+	 * @param value: Cache value
 	 */
 	public void set(String region, Object key, Object value){
 		if(region!=null && key != null){
@@ -123,8 +118,8 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 	
 	/**
 	 * 删除缓存
-	 * @param region
-	 * @param key
+	 * @param region:  Cache Region name
+	 * @param key: Cache key
 	 */
 	public void evict(String region, Object key) {
 		CacheManager.evict(LEVEL_1, region, key); //删除一级缓存
@@ -134,8 +129,8 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 
 	/**
 	 * 批量删除缓存
-	 * @param region
-	 * @param keys
+	 * @param region: Cache region name
+	 * @param keys: Cache key
 	 */
 	@SuppressWarnings({ "rawtypes" })
 	public void batchEvict(String region, List keys) {
@@ -146,12 +141,18 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 
 	/**
 	 * Clear the cache
+	 * @param region: Cache region name
 	 */
 	public void clear(String region) throws CacheException {
 		CacheManager.clear(LEVEL_1, region);
 		CacheManager.clear(LEVEL_2, region);
 	}
 	
+	/**
+	 * Get cache region keys
+	 * @param region: Cache region name
+	 * @return key list
+	 */
 	@SuppressWarnings("rawtypes")
 	public List keys(String region) throws CacheException {
 		return CacheManager.keys(LEVEL_1, region);
@@ -159,6 +160,8 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 	
 	/**
 	 * 为了保证每个节点缓存的一致，当某个缓存对象因为超时被清除时，应该通知群组其他成员
+	 * @param region: Cache region name
+	 * @param key: cache key
 	 */
 	@Override
 	@SuppressWarnings("rawtypes")
@@ -178,8 +181,8 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 	
 	/**
 	 * 发送清除缓存的广播命令
-	 * @param region
-	 * @param key
+	 * @param region: Cache region name
+	 * @param key: cache key
 	 */
 	private void _sendEvictCmd(String region, Object key) {
 		//发送广播
@@ -194,8 +197,8 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 
 	/**
 	 * 删除一级缓存的键对应内容
-	 * @param region
-	 * @param key
+	 * @param region: Cache region name
+	 * @param key: cache key
 	 */
 	@SuppressWarnings("rawtypes")
 	protected void onDeleteCacheKey(String region, Object key){
@@ -208,6 +211,7 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 
 	/**
 	 * 消息接收
+	 * @param msg 接收到的消息
 	 */
 	@Override
 	public void receive(Message msg) {
@@ -242,6 +246,7 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 	
 	/**
 	 * 组中成员变化时
+	 * @param view group view
 	 */
 	public void viewAccepted(View view) {
 		StringBuffer sb = new StringBuffer("Group Members Changed, LIST: ");

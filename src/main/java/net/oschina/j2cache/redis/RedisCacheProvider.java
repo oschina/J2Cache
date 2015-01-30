@@ -32,8 +32,8 @@ public class RedisCacheProvider implements CacheProvider {
 
 	/**
 	 * 释放资源
-	 * @param jedis
-	 * @param isBrokenResource
+	 * @param jedis  jedis instance
+	 * @param isBrokenResource resource is ok or not
 	 */
     public static void returnResource(BinaryJedis jedis,boolean isBrokenResource) {
     	if(null == jedis)

@@ -36,9 +36,9 @@ public class EhCache implements Cache, CacheEventListener {
 
 	/**
 	 * Creates a new Hibernate pluggable cache based on a cache name.
-	 * <p/>
 	 *
 	 * @param cache The underlying EhCache instance to use.
+	 * @param listener cache listener
 	 */
 	public EhCache(net.sf.ehcache.Cache cache, CacheExpiredListener listener) {
 		this.cache = cache;
@@ -56,7 +56,7 @@ public class EhCache implements Cache, CacheEventListener {
 	 *
 	 * @param key the key of the element to return.
 	 * @return The value placed into the cache with an earlier put, or null if not found or expired
-	 * @throws CacheException
+	 * @throws CacheException cache exception
 	 */
 	public Object get(Object key) throws CacheException {
 		try {
@@ -112,12 +112,11 @@ public class EhCache implements Cache, CacheEventListener {
 	}
 
 	/**
-	 * Removes the element which matches the key.
-	 * <p/>
+	 * Removes the element which matches the key
 	 * If no element matches, nothing is removed and no Exception is thrown.
 	 *
 	 * @param key the key of the element to remove
-	 * @throws CacheException
+	 * @throws CacheException cache exception
 	 */
 	@Override
 	public void evict(Object key) throws CacheException {
@@ -145,7 +144,7 @@ public class EhCache implements Cache, CacheEventListener {
 	 * Remove all elements in the cache, but leave the cache
 	 * in a useable state.
 	 *
-	 * @throws CacheException
+	 * @throws CacheException cache exception
 	 */
 	public void clear() throws CacheException {
 		try {
@@ -162,7 +161,7 @@ public class EhCache implements Cache, CacheEventListener {
 	/**
 	 * Remove the cache and make it unuseable.
 	 *
-	 * @throws CacheException
+	 * @throws CacheException  cache exception
 	 */
 	public void destroy() throws CacheException {
 		try {

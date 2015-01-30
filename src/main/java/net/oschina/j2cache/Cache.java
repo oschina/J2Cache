@@ -11,26 +11,23 @@ public interface Cache {
 
 	/**
 	 * Get an item from the cache, nontransactionally
-	 * @param key
-	 * @return the cached object or <tt>null</tt>
-	 * @throws CacheException
+	 * @param key cache key
+	 * @return the cached object or null
 	 */
 	public Object get(Object key) throws CacheException;
 	
 	/**
 	 * Add an item to the cache, nontransactionally, with
 	 * failfast semantics
-	 * @param key
-	 * @param value
-	 * @throws CacheException
+	 * @param key cache key
+	 * @param value cache value
 	 */
 	public void put(Object key, Object value) throws CacheException;
 	
 	/**
 	 * Add an item to the cache
-	 * @param key
-	 * @param value
-	 * @throws CacheException
+	 * @param key cache key
+	 * @param value cache value
 	 */
 	public void update(Object key, Object value) throws CacheException;
 
@@ -44,8 +41,7 @@ public interface Cache {
 	
 	/**
 	 * Batch remove cache objects
-	 * @param keys
-	 * @throws CacheException
+	 * @param keys the cache keys to be evicted
 	 */
 	@SuppressWarnings("rawtypes")
 	public void evict(List keys) throws CacheException;

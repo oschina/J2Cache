@@ -10,7 +10,7 @@ public interface CacheProvider {
 
 	/**
 	 * 缓存的标识名称
-	 * @return
+	 * @return return cache provider name
 	 */
 	public String name();
 	
@@ -20,7 +20,8 @@ public interface CacheProvider {
 	 * @param regionName the name of the cache region
 	 * @param autoCreate autoCreate settings
 	 * @param listener listener for expired elements
-	 * @throws CacheException
+	 * @return return cache instance
+	 * @throws CacheException cache exception
 	 */
 	public Cache buildCache(String regionName, boolean autoCreate, CacheExpiredListener listener) throws CacheException;
 
@@ -28,7 +29,7 @@ public interface CacheProvider {
 	 * Callback to perform any necessary initialization of the underlying cache implementation
 	 * during SessionFactory construction.
 	 *
-	 * @param properties current configuration settings.
+	 * @param props current configuration settings.
 	 */
 	public void start(Properties props) throws CacheException;
 

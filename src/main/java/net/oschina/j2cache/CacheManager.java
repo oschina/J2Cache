@@ -27,6 +27,10 @@ public class CacheManager {
 	
 	private static String serializer ;
 	
+	/**
+	 * Initialize Cache Provider
+	 * @param listener cache listener
+	 */
 	public static void initCacheProvider(CacheExpiredListener listener){
 
 		InputStream configStream = CacheManager.class.getClassLoader().getParent().getResourceAsStream(CONFIG_FILE);
@@ -93,10 +97,10 @@ public class CacheManager {
 
 	/**
 	 * 获取缓存中的数据
-	 * @param level
-	 * @param name
-	 * @param key
-	 * @return
+	 * @param level Cache Level: L1 and L2
+	 * @param name Cache region name
+	 * @param key Cache key
+	 * @return Cache object
 	 */
 	public final static Object get(int level, String name, Object key){
 		//System.out.println("GET1 => " + name+":"+key);
@@ -110,12 +114,11 @@ public class CacheManager {
 	
 	/**
 	 * 获取缓存中的数据
-	 * @param <T>
-	 * @param level
-	 * @param resultClass
-	 * @param name
-	 * @param key
-	 * @return
+	 * @param level Cache Level: L1 and L2
+	 * @param resultClass Cache object class
+	 * @param name Cache region name
+	 * @param key Cache key
+	 * @return Cache object
 	 */
 	@SuppressWarnings("unchecked")
 	public final static <T> T get(int level, Class<T> resultClass, String name, Object key){
@@ -130,10 +133,10 @@ public class CacheManager {
 	
 	/**
 	 * 写入缓存
-	 * @param level
-	 * @param name
-	 * @param key
-	 * @param value
+	 * @param level Cache Level: L1 and L2
+	 * @param name Cache region name
+	 * @param key Cache key
+	 * @param value Cache value
 	 */
 	public final static void set(int level, String name, Object key, Object value){
 		//System.out.println("SET => " + name+":"+key+"="+value);
@@ -146,9 +149,9 @@ public class CacheManager {
 	
 	/**
 	 * 清除缓存中的某个数据
-	 * @param level
-	 * @param name
-	 * @param key
+	 * @param level Cache Level: L1 and L2
+	 * @param name Cache region name
+	 * @param key Cache key
 	 */
 	public final static void evict(int level, String name, Object key){
 		//batchEvict(level, name, java.util.Arrays.asList(key));
@@ -161,9 +164,9 @@ public class CacheManager {
 	
 	/**
 	 * 批量删除缓存中的一些数据
-	 * @param level
-	 * @param name
-	 * @param keys
+	 * @param level Cache Level： L1 and L2
+	 * @param name Cache region name
+	 * @param keys Cache keys
 	 */
 	@SuppressWarnings("rawtypes")
 	public final static void batchEvict(int level, String name, List keys) {
@@ -176,6 +179,8 @@ public class CacheManager {
 
 	/**
 	 * Clear the cache
+	 * @param level Cache level
+	 * @param name cache region name
 	 */
 	public final static void clear(int level, String name) throws CacheException {
         Cache cache =_GetCache(level, name, false);
@@ -183,6 +188,12 @@ public class CacheManager {
         	cache.clear();
 	}
 	
+	/**
+	 * list cache keys
+	 * @param level Cache level
+	 * @param name cache region name
+	 * @return Key List
+	 */
 	@SuppressWarnings("rawtypes")
 	public final static List keys(int level, String name) throws CacheException {
         Cache cache =_GetCache(level, name, false);
