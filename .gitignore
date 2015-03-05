@@ -1,4 +1,6 @@
 bin
 .settings
+.project
+.classpath
 /target
 *.iml
