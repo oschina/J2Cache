@@ -86,7 +86,6 @@ public class J2HibernateCache implements Cache {
 
     @Override
     public long nextTimestamp() {
-        // the same as ehcache
         return Timestamper.next();
     }
 
