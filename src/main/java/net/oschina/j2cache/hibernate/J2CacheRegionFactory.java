@@ -3,19 +3,15 @@
  */
 package net.oschina.j2cache.hibernate;
 
-import java.util.Properties;
-
 import net.oschina.j2cache.CacheChannel;
-
-import org.hibernate.cache.CacheDataDescription;
+import net.oschina.j2cache.hibernate4.util.Timestamper;
 import org.hibernate.cache.CacheException;
-import org.hibernate.cache.CollectionRegion;
-import org.hibernate.cache.EntityRegion;
-import org.hibernate.cache.QueryResultsRegion;
 import org.hibernate.cache.RegionFactory;
-import org.hibernate.cache.Timestamper;
-import org.hibernate.cache.TimestampsRegion;
+import org.hibernate.cache.spi.*;
+import org.hibernate.cache.spi.access.AccessType;
 import org.hibernate.cfg.Settings;
+
+import java.util.Properties;
 
 /**
  * J2Cache Hibernate RegionFactory implementations.
@@ -35,7 +31,12 @@ public class J2CacheRegionFactory implements RegionFactory {
 		return new J2CacheRegion.Entity(regionName, channel);
 	}
 
-	@Override
+    @Override
+    public NaturalIdRegion buildNaturalIdRegion(String regionName, Properties properties, CacheDataDescription metadata) throws CacheException {
+        return null;
+    }
+
+    @Override
 	public QueryResultsRegion buildQueryResultsRegion(String regionName, Properties properties) throws CacheException {
 		return new J2CacheRegion.QueryResults(regionName, channel);
 	}
@@ -50,7 +51,12 @@ public class J2CacheRegionFactory implements RegionFactory {
 		return true;
 	}
 
-	@Override
+    @Override
+    public AccessType getDefaultAccessType() {
+        return null;
+    }
+
+    @Override
 	public long nextTimestamp() {
 		return Timestamper.next();
 	}

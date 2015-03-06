@@ -1,9 +1,10 @@
 /**
  * 
  */
-package net.oschina.j2cache.hibernate;
+package net.oschina.j2cache.hibernate4;
 
 import net.oschina.j2cache.CacheChannel;
+import net.oschina.j2cache.CacheObject;
 import net.oschina.j2cache.hibernate4.util.Timestamper;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.spi.*;
@@ -35,14 +36,9 @@ public class J2CacheRegion implements GeneralDataRegion {
 	public void destroy() throws CacheException {
 	}
 
-    @Override
-    public boolean contains(Object key) {
-        return false;
-    }
-
-    /* (non-Javadoc)
-     * @see org.hibernate.cache.Region#getElementCountInMemory()
-     */
+	/* (non-Javadoc)
+	 * @see org.hibernate.cache.Region#getElementCountInMemory()
+	 */
 	@Override
 	public long getElementCountInMemory() {
 		return -1;
@@ -120,8 +116,14 @@ public class J2CacheRegion implements GeneralDataRegion {
 
 	@Override
 	public Object get(Object key) throws CacheException {
-		return cache.get(this.regionName, key);
+        CacheObject object = cache.get(this.regionName, key);
+		return object.getValue();
 	}
+
+    @Override
+    public boolean contains(Object key) {
+        return false;
+    }
 
 	@Override
 	public void put(Object key, Object value) throws CacheException {
@@ -143,14 +145,23 @@ public class J2CacheRegion implements GeneralDataRegion {
 		public boolean isTransactionAware() {
 			return false;
 		}
-		
-	}
+
+        @Override
+        public boolean contains(Object key) {
+            return false;
+        }
+    }
 	
 	final static class QueryResults extends J2CacheRegion implements QueryResultsRegion {
 		public QueryResults(String name, CacheChannel cache) {
 			super(name, cache);
 		}
-	}
+
+        @Override
+        public boolean contains(Object key) {
+            return false;
+        }
+    }
 	
 	final static class Entity extends Transactional implements EntityRegion {
 
@@ -162,8 +173,12 @@ public class J2CacheRegion implements GeneralDataRegion {
 		public EntityRegionAccessStrategy buildAccessStrategy(AccessType accessType) throws CacheException {
 			return null;
 		}
-		
-	}
+
+        @Override
+        public boolean contains(Object key) {
+            return false;
+        }
+    }
 	
 	final static class Collection extends Transactional implements CollectionRegion {
 
@@ -176,15 +191,24 @@ public class J2CacheRegion implements GeneralDataRegion {
 		public CollectionRegionAccessStrategy buildAccessStrategy(AccessType accessType) throws CacheException {
 			return null;
 		}
-		
-	}
+
+        @Override
+        public boolean contains(Object key) {
+            return false;
+        }
+    }
 	
 	final static class Timestamps extends J2CacheRegion implements TimestampsRegion {
 
 		public Timestamps(String name, CacheChannel cache) {
 			super(name, cache);
 		}
-		
-	}
+
+        @Override
+        public boolean contains(Object key) {
+            return false;
+        }
+
+    }
 	
 }
