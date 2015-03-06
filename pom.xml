@@ -100,7 +100,7 @@
         <dependency>
             <groupId>com.cloudhopper.proxool</groupId>
             <artifactId>proxool</artifactId>
-            <version>0.9.2</version>
+            <version>0.9.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
