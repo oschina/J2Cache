@@ -17,7 +17,7 @@ import org.junit.Test;
  *
  */
 
-public class J2CacheRegionFactoryTester {
+public class J2CacheProviderTester {
     
     static SessionFactory sessionFactory;
     
