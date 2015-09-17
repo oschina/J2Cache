@@ -1,6 +1,8 @@
 package net.oschina.j2cache.hibernate4.bean;
 
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -9,6 +11,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "TEST_CACHE_ARTICLE")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Article implements Serializable {
 
     @Id

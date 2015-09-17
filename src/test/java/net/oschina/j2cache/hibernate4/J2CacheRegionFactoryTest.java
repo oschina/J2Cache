@@ -5,24 +5,30 @@ import net.oschina.j2cache.hibernate4.bean.Article;
 import net.oschina.j2cache.hibernate4.service.ArticleService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.cache.spi.CacheKey;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.type.StringType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.BeanUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 测试前置条件 有疑问连接QQ:253161354
  * 1.修改 jdbc.properties 并建立数据库
  * 2.修改 redis.properties 并启动服务
  * 3.hibernate自动生成测试表。所以不用建表
+ *
+ * 注：原来的方式不支持级联加载对象的缓存，只适用于 query
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:spring/applicationContext.xml"})
@@ -57,7 +63,6 @@ public class J2CacheRegionFactoryTest {
 
     @Test
     public void findUnique() {
-        CacheChannel cache = CacheChannel.getInstance();
 
         //查询单个对象
         Article article = this.articleService.findUnique(Restrictions.like("title", "测试缓存1", MatchMode.START));
@@ -67,11 +72,12 @@ public class J2CacheRegionFactoryTest {
         LOG.debug("第二次查询，从缓存中获取:" + article);
 
         //直接从缓存中读取数据
-        Article narticle = (Article)cache.get("net.oschina.j2cache.hibernate4.J2CacheQueryCache", "net.oschina.j2cache.hibernate4.bean.Article:"+article.getId()).getValue();
+
+        Map<String,Object> narticle = getCacheValue("net.oschina.j2cache.hibernate4.bean.Article",article.getId(),Article.class.getName());
         LOG.debug("直接从缓存中读取数据:" + narticle);
 
         //验证结果
-        assert article.toString().equals(narticle.toString());
+        assert article.getTitle().equals(narticle.get("title"));
 
         //修改数据后
         Article saveartice = new Article();
@@ -79,8 +85,9 @@ public class J2CacheRegionFactoryTest {
         saveartice.setTitle("测试缓存1");
         saveartice.setSummary("修改数据摘要");
         articleService.save(saveartice);
+
         //缓存数据会删除
-        narticle = (Article)cache.get("net.oschina.j2cache.hibernate4.J2CacheQueryCache", "net.oschina.j2cache.hibernate4.bean.Article:"+article.getId()).getValue();
+        narticle = getCacheValue("net.oschina.j2cache.hibernate4.bean.Article",article.getId(),Article.class.getName());
         LOG.debug("修改后直接从缓存中读取数据:" + narticle);
         //发现还是原来的值，因为hibernate的缓存是存在于三个位置的，第一个为查询sql及条件作为的key。第二个为缓存单个对象的过期时间。第三个才是缓存的对象
 
@@ -88,32 +95,21 @@ public class J2CacheRegionFactoryTest {
         article = this.articleService.findUnique(Restrictions.like("title", "测试缓存1", MatchMode.START));
         LOG.debug("再次查询,缓存查询结果:" + article);//会重新缓存结果
 
-        narticle = (Article)cache.get("net.oschina.j2cache.hibernate4.J2CacheQueryCache", "net.oschina.j2cache.hibernate4.bean.Article:"+article.getId()).getValue();
+        narticle = getCacheValue("net.oschina.j2cache.hibernate4.bean.Article",article.getId(),Article.class.getName());
         LOG.debug("再次直接从缓存中读取数据:" + narticle);
 
         //验证结果
-        assert article.toString().equals(narticle.toString());
+        assert article.getTitle().equals(narticle.get("title"));
     }
 
     @Test
     public void find(){
-        CacheChannel cache = CacheChannel.getInstance();
         //查询list
         List<Article> articleList = this.articleService.find();
         LOG.debug("第一次查询,缓存查询结果:" + articleList);
 
         articleList = this.articleService.find();
         LOG.debug("第二次查询，从缓存中获取:" + articleList);
-
-        //直接从缓存中读取数据,只是为了验证结果。
-        List<Article> noArticles = new ArrayList<Article>();
-        for(Article article : articleList){
-            noArticles.add((Article) cache.get("net.oschina.j2cache.hibernate4.J2CacheQueryCache", "net.oschina.j2cache.hibernate4.bean.Article:" + article.getId()).getValue());
-        }
-        LOG.debug("直接从缓存中读取数据:" + noArticles);
-
-        //验证结果
-        assert noArticles.toString().equals(articleList.toString());
 
         //修改数据后
         Article saveartice = new Article();
@@ -126,16 +122,6 @@ public class J2CacheRegionFactoryTest {
         articleList = this.articleService.find();
         LOG.debug("再次查询,缓存查询结果:" + articleList);//会重新缓存结果
 
-        //已经重新查询对象
-        assert !noArticles.toString().equals(articleList.toString());
-
-        noArticles.clear();
-        for(Article article : articleList){
-            noArticles.add((Article) cache.get("net.oschina.j2cache.hibernate4.J2CacheQueryCache", "net.oschina.j2cache.hibernate4.bean.Article:" + article.getId()).getValue());
-        }
-        LOG.debug("直接从缓存中读取数据:" + noArticles);
-        //验证结果
-        assert noArticles.toString().equals(articleList.toString());
 
         //测试新增数据
         Article newartice = new Article();
@@ -148,16 +134,21 @@ public class J2CacheRegionFactoryTest {
         LOG.debug("再次查询,缓存查询结果:" + articleList);//会重新缓存结果
         assert articleList.size() == 3;
 
-        //已经重新查询对象
-        assert !noArticles.toString().equals(articleList.toString());
+    }
 
-        noArticles.clear();
-        for(Article article : articleList){
-            noArticles.add((Article) cache.get("net.oschina.j2cache.hibernate4.J2CacheQueryCache", "net.oschina.j2cache.hibernate4.bean.Article:" + article.getId()).getValue());
+    private Map getCacheValue(String region,String key,String entityName) {
+        CacheKey cacheKey = new CacheKey(key, StringType.INSTANCE,entityName,null,null);
+        Object item = CacheChannel.getInstance().get(region, cacheKey).getValue();
+        if(item == null){
+            return null;
         }
-        LOG.debug("直接从缓存中读取数据:" + noArticles);
-        //验证结果
-        assert noArticles.toString().equals(articleList.toString());
-
+        try {
+            return (Map) BeanUtils.getPropertyDescriptor(item.getClass(),"value").getReadMethod().invoke(item);
+        } catch (IllegalAccessException e) {
+            LOG.error(e.getMessage(),e);
+        } catch (InvocationTargetException e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return null;
     }
 }

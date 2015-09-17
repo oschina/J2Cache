@@ -36,7 +36,7 @@ public class ArticleService {
     }
 
     public void delete(String id) {
-        getSession().delete(getSession().get(Article.class,id));
+        getSession().delete(getSession().get(Article.class, id));
     }
 
     public Article findUnique(Criterion... criterions) {
@@ -46,5 +46,9 @@ public class ArticleService {
         }
         criteria.setCacheable(true);
         return (Article)criteria.uniqueResult();
+    }
+
+    public Article get(String id) {
+        return (Article)getSession().get(Article.class,id);
     }
 }
