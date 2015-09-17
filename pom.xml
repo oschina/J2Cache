@@ -36,14 +36,12 @@
     </properties>
 
     <dependencies>
-        <!--
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>3.8.1</version>
+            <version>4.8</version>
             <scope>test</scope>
         </dependency>
-        -->
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
@@ -53,11 +51,6 @@
             <groupId>org.jgroups</groupId>
             <artifactId>jgroups</artifactId>
             <version>3.4.6.Final</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-jdk14</artifactId>
-            <version>1.6.6</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -89,6 +82,11 @@
     		<artifactId>kryo-shaded</artifactId>
     		<version>3.0.0</version>
 		</dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>3.3.2.GA</version>
+        </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
@@ -192,10 +190,8 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <!--
                             <source>5</source>
                             <target>5</target>
-                            -->
                             <encoding>UTF-8</encoding>
                             <outputDirectory>${project.build.directory}/classes</outputDirectory>
                             <resources>
