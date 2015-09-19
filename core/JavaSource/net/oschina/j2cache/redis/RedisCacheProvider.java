@@ -1,15 +1,14 @@
 package net.oschina.j2cache.redis;
 
-import java.util.Properties;
-
 import net.oschina.j2cache.Cache;
 import net.oschina.j2cache.CacheException;
 import net.oschina.j2cache.CacheExpiredListener;
 import net.oschina.j2cache.CacheProvider;
-import redis.clients.jedis.BinaryJedis;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+
+import java.util.Properties;
 
 /**
  * Redis 缓存实现
@@ -35,10 +34,10 @@ public class RedisCacheProvider implements CacheProvider {
 	 * @param jedis  jedis instance
 	 * @param isBrokenResource resource is ok or not
 	 */
-    public static void returnResource(BinaryJedis jedis,boolean isBrokenResource) {
+    public static void returnResource(Jedis jedis,boolean isBrokenResource) {
     	if(null == jedis)
     		return;
-        if(isBrokenResource){     
+        if(isBrokenResource){
         	pool.returnBrokenResource(jedis);
             jedis = null;
         }
@@ -59,18 +58,18 @@ public class RedisCacheProvider implements CacheProvider {
 	public void start(Properties props) throws CacheException {
 		JedisPoolConfig config = new JedisPoolConfig();
 		
-		host = getProperty(props, "host","127.0.0.1");
+		host = getProperty(props, "host", "127.0.0.1");
 		password = props.getProperty("password", null);
 		
 		port = getProperty(props, "port", 6379);
 		timeout = getProperty(props, "timeout", 2000);
 		database = getProperty(props, "database", 0);
-		
-		config.setWhenExhaustedAction((byte)getProperty(props, "whenExhaustedAction",1));
+
+		config.setBlockWhenExhausted(getProperty(props, "blockWhenExhausted", true));
 		config.setMaxIdle(getProperty(props, "maxIdle", 10));
 		config.setMinIdle(getProperty(props, "minIdle", 5));
-		config.setMaxActive(getProperty(props, "maxActive", 50));
-		config.setMaxWait(getProperty(props, "maxWait", 100));
+//		config.setMaxActive(getProperty(props, "maxActive", 50));
+		config.setMaxWaitMillis(getProperty(props, "maxWait", 100));
 		config.setTestWhileIdle(getProperty(props, "testWhileIdle", false));
 		config.setTestOnBorrow(getProperty(props, "testOnBorrow", true));
 		config.setTestOnReturn(getProperty(props, "testOnReturn", false));
@@ -78,8 +77,8 @@ public class RedisCacheProvider implements CacheProvider {
 		config.setMinEvictableIdleTimeMillis(getProperty(props, "minEvictableIdleTimeMillis", 1000));
 		config.setSoftMinEvictableIdleTimeMillis(getProperty(props, "softMinEvictableIdleTimeMillis", 10));
 		config.setTimeBetweenEvictionRunsMillis(getProperty(props, "timeBetweenEvictionRunsMillis", 10));
-		config.lifo = getProperty(props, "lifo", false);
-		
+		config.setLifo(getProperty(props, "lifo", false));
+
 		pool = new JedisPool(config, host, port, timeout, password, database);
 		
 	}

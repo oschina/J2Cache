@@ -1,18 +1,13 @@
 package net.oschina.j2cache;
 
+import net.oschina.j2cache.util.SerializationUtils;
+import org.jgroups.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
-
-import net.oschina.j2cache.util.SerializationUtils;
-
-import org.jgroups.Address;
-import org.jgroups.JChannel;
-import org.jgroups.Message;
-import org.jgroups.ReceiverAdapter;
-import org.jgroups.View;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 缓存多播通道
@@ -216,7 +211,7 @@ public class CacheChannel extends ReceiverAdapter implements CacheExpiredListene
 	@Override
 	public void receive(Message msg) {
 		//无效消息
-		byte[] buffers = msg.getRawBuffer();
+		byte[] buffers = msg.getBuffer();
 		if(buffers.length < 1){
 			log.warn("Message is empty.");
 			return;
