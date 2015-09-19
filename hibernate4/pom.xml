@@ -8,7 +8,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>j2cache-hibernate4</artifactId>
     <packaging>jar</packaging>
-    <version>${com.fantasy-version}</version>
+    <version>${j2cache-version}</version>
 
     <build>
         <sourceDirectory>JavaSource</sourceDirectory>
