@@ -14,14 +14,14 @@
     <target name="init">
         <mkdir dir="${build.classes.dir}"/>
         <copy includeemptydirs="false" todir="${build.classes.dir}">
-            <fileset dir="src/main/java" excludes="**/*.launch, **/*.java"/>
+            <fileset dir="core/JavaSource" excludes="**/*.launch, **/*.java"/>
         </copy>
     </target>
 	
     <target depends="init" name="build">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="${debug}" encoding="${encoding}" destdir="${build.classes.dir}" source="${source}" target="${target}">
-            <src path="src/main/java"/>
+            <src path="src/JavaSource"/>
             <classpath refid="J2Cache.classpath"/>
         </javac>
     </target>

@@ -6,40 +6,107 @@
         <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>fantasy-mall</artifactId>
+    <artifactId>j2cache-core</artifactId>
     <packaging>jar</packaging>
-    <version>${com.fantasy-version}</version>
+    <version>${j2cache-version}</version>
 
     <build>
         <sourceDirectory>JavaSource</sourceDirectory>
         <testSourceDirectory>test/src</testSourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.5</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <!--
+                            <source>5</source>
+                            <target>5</target>
+                            -->
+                            <encoding>UTF-8</encoding>
+                            <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/java/</directory>
+                                    <includes>
+                                        <include>*.xml</include>
+                                        <include>*.properties</include>
+                                        <include>*.conf</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <artifactSet>
+                                <excludes>
+                                    <!--过滤掉不用的jar-->
+                                    <exclude>com.esotericsoftware.kryo:kryo</exclude>
+                                </excludes>
+                            </artifactSet>
+                            <transformers>
+                                <!--<transformer-->
+                                <!--implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">-->
+                                <!--<mainClass>testJRedis.userBean</mainClass>-->
+                                <!--</transformer>-->
+                                <!--<transformer-->
+                                <!--implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">-->
+                                <!--<resource>META-INF/spring.tooling</resource>-->
+                                <!--</transformer>-->
+                                <!--<transformer-->
+                                <!--implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">-->
+                                <!--<resource>META-INF/spring.handlers</resource>-->
+                                <!--</transformer>-->
+                                <!--<transformer-->
+                                <!--implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">-->
+                                <!--<resource>META-INF/spring.schemas</resource>-->
+                                <!--</transformer>-->
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer">
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
     <dependencies>
-        <dependency>
-            <groupId>com.fantasy</groupId>
-            <artifactId>fantasy-core</artifactId>
-            <version>${com.fantasy-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-ehcache</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-        </dependency>
+
     </dependencies>
 
-    <description>开发框架 - 电子商务模块,包含订单、商品等功能</description>
+    <description> J2Cache - core </description>
 
 </project>

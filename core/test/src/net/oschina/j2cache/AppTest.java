@@ -1,11 +1,11 @@
 package net.oschina.j2cache;
 
+import net.oschina.j2cache.util.SerializationUtils;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import net.oschina.j2cache.util.SerializationUtils;
 
 /**
  * Unit test for simple App.

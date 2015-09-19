@@ -3,16 +3,15 @@
  */
 package net.oschina.j2cache.hibernate3;
 
-import java.util.Map;
-
 import net.oschina.j2cache.CacheChannel;
 import net.oschina.j2cache.CacheObject;
-
 import org.hibernate.cache.Cache;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.Timestamper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
  * @author liao

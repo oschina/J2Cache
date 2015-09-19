@@ -4,12 +4,10 @@
 package net.oschina.j2cache.hibernate3;
 
 import net.oschina.j2cache.CacheChannel;
-import net.oschina.j2cache.hibernate4.util.Timestamper;
-import org.hibernate.cache.CacheException;
-import org.hibernate.cache.spi.*;
-import org.hibernate.cache.spi.access.AccessType;
-import org.hibernate.cache.spi.access.CollectionRegionAccessStrategy;
-import org.hibernate.cache.spi.access.EntityRegionAccessStrategy;
+import org.hibernate.cache.*;
+import org.hibernate.cache.access.AccessType;
+import org.hibernate.cache.access.CollectionRegionAccessStrategy;
+import org.hibernate.cache.access.EntityRegionAccessStrategy;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,11 +32,6 @@ public class J2CacheRegion implements GeneralDataRegion {
 	@Override
 	public void destroy() throws CacheException {
 	}
-
-    @Override
-    public boolean contains(Object key) {
-        return false;
-    }
 
     /* (non-Javadoc)
      * @see org.hibernate.cache.Region#getElementCountInMemory()

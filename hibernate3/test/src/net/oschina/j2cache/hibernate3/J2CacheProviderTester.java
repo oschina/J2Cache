@@ -3,14 +3,14 @@
  */
 package net.oschina.j2cache.hibernate3;
 
-import static org.junit.Assert.assertTrue;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author liao

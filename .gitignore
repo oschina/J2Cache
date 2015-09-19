@@ -2,8 +2,7 @@ bin
 .settings
 .project
 .classpath
-/target
+dependency-reduced-pom.xml
+target
 *.iml
 .idea
-.classpath
-.project

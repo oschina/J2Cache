@@ -3,14 +3,13 @@
  */
 package net.oschina.j2cache.hibernate3;
 
-import java.util.Properties;
-
 import net.oschina.j2cache.CacheChannel;
-
 import org.hibernate.cache.Cache;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.CacheProvider;
 import org.hibernate.cache.Timestamper;
+
+import java.util.Properties;
 
 /**
  * @author liao
