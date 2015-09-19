@@ -1,0 +1,45 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <parent>
+        <groupId>net.oschina.j2cache</groupId>
+        <artifactId>j2cache</artifactId>
+        <version>1.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>fantasy-mall</artifactId>
+    <packaging>jar</packaging>
+    <version>${com.fantasy-version}</version>
+
+    <build>
+        <sourceDirectory>JavaSource</sourceDirectory>
+        <testSourceDirectory>test/src</testSourceDirectory>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.fantasy</groupId>
+            <artifactId>fantasy-core</artifactId>
+            <version>${com.fantasy-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-ehcache</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+        </dependency>
+    </dependencies>
+
+    <description>开发框架 - 电子商务模块,包含订单、商品等功能</description>
+
+</project>
