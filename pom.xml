@@ -4,7 +4,7 @@
 
     <groupId>net.oschina.j2cache</groupId>
     <artifactId>j2cache</artifactId>
-    <version>1.0.0</version>
+    <version>1.2.0</version>
     <packaging>pom</packaging>
 
     <name>j2cache</name>
@@ -88,7 +88,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <j2cache-version>1.0.0</j2cache-version>
+        <j2cache-version>1.2.0</j2cache-version>
     </properties>
 
     <build>
@@ -176,7 +176,7 @@
             <artifactId>aspectjweaver</artifactId>
             <version>1.8.2</version>
             <scope>test</scope>
-        </dependency>
+        </dependency>        
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
