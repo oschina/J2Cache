@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="core/JavaSource"/>
+	<classpathentry kind="src" path="hibernate4/JavaSource"/>
+	<classpathentry kind="src" path="core/resources"/>
+	<classpathentry kind="src" path="hibernate3/JavaSource"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-pool2-2.4.2.jar"/>
+	<classpathentry kind="lib" path="lib/ehcache-2.7.5.jar"/>
+	<classpathentry kind="lib" path="lib/fst-1.58.jar"/>
+	<classpathentry kind="lib" path="lib/jedis-2.7.2.jar"/>
+	<classpathentry kind="lib" path="lib/jgroups-3.6.6.Final.jar"/>
+	<classpathentry kind="lib" path="lib/kryo-2.24.0.jar"/>
+	<classpathentry kind="lib" path="lib/minlog-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/objenesis-2.1.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-jdk14-1.6.6.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
