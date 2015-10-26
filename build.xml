@@ -21,7 +21,7 @@
     <target depends="init" name="build">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="${debug}" encoding="${encoding}" destdir="${build.classes.dir}" source="${source}" target="${target}">
-            <src path="src/JavaSource"/>
+            <src path="core/JavaSource"/>
             <classpath refid="J2Cache.classpath"/>
         </javac>
     </target>
