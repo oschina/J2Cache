@@ -92,7 +92,7 @@
     </properties>
 
     <build>
-        <sourceDirectory>JavaSource</sourceDirectory>
+        <sourceDirectory>Java</sourceDirectory>
         <testSourceDirectory>test/src</testSourceDirectory>
         <resources>
             <resource>
