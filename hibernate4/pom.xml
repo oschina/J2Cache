@@ -11,7 +11,7 @@
     <version>${j2cache-version}</version>
 
     <build>
-        <sourceDirectory>Java</sourceDirectory>
+        <sourceDirectory>java</sourceDirectory>
         <testSourceDirectory>test/src</testSourceDirectory>
     </build>
 
