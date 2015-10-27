@@ -37,7 +37,6 @@ public class RedisCacheProvider implements CacheProvider {
     public static void returnResource(Jedis jedis,boolean isBrokenResource) {
     	if(null == jedis)
     		return;
-    	pool.returnResourceObject(jedis);
     	
         if(isBrokenResource){
         	jedis.close();
