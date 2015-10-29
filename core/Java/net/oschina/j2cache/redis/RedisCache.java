@@ -1,6 +1,5 @@
 package net.oschina.j2cache.redis;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +66,7 @@ public class RedisCache implements Cache {
 		} catch (Exception e) {
 			log.error("Error occured when get data from L2 cache", e);
 			broken = true;
-			if(e instanceof IOException || e instanceof NullPointerException || e instanceof EOFException)
+			if(e instanceof IOException || e instanceof NullPointerException)
 				evict(key);
 		} finally {
 			RedisCacheProvider.returnResource(cache, broken);
