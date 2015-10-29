@@ -161,7 +161,10 @@ public class RedisCache implements Cache {
 		Jedis cache = RedisCacheProvider.getResource();
 		boolean broken = false;
 		try {
-			cache.del(region + ":*");
+			//cache.del(region + ":*");
+			String[] keys = new String[]{};
+			keys = cache.keys(region + ":*").toArray(keys);
+			cache.del(keys);
 		} catch (Exception e) {
 			broken = true;
 			throw new CacheException(e);
