@@ -52,12 +52,13 @@ $ mvn install
 
 ## Maven 支持 
 
-`<dependency>  
+```
+<dependency>
   <groupId>net.oschina.j2cache</groupId>  
   <artifactId>j2cache-core</artifactId>  
   <version>1.2.0</version>  
 </dependency>
-`
+```
 ## 示例代码
 
 请看 core/Java/net/oschina/j2cache/CacheTester.java
