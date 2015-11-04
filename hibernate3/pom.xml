@@ -8,7 +8,6 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>j2cache-hibernate3</artifactId>
     <packaging>jar</packaging>
-    <version>${j2cache-version}</version>
 
     <build>
         <sourceDirectory>java</sourceDirectory>
