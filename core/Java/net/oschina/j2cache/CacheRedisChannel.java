@@ -246,8 +246,8 @@ public class CacheRedisChannel extends JedisPubSub implements CacheExpiredListen
 	/**
 	 * 消息接收
 	 * 
-	 * @param msg
-	 *            接收到的消息
+	 * @param channel
+	 * @param message 接收到的消息
 	 */
 	@Override
 	public void onMessage(String channel, String message) {

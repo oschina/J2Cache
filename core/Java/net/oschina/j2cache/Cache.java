@@ -35,6 +35,7 @@ public interface Cache {
 	public List keys() throws CacheException ;
 	
 	/**
+	 * @param key Cache key
 	 * Remove an item from the cache
 	 */
 	public void evict(Object key) throws CacheException;
