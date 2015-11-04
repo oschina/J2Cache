@@ -1,6 +1,5 @@
 package net.oschina.j2cache;
 
-import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
@@ -13,12 +12,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 缓存管理器
- * @author liudong
+ * @author Winter Lau
  */
 public class CacheManager {
 
 	private final static Logger log = LoggerFactory.getLogger(CacheManager.class);
-	private final static String CONFIG_FILE = "/j2cache.properties";
 
 	private static CacheProvider l1_provider;
 	private static CacheProvider l2_provider;
@@ -33,18 +31,11 @@ public class CacheManager {
 	 */
 	public static void initCacheProvider(CacheExpiredListener listener){
 
-		InputStream configStream = CacheManager.class.getClassLoader().getParent().getResourceAsStream(CONFIG_FILE);
-		if(configStream == null)
-			configStream = CacheManager.class.getResourceAsStream(CONFIG_FILE);
-		if(configStream == null)
-			throw new CacheException("Cannot find " + CONFIG_FILE + " !!!");
-		
-		Properties props = new Properties();
 		
 		CacheManager.listener = listener;
 		try{
-			props.load(configStream);
-			configStream.close();
+
+			Properties props = J2Cache.loadConfig();
 			
 			CacheManager.l1_provider = getProviderInstance(props.getProperty("cache.L1.provider_class"));
 			CacheManager.l1_provider.start(getProviderProperties(props, CacheManager.l1_provider));

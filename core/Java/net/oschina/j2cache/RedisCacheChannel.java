@@ -1,10 +1,8 @@
 package net.oschina.j2cache;
 
-import java.io.IOException;
 import java.util.List;
 
 import net.oschina.j2cache.redis.RedisCacheProvider;
-import net.oschina.j2cache.util.SerializationUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,30 +12,27 @@ import redis.clients.jedis.JedisPubSub;
 
 /**
  * 缓存Redis PUB/SUB监听通道
- * 
- * 2015年10月31日 下午5:27:07
- * flyfox 330627517@qq.com
+ * @author flyfox 330627517@qq.com
  */
-public class CacheRedisChannel extends JedisPubSub implements CacheExpiredListener {
+public class RedisCacheChannel extends JedisPubSub implements CacheExpiredListener, CacheChannel {
 
-	private final static Logger log = LoggerFactory.getLogger(CacheRedisChannel.class);
-
-	private final static byte OPT_DELETE_KEY = 0x01;
+	private final static Logger log = LoggerFactory.getLogger(RedisCacheChannel.class);
 
 	public final static byte LEVEL_1 = 1;
 	public final static byte LEVEL_2 = 2;
 
 	private String name;
-	private static String channel = "cahce_channel";
+	private static String channel = "j2cache_channel";
 	private static boolean flag = true;
-	private final static CacheRedisChannel instance = new CacheRedisChannel("default");
+	private final static RedisCacheChannel instance = new RedisCacheChannel("default");
+	private final Thread thread_subscribe;
 
 	/**
 	 * 单例方法
 	 * 
 	 * @return 返回 CacheChannel 单实例
 	 */
-	public final static CacheRedisChannel getInstance() {
+	public final static RedisCacheChannel getInstance() {
 		return instance;
 	}
 
@@ -47,7 +42,7 @@ public class CacheRedisChannel extends JedisPubSub implements CacheExpiredListen
 	 * @param name
 	 *            : 缓存实例名称
 	 */
-	private CacheRedisChannel(String name) throws CacheException {
+	private RedisCacheChannel(String name) throws CacheException {
 		this.name = name;
 		try {
 			long ct = System.currentTimeMillis();
@@ -56,14 +51,16 @@ public class CacheRedisChannel extends JedisPubSub implements CacheExpiredListen
 				flag = false;
 			}
 
-			new Thread(new Runnable() {
+			thread_subscribe = new Thread(new Runnable() {
 				@Override
 				public void run() {
 					Jedis jedis = RedisCacheProvider.getResource();
-					jedis.subscribe(CacheRedisChannel.getInstance(), CacheRedisChannel.channel);
+					jedis.subscribe(RedisCacheChannel.getInstance(), RedisCacheChannel.channel);
 					RedisCacheProvider.returnResource(jedis, false);
 				}
-			}).start();
+			});
+			
+			thread_subscribe.start();
 
 			log.info("Connected to channel:" + this.name + ", time " + (System.currentTimeMillis() - ct) + " ms.");
 
@@ -215,7 +212,7 @@ public class CacheRedisChannel extends JedisPubSub implements CacheExpiredListen
 	 */
 	private void _sendEvictCmd(String region, Object key) {
 		// 发送广播
-		Command cmd = new Command(OPT_DELETE_KEY, region, key);
+		Command cmd = new Command(Command.OPT_DELETE_KEY, region, key);
 		Jedis jedis = RedisCacheProvider.getResource();
 		try {
 			jedis.publish(channel, new String(cmd.toBuffers(), "UTF-8"));
@@ -251,7 +248,6 @@ public class CacheRedisChannel extends JedisPubSub implements CacheExpiredListen
 	 */
 	@Override
 	public void onMessage(String channel, String message) {
-		System.out.println(channel + ":" + message);
 		// 无效消息
 		if (message != null && message.length() <= 0) {
 			log.warn("Message is empty.");
@@ -264,12 +260,12 @@ public class CacheRedisChannel extends JedisPubSub implements CacheExpiredListen
 			if (cmd == null)
 				return;
 
-			switch (cmd.operator) {
-			case OPT_DELETE_KEY:
-				onDeleteCacheKey(cmd.region, cmd.key);
+			switch (cmd.getOperator()) {
+			case Command.OPT_DELETE_KEY:
+				onDeleteCacheKey(cmd.getRegion(), cmd.getKey());
 				break;
 			default:
-				log.warn("Unknown message type = " + cmd.operator);
+				log.warn("Unknown message type = " + cmd.getOperator());
 			}
 		} catch (Exception e) {
 			log.error("Unable to handle received msg", e);
@@ -282,85 +278,6 @@ public class CacheRedisChannel extends JedisPubSub implements CacheExpiredListen
 	public void close() {
 		CacheManager.shutdown(LEVEL_1);
 		CacheManager.shutdown(LEVEL_2);
-	}
-
-	/**
-	 * 命令消息封装 格式： 第1个字节为命令代码，长度1 [OPT] 第2、3个字节为region长度，长度2 [R_LEN] 第4、N 为
-	 * region 值，长度为 [R_LEN] 第N+1、N+2 为 key 长度，长度2 [K_LEN] 第N+3、M为 key值，长度为
-	 * [K_LEN]
-	 */
-	private static class Command {
-
-		private byte operator;
-		private String region;
-		private Object key;
-
-		public Command(byte o, String r, Object k) {
-			this.operator = o;
-			this.region = r;
-			this.key = k;
-		}
-
-		public byte[] toBuffers() {
-			byte[] keyBuffers = null;
-			try {
-				keyBuffers = SerializationUtils.serialize(key);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			int r_len = region.getBytes().length;
-			int k_len = keyBuffers.length;
-
-			byte[] buffers = new byte[5 + r_len + k_len];
-			int idx = 0;
-			buffers[idx] = operator;
-			buffers[++idx] = (byte) (r_len >> 8);
-			buffers[++idx] = (byte) (r_len & 0xFF);
-			System.arraycopy(region.getBytes(), 0, buffers, ++idx, r_len);
-			idx += r_len;
-			buffers[idx++] = (byte) (k_len >> 8);
-			buffers[idx++] = (byte) (k_len & 0xFF);
-			System.arraycopy(keyBuffers, 0, buffers, idx, k_len);
-			return buffers;
-		}
-
-		public static Command parse(byte[] buffers) {
-			Command cmd = null;
-			try {
-				int idx = 0;
-				byte opt = buffers[idx];
-				int r_len = buffers[++idx] << 8;
-				r_len += buffers[++idx];
-				if (r_len > 0) {
-					String region = new String(buffers, ++idx, r_len);
-					idx += r_len;
-					int k_len = buffers[idx++] << 8;
-					k_len += buffers[idx++];
-					if (k_len > 0) {
-						// String key = new String(buffers, idx, k_len);
-						byte[] keyBuffers = new byte[k_len];
-						System.arraycopy(buffers, idx, keyBuffers, 0, k_len);
-						Object key = SerializationUtils.deserialize(keyBuffers);
-						cmd = new Command(opt, region, key);
-					}
-				}
-			} catch (Exception e) {
-				log.error("Unabled to parse received command.", e);
-			}
-			return cmd;
-		}
-	}
-
-	public static void main(String[] args) {
-		Command cmd = new Command(OPT_DELETE_KEY, "users", "ld");
-		byte[] bufs = cmd.toBuffers();
-		for (byte b : bufs) {
-			System.out.printf("[%s]", Integer.toHexString(b));
-		}
-		System.out.println();
-		Command cmd2 = Command.parse(bufs);
-		System.out.printf("%d:%s:%s\n", cmd2.operator, cmd2.region, cmd2.key);
 	}
 
 }
