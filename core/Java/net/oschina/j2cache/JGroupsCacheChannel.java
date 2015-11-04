@@ -141,6 +141,7 @@ public class JGroupsCacheChannel extends ReceiverAdapter implements CacheExpired
 	public void clear(String region) throws CacheException {
 		CacheManager.clear(LEVEL_1, region);
 		CacheManager.clear(LEVEL_2, region);
+		_sendClearCmd(region);
 	}
 	
 	/**
@@ -175,7 +176,7 @@ public class JGroupsCacheChannel extends ReceiverAdapter implements CacheExpired
 	}
 	
 	/**
-	 * 发送清除缓存的广播命令
+	 * 发送删除缓存的广播命令
 	 * @param region: Cache region name
 	 * @param key: cache key
 	 */
@@ -191,6 +192,22 @@ public class JGroupsCacheChannel extends ReceiverAdapter implements CacheExpired
 	}
 
 	/**
+	 * 发送清除缓存的广播命令
+	 * @param region: Cache region name
+	 * @param key: cache key
+	 */
+	private void _sendClearCmd(String region) {
+		//发送广播
+		Command cmd = new Command(Command.OPT_CLEAR_KEY, region, "");
+		try {
+			Message msg = new Message(null, null, cmd.toBuffers());
+			channel.send(msg);
+		} catch (Exception e) {
+			log.error("Unable to clear cache,region="+region, e);
+		}
+	}
+
+	/**
 	 * 删除一级缓存的键对应内容
 	 * @param region: Cache region name
 	 * @param key: cache key
@@ -202,6 +219,16 @@ public class JGroupsCacheChannel extends ReceiverAdapter implements CacheExpired
 		else
 			CacheManager.evict(LEVEL_1, region, key);
 		log.debug("Received cache evict message, region="+region+",key="+key);
+	}
+
+	/**
+	 * 清除一级缓存的键对应内容
+	 * @param region: Cache region name
+	 * @param key: cache key
+	 */
+	protected void onClearCacheKey(String region){
+		CacheManager.clear(LEVEL_1, region);
+		log.debug("Received cache clear message, region="+region);
 	}
 
 	/**
@@ -230,6 +257,9 @@ public class JGroupsCacheChannel extends ReceiverAdapter implements CacheExpired
 			switch(cmd.getOperator()){
 			case Command.OPT_DELETE_KEY:
 				onDeleteCacheKey(cmd.getRegion(), cmd.getKey());
+				break;
+			case Command.OPT_CLEAR_KEY:
+				onClearCacheKey(cmd.getRegion());
 				break;
 			default:
 				log.warn("Unknown message type = " + cmd.getOperator());

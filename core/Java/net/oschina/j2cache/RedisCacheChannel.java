@@ -164,6 +164,7 @@ public class RedisCacheChannel extends JedisPubSub implements CacheExpiredListen
 	public void clear(String region) throws CacheException {
 		CacheManager.clear(LEVEL_1, region);
 		CacheManager.clear(LEVEL_2, region);
+		_sendClearCmd(region);
 	}
 
 	/**
@@ -224,12 +225,27 @@ public class RedisCacheChannel extends JedisPubSub implements CacheExpiredListen
 	}
 
 	/**
+	 * 发送清除缓存的广播命令
+	 * @param region: Cache region name
+	 * @param key: cache key
+	 */
+	private void _sendClearCmd(String region) {
+		// 发送广播
+		Command cmd = new Command(Command.OPT_CLEAR_KEY, region, "");
+		Jedis jedis = RedisCacheProvider.getResource();
+		try {
+			jedis.publish(channel, new String(cmd.toBuffers(), "UTF-8"));
+		} catch (Exception e) {
+			log.error("Unable to clear cache,region=" + region, e);
+		} finally {
+			RedisCacheProvider.returnResource(jedis, false);
+		}
+	}
+
+	/**
 	 * 删除一级缓存的键对应内容
-	 * 
-	 * @param region
-	 *            : Cache region name
-	 * @param key
-	 *            : cache key
+	 * @param region : Cache region name
+	 * @param key  : cache key
 	 */
 	@SuppressWarnings("rawtypes")
 	protected void onDeleteCacheKey(String region, Object key) {
@@ -240,6 +256,16 @@ public class RedisCacheChannel extends JedisPubSub implements CacheExpiredListen
 		log.debug("Received cache evict message, region=" + region + ",key=" + key);
 	}
 
+	/**
+	 * 清除一级缓存的键对应内容
+	 * @param region: Cache region name
+	 * @param key: cache key
+	 */
+	protected void onClearCacheKey(String region){
+		CacheManager.clear(LEVEL_1, region);
+		log.debug("Received cache clear message, region="+region);
+	}
+	
 	/**
 	 * 消息接收
 	 * 
@@ -263,6 +289,9 @@ public class RedisCacheChannel extends JedisPubSub implements CacheExpiredListen
 			switch (cmd.getOperator()) {
 			case Command.OPT_DELETE_KEY:
 				onDeleteCacheKey(cmd.getRegion(), cmd.getKey());
+				break;
+			case Command.OPT_CLEAR_KEY:
+				onClearCacheKey(cmd.getRegion());
 				break;
 			default:
 				log.warn("Unknown message type = " + cmd.getOperator());

@@ -25,7 +25,8 @@ public class Command {
 
 	private final static Logger log = LoggerFactory.getLogger(Command.class);
 
-	public final static byte OPT_DELETE_KEY = 0x01; //删除缓存
+	public final static byte OPT_DELETE_KEY = 0x01; 	//删除缓存
+	public final static byte OPT_CLEAR_KEY = 0x02; 		//清除缓存
 	
 	private byte operator;
 	private String region;
