@@ -1,6 +1,8 @@
 package net.oschina.j2cache.hibernate4;
 
 import net.oschina.j2cache.CacheChannel;
+import net.oschina.j2cache.J2Cache;
+
 import org.hibernate.cache.CacheException;
 import org.hibernate.cfg.Settings;
 
@@ -26,7 +28,7 @@ public class J2CacheRegionFactory extends AbstractJ2CacheRegionFactory {
     public void start(Settings settings, Properties properties) throws CacheException {
         this.settings = settings;
         if (this.channel == null) {
-            this.channel = CacheChannel.getInstance();
+            this.channel = J2Cache.getChannel();
         }
     }
 

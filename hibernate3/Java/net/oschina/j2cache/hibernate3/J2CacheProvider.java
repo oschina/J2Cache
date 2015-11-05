@@ -4,6 +4,8 @@
 package net.oschina.j2cache.hibernate3;
 
 import net.oschina.j2cache.CacheChannel;
+import net.oschina.j2cache.J2Cache;
+
 import org.hibernate.cache.Cache;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.CacheProvider;
@@ -41,7 +43,7 @@ public class J2CacheProvider implements CacheProvider {
 
     @Override
     public void stop() {
-        CacheChannel.getInstance().close();
+        J2Cache.getChannel().close();
     }
 
 }

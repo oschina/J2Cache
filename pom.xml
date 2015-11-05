@@ -4,7 +4,7 @@
 
     <groupId>net.oschina.j2cache</groupId>
     <artifactId>j2cache</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.0</version>
     <packaging>pom</packaging>
 
     <name>j2cache</name>
@@ -39,7 +39,7 @@
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <j2cache-version>1.2.0</j2cache-version>
+        <j2cache-version>1.3.0</j2cache-version>
     </properties>
 
     <build>
