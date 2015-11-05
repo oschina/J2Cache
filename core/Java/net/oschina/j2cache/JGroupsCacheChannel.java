@@ -223,8 +223,8 @@ public class JGroupsCacheChannel extends ReceiverAdapter implements CacheExpired
 
 	/**
 	 * 清除一级缓存的键对应内容
-	 * @param region: Cache region name
-	 * @param key: cache key
+	 * @param region
+	 * 		 Cache region name
 	 */
 	protected void onClearCacheKey(String region){
 		CacheManager.clear(LEVEL_1, region);

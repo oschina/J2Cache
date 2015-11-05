@@ -105,7 +105,7 @@ public class CacheManager {
 	
 	/**
 	 * 获取缓存中的数据
-	 * @param level Cache Level: L1 and L2
+	 * @param level Cache Level -&gt; L1 and L2
 	 * @param resultClass Cache object class
 	 * @param name Cache region name
 	 * @param key Cache key

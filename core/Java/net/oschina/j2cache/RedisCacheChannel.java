@@ -258,8 +258,7 @@ public class RedisCacheChannel extends JedisPubSub implements CacheExpiredListen
 
 	/**
 	 * 清除一级缓存的键对应内容
-	 * @param region: Cache region name
-	 * @param key: cache key
+	 * @param region Cache region name
 	 */
 	protected void onClearCacheKey(String region){
 		CacheManager.clear(LEVEL_1, region);
@@ -269,7 +268,7 @@ public class RedisCacheChannel extends JedisPubSub implements CacheExpiredListen
 	/**
 	 * 消息接收
 	 * 
-	 * @param channel
+	 * @param channel 缓存 Channel
 	 * @param message 接收到的消息
 	 */
 	@Override

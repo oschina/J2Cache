@@ -4,6 +4,8 @@
 package net.oschina.j2cache.hibernate3;
 
 import net.oschina.j2cache.CacheChannel;
+import net.oschina.j2cache.J2Cache;
+
 import org.hibernate.cache.*;
 import org.hibernate.cfg.Settings;
 
@@ -16,7 +18,7 @@ import java.util.Properties;
  */
 public class J2CacheRegionFactory implements RegionFactory {
 
-    private CacheChannel channel = CacheChannel.getInstance();
+    private CacheChannel channel = J2Cache.getChannel();
 
     @Override
     public CollectionRegion buildCollectionRegion(String regionName, Properties properties, CacheDataDescription metadata) throws CacheException {

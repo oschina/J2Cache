@@ -1,8 +1,10 @@
 package net.oschina.j2cache.hibernate4;
 
 import net.oschina.j2cache.CacheChannel;
+import net.oschina.j2cache.J2Cache;
 import net.oschina.j2cache.hibernate4.bean.Article;
 import net.oschina.j2cache.hibernate4.service.ArticleService;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.cache.spi.CacheKey;
@@ -18,6 +20,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
@@ -138,7 +141,7 @@ public class J2CacheRegionFactoryTest {
 
     private Map getCacheValue(String region,String key,String entityName) {
         CacheKey cacheKey = new CacheKey(key, StringType.INSTANCE,entityName,null,null);
-        Object item = CacheChannel.getInstance().get(region, cacheKey).getValue();
+        Object item = J2Cache.getChannel().get(region, cacheKey).getValue();
         if(item == null){
             return null;
         }

@@ -3,7 +3,6 @@
  */
 package net.oschina.j2cache.hibernate3;
 
-import net.oschina.j2cache.CacheChannel;
 import net.oschina.j2cache.J2Cache;
 
 import org.hibernate.cache.Cache;
@@ -23,7 +22,7 @@ public class J2CacheProvider implements CacheProvider {
     @Override
     public Cache buildCache(String regionName, Properties properties)
             throws CacheException {
-        return new J2HibernateCache(regionName, CacheChannel.getInstance());
+        return new J2HibernateCache(regionName, J2Cache.getChannel());
     }
 
     @Override
