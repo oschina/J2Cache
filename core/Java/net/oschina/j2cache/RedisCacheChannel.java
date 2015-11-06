@@ -1,5 +1,6 @@
 package net.oschina.j2cache;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import net.oschina.j2cache.redis.RedisCacheProvider;
@@ -7,14 +8,14 @@ import net.oschina.j2cache.redis.RedisCacheProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import redis.clients.jedis.BinaryJedisPubSub;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPubSub;
 
 /**
  * 缓存Redis PUB/SUB监听通道
  * @author flyfox 330627517@qq.com
  */
-public class RedisCacheChannel extends JedisPubSub implements CacheExpiredListener, CacheChannel {
+public class RedisCacheChannel extends BinaryJedisPubSub implements CacheExpiredListener, CacheChannel {
 
 	private final static Logger log = LoggerFactory.getLogger(RedisCacheChannel.class);
 
@@ -24,6 +25,7 @@ public class RedisCacheChannel extends JedisPubSub implements CacheExpiredListen
 	private String name;
 	private static String channel = "j2cache_channel";
 	private static boolean flag = true;
+	private final static String ENCODE = "UTF-8";
 	private final static RedisCacheChannel instance = new RedisCacheChannel("default");
 	private final Thread thread_subscribe;
 
@@ -55,11 +57,16 @@ public class RedisCacheChannel extends JedisPubSub implements CacheExpiredListen
 				@Override
 				public void run() {
 					Jedis jedis = RedisCacheProvider.getResource();
-					jedis.subscribe(RedisCacheChannel.getInstance(), RedisCacheChannel.channel);
-					RedisCacheProvider.returnResource(jedis, false);
+					try {
+						jedis.subscribe(RedisCacheChannel.getInstance(), RedisCacheChannel.channel.getBytes(ENCODE));
+					} catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+					} finally {
+						RedisCacheProvider.returnResource(jedis, false);
+					}
 				}
 			});
-			
+
 			thread_subscribe.start();
 
 			log.info("Connected to channel:" + this.name + ", time " + (System.currentTimeMillis() - ct) + " ms.");
@@ -216,7 +223,7 @@ public class RedisCacheChannel extends JedisPubSub implements CacheExpiredListen
 		Command cmd = new Command(Command.OPT_DELETE_KEY, region, key);
 		Jedis jedis = RedisCacheProvider.getResource();
 		try {
-			jedis.publish(channel, new String(cmd.toBuffers(), "UTF-8"));
+			jedis.publish(channel.getBytes(ENCODE), cmd.toBuffers());
 		} catch (Exception e) {
 			log.error("Unable to delete cache,region=" + region + ",key=" + key, e);
 		} finally {
@@ -234,7 +241,7 @@ public class RedisCacheChannel extends JedisPubSub implements CacheExpiredListen
 		Command cmd = new Command(Command.OPT_CLEAR_KEY, region, "");
 		Jedis jedis = RedisCacheProvider.getResource();
 		try {
-			jedis.publish(channel, new String(cmd.toBuffers(), "UTF-8"));
+			jedis.publish(channel.getBytes(ENCODE), cmd.toBuffers());
 		} catch (Exception e) {
 			log.error("Unable to clear cache,region=" + region, e);
 		} finally {
@@ -272,15 +279,15 @@ public class RedisCacheChannel extends JedisPubSub implements CacheExpiredListen
 	 * @param message 接收到的消息
 	 */
 	@Override
-	public void onMessage(String channel, String message) {
+	public void onMessage(byte[] channel, byte[] message) {
 		// 无效消息
-		if (message != null && message.length() <= 0) {
+		if (message != null && message.length <= 0) {
 			log.warn("Message is empty.");
 			return;
 		}
 
 		try {
-			Command cmd = Command.parse(message.getBytes("UTF-8"));
+			Command cmd = Command.parse(message);
 
 			if (cmd == null)
 				return;
