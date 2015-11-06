@@ -1,6 +1,5 @@
 package net.oschina.j2cache;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import net.oschina.j2cache.redis.RedisCacheProvider;
@@ -10,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.BinaryJedisPubSub;
 import redis.clients.jedis.Jedis;
+import redis.clients.util.SafeEncoder;
 
 /**
  * 缓存Redis PUB/SUB监听通道
@@ -24,8 +24,6 @@ public class RedisCacheChannel extends BinaryJedisPubSub implements CacheExpired
 
 	private String name;
 	private static String channel = "j2cache_channel";
-	private static boolean flag = true;
-	private final static String ENCODE = "UTF-8";
 	private final static RedisCacheChannel instance = new RedisCacheChannel("default");
 	private final Thread thread_subscribe;
 
@@ -48,22 +46,14 @@ public class RedisCacheChannel extends BinaryJedisPubSub implements CacheExpired
 		this.name = name;
 		try {
 			long ct = System.currentTimeMillis();
-			if (flag) {
-				CacheManager.initCacheProvider(this);
-				flag = false;
-			}
+			CacheManager.initCacheProvider(this);
 
 			thread_subscribe = new Thread(new Runnable() {
 				@Override
 				public void run() {
 					Jedis jedis = RedisCacheProvider.getResource();
-					try {
-						jedis.subscribe(RedisCacheChannel.getInstance(), RedisCacheChannel.channel.getBytes(ENCODE));
-					} catch (UnsupportedEncodingException e) {
-						e.printStackTrace();
-					} finally {
-						RedisCacheProvider.returnResource(jedis, false);
-					}
+					jedis.subscribe(RedisCacheChannel.getInstance(), SafeEncoder.encode(channel));
+					RedisCacheProvider.returnResource(jedis, false);
 				}
 			});
 
@@ -223,7 +213,7 @@ public class RedisCacheChannel extends BinaryJedisPubSub implements CacheExpired
 		Command cmd = new Command(Command.OPT_DELETE_KEY, region, key);
 		Jedis jedis = RedisCacheProvider.getResource();
 		try {
-			jedis.publish(channel.getBytes(ENCODE), cmd.toBuffers());
+			jedis.publish(SafeEncoder.encode(channel), cmd.toBuffers());
 		} catch (Exception e) {
 			log.error("Unable to delete cache,region=" + region + ",key=" + key, e);
 		} finally {
@@ -241,7 +231,7 @@ public class RedisCacheChannel extends BinaryJedisPubSub implements CacheExpired
 		Command cmd = new Command(Command.OPT_CLEAR_KEY, region, "");
 		Jedis jedis = RedisCacheProvider.getResource();
 		try {
-			jedis.publish(channel.getBytes(ENCODE), cmd.toBuffers());
+			jedis.publish(SafeEncoder.encode(channel), cmd.toBuffers());
 		} catch (Exception e) {
 			log.error("Unable to clear cache,region=" + region, e);
 		} finally {
