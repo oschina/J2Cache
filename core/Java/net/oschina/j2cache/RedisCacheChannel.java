@@ -279,7 +279,7 @@ public class RedisCacheChannel extends BinaryJedisPubSub implements CacheExpired
 		try {
 			Command cmd = Command.parse(message);
 
-			if (cmd == null)
+			if (cmd == null || cmd.isLocalCommand())
 				return;
 
 			switch (cmd.getOperator()) {

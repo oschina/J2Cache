@@ -4,6 +4,7 @@
 package net.oschina.j2cache;
 
 import java.io.IOException;
+import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,29 +25,42 @@ import net.oschina.j2cache.util.SerializationUtils;
 public class Command {		
 
 	private final static Logger log = LoggerFactory.getLogger(Command.class);
+	
+	private final static int SRC_ID = genRandomSrc(); //命令源标识，随机生成
 
 	public final static byte OPT_DELETE_KEY = 0x01; 	//删除缓存
 	public final static byte OPT_CLEAR_KEY = 0x02; 		//清除缓存
 	
+	private int src;
 	private byte operator;
 	private String region;
 	private Object key;
+	
+	private static int genRandomSrc() {
+		long ct = System.currentTimeMillis();
+		Random rnd_seed = new Random(ct);
+		return (int)(rnd_seed.nextInt(10000) * 1000 + ct % 1000);
+	}
 
 	public static void main(String[] args) {
-		Command cmd = new Command(OPT_DELETE_KEY, "users", "ld");
-		byte[] bufs = cmd.toBuffers();
-		for(byte b : bufs){
-			System.out.printf("[%s]",Integer.toHexString(b));			
+		for(int i=0;i<5;i++){
+			Command cmd = new Command(OPT_DELETE_KEY, "users", "ld"+i);
+			byte[] bufs = cmd.toBuffers();
+			System.out.print(cmd.getSrc() + ":");
+			for(byte b : bufs){
+				System.out.printf("[%s]",Integer.toHexString(b));			
+			}
+			System.out.println();
+			Command cmd2 = Command.parse(bufs);
+			System.out.printf("%d -> %d:%s:%s(%s)\n", cmd2.getSrc(), cmd2.getOperator(), cmd2.getRegion(), cmd2.getKey(), cmd2.isLocalCommand());
 		}
-		System.out.println();
-		Command cmd2 = Command.parse(bufs);
-		System.out.printf("%d:%s:%s\n", cmd2.getOperator(), cmd2.getRegion(), cmd2.getKey());
 	}
 
 	public Command(byte o, String r, Object k){
 		this.operator = o;
 		this.region = r;
 		this.key = k;
+		this.src = SRC_ID;
 	}
 	
 	public byte[] toBuffers(){
@@ -54,14 +68,15 @@ public class Command {
 		try {
 			keyBuffers = SerializationUtils.serialize(key);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return null;
 		}
 		int r_len = region.getBytes().length;
 		int k_len = keyBuffers.length;
 
-		byte[] buffers = new byte[5 + r_len + k_len];
-		int idx = 0;
+		byte[] buffers = new byte[9 + r_len + k_len];
+		System.arraycopy(int2bytes(this.src), 0, buffers, 0, 4);
+		int idx = 4;
 		buffers[idx] = operator;
 		buffers[++idx] = (byte)(r_len >> 8);
 		buffers[++idx] = (byte)(r_len & 0xFF);
@@ -76,7 +91,7 @@ public class Command {
 	public static Command parse(byte[] buffers) {
 		Command cmd = null;
 		try{
-			int idx = 0;
+			int idx = 4;
 			byte opt = buffers[idx];
 			int r_len = buffers[++idx] << 8;
 			r_len += buffers[++idx];
@@ -91,6 +106,7 @@ public class Command {
 					System.arraycopy(buffers, idx, keyBuffers, 0, k_len);
 					Object key = SerializationUtils.deserialize(keyBuffers);
 					cmd = new Command(opt, region, key);
+					cmd.src = bytes2int(buffers);
 				}
 			}
 		}catch(Exception e){
@@ -98,7 +114,30 @@ public class Command {
 		}
 		return cmd;
 	}
+	
+	private static byte[] int2bytes(int i) {
+        byte[] b = new byte[4];
 
+        b[0] = (byte) (0xff&i);
+        b[1] = (byte) ((0xff00&i) >> 8);
+        b[2] = (byte) ((0xff0000&i) >> 16);
+        b[3] = (byte) ((0xff000000&i) >> 24);
+        
+        return b;
+	}
+	
+	private static int bytes2int(byte[] bytes) {
+		int num = bytes[0] & 0xFF;
+		num |= ((bytes[1] << 8) & 0xFF00);
+		num |= ((bytes[2] << 16) & 0xFF0000);
+		num |= ((bytes[3] << 24) & 0xFF000000);
+		return num;
+	}
+	
+	public boolean isLocalCommand() {
+		return this.src == SRC_ID;
+	}
+	
 	public byte getOperator() {
 		return operator;
 	}
@@ -121,5 +160,9 @@ public class Command {
 
 	public void setKey(Object key) {
 		this.key = key;
+	}
+
+	public int getSrc() {
+		return src;
 	}
 }
