@@ -71,6 +71,7 @@ public class RedisCacheProvider implements CacheProvider {
 		config.setMaxIdle(getProperty(props, "maxIdle", 10));
 		config.setMinIdle(getProperty(props, "minIdle", 5));
 //		config.setMaxActive(getProperty(props, "maxActive", 50));
+		config.setMaxTotal(getProperty(props, "maxTotal", 10000));
 		config.setMaxWaitMillis(getProperty(props, "maxWait", 100));
 		config.setTestWhileIdle(getProperty(props, "testWhileIdle", false));
 		config.setTestOnBorrow(getProperty(props, "testOnBorrow", true));
