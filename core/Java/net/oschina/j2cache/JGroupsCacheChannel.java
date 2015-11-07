@@ -20,9 +20,6 @@ public class JGroupsCacheChannel extends ReceiverAdapter implements CacheExpired
 	private final static Logger log = LoggerFactory.getLogger(JGroupsCacheChannel.class);
 	private final static String CONFIG_XML = "/network.xml";
 	
-	public final static byte LEVEL_1 = 1;
-	public final static byte LEVEL_2 = 2;
-	
 	private String name;
 	private JChannel channel;
 	private final static JGroupsCacheChannel instance = new JGroupsCacheChannel("default");

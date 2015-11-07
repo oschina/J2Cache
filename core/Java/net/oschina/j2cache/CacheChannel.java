@@ -8,6 +8,9 @@ import java.util.List;
  */
 public interface CacheChannel {
 
+	public final static byte LEVEL_1 = 1;
+	public final static byte LEVEL_2 = 2;
+	
 	/**
 	 * 获取缓存中的数据
 	 * @param region: Cache Region name
