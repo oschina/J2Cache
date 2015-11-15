@@ -1,6 +1,5 @@
-//$Id: EhCacheProvider.java 9964 2006-05-30 15:40:54Z epbernard $
 /**
- *  Copyright 2003-2006 Greg Luck, Jboss Inc
+ *  Copyright 2014-2015 Oschina
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,7 +15,6 @@
  */
 package net.oschina.j2cache.ehcache;
 
-import java.net.URL;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,15 +27,17 @@ import net.oschina.j2cache.CacheProvider;
 import net.sf.ehcache.CacheManager;
 
 /**
- * Cache Provider plugin
+ * EhCache Provider plugin
  * 
  * Taken from EhCache 1.3 distribution
  * @author liudong
+ * @author wendal<wendal1985@gmail.com>
  */
 public class EhCacheProvider implements CacheProvider {
 
 	private final static Logger log = LoggerFactory.getLogger(EhCacheProvider.class);
-	private final static String CONFIG_XML = "/ehcache.xml";
+	public static String KEY_EHCACHE_NAME = "ehcache.name";
+	public static String KEY_EHCACHE_CONFIG_XML = "ehcache.configXml";
 
 	private CacheManager manager;
 	private ConcurrentHashMap<String, EhCache> _CacheManager ;
@@ -94,28 +94,33 @@ public class EhCacheProvider implements CacheProvider {
 	 */
 	public void start(Properties props) throws CacheException {
 		if (manager != null) {
-            log.warn("Attempt to restart an already started EhCacheProvider. Use sessionFactory.close() " +
-                    " between repeated calls to buildSessionFactory. Using previously created EhCacheProvider." +
-                    " If this behaviour is required, consider using net.sf.ehcache.hibernate.SingletonEhCacheProvider.");
+            log.warn("Attempt to restart an already started EhCacheProvider.");
             return;
         }
-		URL xml = getClass().getClassLoader().getParent().getResource(CONFIG_XML);
-		if(xml == null)
-			xml = getClass().getResource(CONFIG_XML);
-		if(xml == null)
-			throw new CacheException("cannot find ehcache.xml !!!");
 		
-        manager = new CacheManager();
+		// 如果指定了名称,那么尝试获取已有实例
+		String ehcacheName = (String)props.get(KEY_EHCACHE_NAME);
+		if (ehcacheName != null && ehcacheName.trim().length() > 0)
+			manager = CacheManager.getCacheManager(ehcacheName);
+		if (manager == null) {
+			// 指定了配置文件路径? 加载之
+			if (props.containsKey(KEY_EHCACHE_CONFIG_XML)) {
+				manager = new CacheManager(props.getProperty(KEY_EHCACHE_CONFIG_XML));
+			} else {
+				// 加载默认实例
+				manager = CacheManager.getInstance();
+			}
+		}
         _CacheManager = new ConcurrentHashMap<String, EhCache>();
 	}
 
 	/**
-	 * Callback to perform any necessary cleanup of the underlying cache implementation
-	 * during SessionFactory.close().
+	 * Callback to perform any necessary cleanup of the underlying cache implementation.
 	 */
 	public void stop() {
 		if (manager != null) {
             manager.shutdown();
+            _CacheManager.clear();
             manager = null;
         }
 	}
