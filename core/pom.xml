@@ -10,7 +10,7 @@
     <packaging>jar</packaging>
 
     <build>
-        <sourceDirectory>java</sourceDirectory>
+        <sourceDirectory>Java</sourceDirectory>
         <testSourceDirectory>test/src</testSourceDirectory>
         <plugins>
             <plugin>
