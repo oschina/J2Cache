@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package net.oschina.j2cache.util;
 
@@ -8,8 +8,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import net.sf.ehcache.CacheException;
-import de.ruedigermoeller.serialization.FSTObjectInput;
-import de.ruedigermoeller.serialization.FSTObjectOutput;
+import org.nustaq.serialization.FSTObjectInput;
+import org.nustaq.serialization.FSTObjectOutput;
 
 /**
  * 使用 FST 实现序列化
@@ -21,7 +21,7 @@ public class FSTSerializer implements Serializer {
 	public String name() {
 		return "fst";
 	}
-	
+
 	@Override
 	public byte[] serialize(Object obj) throws IOException {
 		ByteArrayOutputStream out = null;
@@ -30,6 +30,7 @@ public class FSTSerializer implements Serializer {
 			out = new ByteArrayOutputStream();
 			fout = new FSTObjectOutput(out);
 			fout.writeObject(obj);
+			fout.flush();
 			return out.toByteArray();
 		} finally {
 			if(fout != null)
