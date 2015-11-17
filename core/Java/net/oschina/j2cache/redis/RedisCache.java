@@ -16,6 +16,7 @@ import net.oschina.j2cache.util.SerializationUtils;
  * Redis 缓存实现
  * 
  * @author winterlau
+ * @author wendal<wendal1985@gmail.com>
  */
 public class RedisCache implements Cache {
 
@@ -43,33 +44,19 @@ public class RedisCache implements Cache {
 		}
 		return region + ":O:" + key;
 	}
-	
-	public static void main(String[] args) {
-		RedisCache cache = new RedisCache("User");
-		System.out.println(cache.getKeyName("Hello"));
-		System.out.println(cache.getKeyName(2));
-		System.out.println(cache.getKeyName((byte)2));
-		System.out.println(cache.getKeyName(2L));
-	}
 
-	@Override
 	public Object get(Object key) throws CacheException {
+		if (null == key)
+			return null;
 		Object obj = null;
-		boolean broken = false;
-		Jedis cache = RedisCacheProvider.getResource();
-		try {
-			if (null == key)
-				return null;
+		try (Jedis cache = RedisCacheProvider.getResource()) {
 			byte[] b = cache.get(getKeyName(key).getBytes());
 			if(b != null)
 				obj = SerializationUtils.deserialize(b);
 		} catch (Exception e) {
 			log.error("Error occured when get data from L2 cache", e);
-			broken = true;
 			if(e instanceof IOException || e instanceof NullPointerException)
 				evict(key);
-		} finally {
-			RedisCacheProvider.returnResource(cache, broken);
 		}
 		return obj;
 	}
@@ -79,15 +66,10 @@ public class RedisCache implements Cache {
 		if (value == null)
 			evict(key);
 		else {
-			boolean broken = false;
-			Jedis cache = RedisCacheProvider.getResource();
-			try {
+			try (Jedis cache = RedisCacheProvider.getResource()) {
 				cache.set(getKeyName(key).getBytes(), SerializationUtils.serialize(value));
 			} catch (Exception e) {
-				broken = true;
 				throw new CacheException(e);
-			} finally {
-				RedisCacheProvider.returnResource(cache, broken);
 			}
 		}
 	}
@@ -99,15 +81,10 @@ public class RedisCache implements Cache {
 
 	@Override
 	public void evict(Object key) throws CacheException {
-		boolean broken = false;
-		Jedis cache = RedisCacheProvider.getResource();
-		try {
+		try (Jedis cache = RedisCacheProvider.getResource()) {
 			cache.del(getKeyName(key));
 		} catch (Exception e) {
-			broken = true;
 			throw new CacheException(e);
-		} finally {
-			RedisCacheProvider.returnResource(cache, broken);
 		}
 	}
 
@@ -119,28 +96,21 @@ public class RedisCache implements Cache {
 	public void evict(List keys) throws CacheException {
 		if(keys == null || keys.size() == 0)
 			return ;
-		boolean broken = false;
-		Jedis cache = RedisCacheProvider.getResource();
-		try {
+		try (Jedis cache = RedisCacheProvider.getResource()) {
 			String[] okeys = new String[keys.size()];
 			for(int i=0;i<okeys.length;i++){
 				okeys[i] = getKeyName(keys.get(i));
 			}
 			cache.del(okeys);
 		} catch (Exception e) {
-			broken = true;
 			throw new CacheException(e);
-		} finally {
-			RedisCacheProvider.returnResource(cache, broken);
 		}
 	}
 
 	@Override
 	@SuppressWarnings("rawtypes")
 	public List keys() throws CacheException {
-		Jedis cache = RedisCacheProvider.getResource();
-		boolean broken = false;
-		try {
+		try (Jedis cache = RedisCacheProvider.getResource()) {
 			List<String> keys = new ArrayList<String>();
 			keys.addAll(cache.keys(region + ":*"));
 			for(int i=0;i<keys.size();i++){
@@ -148,27 +118,19 @@ public class RedisCache implements Cache {
 			}
 			return keys;
 		} catch (Exception e) {
-			broken = true;
 			throw new CacheException(e);
-		} finally {
-			RedisCacheProvider.returnResource(cache, broken);
 		}
 	}
 
 	@Override
 	public void clear() throws CacheException {
-		Jedis cache = RedisCacheProvider.getResource();
-		boolean broken = false;
-		try {
+		try (Jedis cache = RedisCacheProvider.getResource()) {
 			//cache.del(region + ":*");
 			String[] keys = new String[]{};
 			keys = cache.keys(region + ":*").toArray(keys);
 			cache.del(keys);
 		} catch (Exception e) {
-			broken = true;
 			throw new CacheException(e);
-		} finally {
-			RedisCacheProvider.returnResource(cache, broken);
 		}
 	}
 

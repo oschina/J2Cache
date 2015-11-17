@@ -15,12 +15,6 @@ import java.util.Properties;
  * @author Winter Lau
  */
 public class RedisCacheProvider implements CacheProvider {
-
-	private static String host;
-	private static int port;
-	private static int timeout;
-	private static String password;
-	private static int database;
 	
 	private static JedisPool pool;
 	
@@ -28,24 +22,6 @@ public class RedisCacheProvider implements CacheProvider {
 	public String name() {
 		return "redis";
 	}
-
-	/**
-	 * 释放资源
-	 * @param jedis  jedis instance
-	 * @param isBrokenResource resource is ok or not
-	 */
-    public static void returnResource(Jedis jedis,boolean isBrokenResource) {
-    	if(null == jedis)
-    		return;
-    	
-        if(isBrokenResource){
-        	jedis.close();
-            jedis = null;
-        }
-        else
-        	pool.returnResourceObject(jedis);
-        
-    }
     
     public static Jedis getResource() {
     	return pool.getResource();
@@ -60,12 +36,12 @@ public class RedisCacheProvider implements CacheProvider {
 	public void start(Properties props) throws CacheException {
 		JedisPoolConfig config = new JedisPoolConfig();
 		
-		host = getProperty(props, "host", "127.0.0.1");
-		password = props.getProperty("password", null);
+		String host = getProperty(props, "host", "127.0.0.1");
+		String password = props.getProperty("password", null);
 		
-		port = getProperty(props, "port", 6379);
-		timeout = getProperty(props, "timeout", 2000);
-		database = getProperty(props, "database", 0);
+		int port = getProperty(props, "port", 6379);
+		int timeout = getProperty(props, "timeout", 2000);
+		int database = getProperty(props, "database", 0);
 
 		config.setBlockWhenExhausted(getProperty(props, "blockWhenExhausted", true));
 		config.setMaxIdle(getProperty(props, "maxIdle", 10));
