@@ -48,9 +48,9 @@ public class RedisCacheChannel extends BinaryJedisPubSub implements CacheExpired
 			thread_subscribe = new Thread(new Runnable() {
 				@Override
 				public void run() {
-					Jedis jedis = RedisCacheProvider.getResource();
-					jedis.subscribe(RedisCacheChannel.getInstance(), SafeEncoder.encode(channel));
-					RedisCacheProvider.returnResource(jedis, false);
+					try (Jedis jedis = RedisCacheProvider.getResource()) {
+						jedis.subscribe(RedisCacheChannel.this, SafeEncoder.encode(channel));
+					}
 				}
 			});
 
@@ -208,13 +208,10 @@ public class RedisCacheChannel extends BinaryJedisPubSub implements CacheExpired
 	private void _sendEvictCmd(String region, Object key) {
 		// 发送广播
 		Command cmd = new Command(Command.OPT_DELETE_KEY, region, key);
-		Jedis jedis = RedisCacheProvider.getResource();
-		try {
+		try (Jedis jedis = RedisCacheProvider.getResource()) {
 			jedis.publish(SafeEncoder.encode(channel), cmd.toBuffers());
 		} catch (Exception e) {
 			log.error("Unable to delete cache,region=" + region + ",key=" + key, e);
-		} finally {
-			RedisCacheProvider.returnResource(jedis, false);
 		}
 	}
 
@@ -226,13 +223,10 @@ public class RedisCacheChannel extends BinaryJedisPubSub implements CacheExpired
 	private void _sendClearCmd(String region) {
 		// 发送广播
 		Command cmd = new Command(Command.OPT_CLEAR_KEY, region, "");
-		Jedis jedis = RedisCacheProvider.getResource();
-		try {
+		try (Jedis jedis = RedisCacheProvider.getResource()) {
 			jedis.publish(SafeEncoder.encode(channel), cmd.toBuffers());
 		} catch (Exception e) {
 			log.error("Unable to clear cache,region=" + region, e);
-		} finally {
-			RedisCacheProvider.returnResource(jedis, false);
 		}
 	}
 
