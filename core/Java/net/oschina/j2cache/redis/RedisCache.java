@@ -128,7 +128,9 @@ public class RedisCache implements Cache {
 			//cache.del(region + ":*");
 			String[] keys = new String[]{};
 			keys = cache.keys(region + ":*").toArray(keys);
-			cache.del(keys);
+            if(keys.length > 0) {
+                cache.del(keys);
+            }
 		} catch (Exception e) {
 			throw new CacheException(e);
 		}
