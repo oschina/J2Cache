@@ -11,6 +11,6 @@ public class Redis2CacheProvider extends RedisCacheProvider {
 	}
 
 	public Cache buildCache(String regionName, boolean autoCreate, CacheExpiredListener listener) throws CacheException {
-		return new RedisCache2(regionName);
+		return new Redis2Cache(regionName);
 	}
 }

@@ -16,15 +16,15 @@ import redis.clients.jedis.Jedis;
  * Redis 缓存基于Hashs实现
  * @author wendal<wendal1985@gmail.com>
  */
-public class RedisCache2 implements Cache {
+public class Redis2Cache implements Cache {
 
-	private final static Logger log = LoggerFactory.getLogger(RedisCache2.class);
+	private final static Logger log = LoggerFactory.getLogger(Redis2Cache.class);
 	
 	// 记录region
 	protected byte[] region2;
 	protected String region;
 
-	public RedisCache2(String region) {
+	public Redis2Cache(String region) {
 		if (region == null || region.isEmpty())
 			region = "_"; // 缺省region
 		this.region = region;
