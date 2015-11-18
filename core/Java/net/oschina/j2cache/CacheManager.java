@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Properties;
 
 import net.oschina.j2cache.ehcache.EhCacheProvider;
+import net.oschina.j2cache.redis.Redis2CacheProvider;
 import net.oschina.j2cache.redis.RedisCacheProvider;
 
 import org.slf4j.Logger;
@@ -61,6 +62,8 @@ public class CacheManager {
 			return new EhCacheProvider();
 		if("redis".equalsIgnoreCase(value))
 			return new RedisCacheProvider();
+		if("redis2".equalsIgnoreCase(value))
+			return new Redis2CacheProvider();
 		if("none".equalsIgnoreCase(value))
 			return new NullCacheProvider();
 		return (CacheProvider)Class.forName(value).newInstance();
