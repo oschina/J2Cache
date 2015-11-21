@@ -35,9 +35,12 @@ public class RedisCacheProvider implements CacheProvider {
 	public Cache buildCache(String regionName, boolean autoCreate, CacheExpiredListener listener) throws CacheException {
 		// 虽然这个实现在并发时有概率出现同一各regionName返回不同的实例
 		// 但返回的实例一次性使用,所以加锁了并没有增加收益
-		if (!caches.containsKey(regionName))
-			caches.put(regionName, new RedisCache(regionName, pool));
-		return caches.get(regionName);
+		RedisCache cache = caches.get(regionName);
+		if (cache == null) {
+			cache = new RedisCache(regionName, pool);
+			cache.put(regionName, cache);
+		}
+		return cache;
     }
 
 	@Override
