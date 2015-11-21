@@ -31,7 +31,7 @@ import net.sf.ehcache.CacheManager;
  * 
  * Taken from EhCache 1.3 distribution
  * @author liudong
- * @author wendal<wendal1985@gmail.com>
+ * @author wendal
  */
 public class EhCacheProvider implements CacheProvider {
 
