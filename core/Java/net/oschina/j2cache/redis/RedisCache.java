@@ -34,9 +34,11 @@ public class RedisCache implements Cache {
 	}
 	
 	protected byte[] getKeyName(Object key) {
-		if (key == null)
-			return "".getBytes();
-		return String.valueOf(key).getBytes();
+		if(key instanceof Number)
+			return ("I:" + key).getBytes();
+		else if(key instanceof String || key instanceof StringBuilder || key instanceof StringBuffer)
+			return ("S:" + key).getBytes();
+		return ("O:" + key).getBytes();
 	}
 
 	public Object get(Object key) throws CacheException {
