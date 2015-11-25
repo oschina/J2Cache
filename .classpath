@@ -8,7 +8,7 @@
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-pool2-2.4.2.jar"/>
 	<classpathentry kind="lib" path="lib/fst-2.42.jar"/>
-	<classpathentry kind="lib" path="lib/jedis-2.7.2.jar"/>
+	<classpathentry kind="lib" path="lib/jedis-2.8.0.jar"/>
 	<classpathentry kind="lib" path="lib/jgroups-3.6.6.Final.jar"/>
 	<classpathentry kind="lib" path="lib/kryo-2.24.0.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.6.6.jar"/>
