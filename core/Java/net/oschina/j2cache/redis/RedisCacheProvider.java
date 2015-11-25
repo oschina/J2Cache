@@ -9,27 +9,38 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Redis 缓存实现
  * @author Winter Lau
+ * @author wendal
  */
 public class RedisCacheProvider implements CacheProvider {
 	
 	private static JedisPool pool;
 	
-	@Override
+	protected ConcurrentHashMap<String, RedisCache> caches = new ConcurrentHashMap<>();
+	
 	public String name() {
 		return "redis";
 	}
     
+	// 这个实现有个问题,如果不使用RedisCacheProvider,但又使用RedisCacheChannel,这就NPE了
     public static Jedis getResource() {
     	return pool.getResource();
     }
 
 	@Override
 	public Cache buildCache(String regionName, boolean autoCreate, CacheExpiredListener listener) throws CacheException {
-		return new RedisCache(regionName);
+		// 虽然这个实现在并发时有概率出现同一各regionName返回不同的实例
+		// 但返回的实例一次性使用,所以加锁了并没有增加收益
+		RedisCache cache = caches.get(regionName);
+		if (cache == null) {
+			cache = new RedisCache(regionName, pool);
+			cache.put(regionName, cache);
+		}
+		return cache;
     }
 
 	@Override
@@ -65,6 +76,7 @@ public class RedisCacheProvider implements CacheProvider {
 	@Override
 	public void stop() {
 		pool.destroy();
+		caches.clear();
 	}
 
 	private static String getProperty(Properties props, String key, String defaultValue) {
