@@ -38,7 +38,7 @@ public class RedisCacheProvider implements CacheProvider {
 		RedisCache cache = caches.get(regionName);
 		if (cache == null) {
 			cache = new RedisCache(regionName, pool);
-			cache.put(regionName, cache);
+			caches.put(regionName, cache);
 		}
 		return cache;
     }
