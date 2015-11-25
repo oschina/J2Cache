@@ -29,6 +29,7 @@ public class RedisCache implements Cache {
 	public RedisCache(String region, JedisPool pool) {
 		if (region == null || region.isEmpty())
 			region = "_"; // 缺省region
+		this.pool = pool;
 		this.region = region;
 		this.region2 = region.getBytes();
 	}
