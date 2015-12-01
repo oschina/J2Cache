@@ -35,7 +35,7 @@ public class CacheManager {
 		CacheManager.listener = listener;
 		try{
 
-			Properties props = J2Cache.loadConfig();
+			Properties props = J2Cache.getConfig();
 			
 			CacheManager.l1_provider = getProviderInstance(props.getProperty("cache.L1.provider_class"));
 			CacheManager.l1_provider.start(getProviderProperties(props, CacheManager.l1_provider));

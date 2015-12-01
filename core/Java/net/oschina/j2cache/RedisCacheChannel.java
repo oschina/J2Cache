@@ -218,7 +218,6 @@ public class RedisCacheChannel extends BinaryJedisPubSub implements CacheExpired
 	/**
 	 * 发送清除缓存的广播命令
 	 * @param region: Cache region name
-	 * @param key: cache key
 	 */
 	private void _sendClearCmd(String region) {
 		// 发送广播
