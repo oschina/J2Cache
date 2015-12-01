@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.oschina.j2cache.J2Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,9 +30,25 @@ public class RedisCache implements Cache {
 	public RedisCache(String region, JedisPool pool) {
 		if (region == null || region.isEmpty())
 			region = "_"; // 缺省region
+
+		region = getRegionName(region);
 		this.pool = pool;
 		this.region = region;
 		this.region2 = region.getBytes();
+	}
+
+	/**
+	 * 在region里增加一个可选的层级,作为命名空间,使结构更加清晰
+	 * 同时满足小型应用,多个J2Cache共享一个redis database的场景
+	 * @param region
+	 * @return
+     */
+	private String getRegionName(String region) {
+		String nameSpace = J2Cache.getConfig().getProperty("redis.namespace", "");
+		if(nameSpace != null && !nameSpace.isEmpty()) {
+			region = nameSpace + ":" + region;
+		}
+		return region;
 	}
 	
 	protected byte[] getKeyName(Object key) {
