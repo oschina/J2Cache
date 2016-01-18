@@ -20,7 +20,7 @@ public class RedisCacheChannel extends BinaryJedisPubSub implements CacheExpired
 	private final static Logger log = LoggerFactory.getLogger(RedisCacheChannel.class);
 
 	private String name;
-	private static String channel = "j2cache_channel";
+	private static String channel = J2Cache.getConfig().getProperty("redis.channel_name");
 	private final static RedisCacheChannel instance = new RedisCacheChannel("default");
 	private final Thread thread_subscribe;
 
