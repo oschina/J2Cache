@@ -292,7 +292,11 @@ public class RedisCacheChannel extends BinaryJedisPubSub implements CacheExpired
 	 */
 	public void close() {
 		CacheManager.shutdown(LEVEL_1);
+		if(isSubscribed()){
+			this.unsubscribe();
+		}
 		CacheManager.shutdown(LEVEL_2);
+		//thread_subscribe.stop();
 	}
 
 }
