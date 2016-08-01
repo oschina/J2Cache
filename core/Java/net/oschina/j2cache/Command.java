@@ -4,6 +4,7 @@
 package net.oschina.j2cache;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
 
 import org.slf4j.Logger;
@@ -74,16 +75,18 @@ public class Command {
 		int r_len = region.getBytes().length;
 		int k_len = keyBuffers.length;
 
-		byte[] buffers = new byte[9 + r_len + k_len];
-		System.arraycopy(int2bytes(this.src), 0, buffers, 0, 4);
-		int idx = 4;
+		byte[] buffers = new byte[11 + r_len + k_len];
+		int idx = 0;
+		System.arraycopy(int2bytes(this.src), 0, buffers, idx, 4);
+		idx += 4;
 		buffers[idx] = operator;
-		buffers[++idx] = (byte)(r_len >> 8);
-		buffers[++idx] = (byte)(r_len & 0xFF);
-		System.arraycopy(region.getBytes(), 0, buffers, ++idx, r_len);
+		idx += 1;
+		System.arraycopy(int2bytes(r_len), 0, buffers, idx, 2);
+		idx += 2;
+		System.arraycopy(region.getBytes(), 0, buffers, idx, r_len);
 		idx += r_len;
-		buffers[idx++] = (byte)(k_len >> 8);
-		buffers[idx++] = (byte)(k_len & 0xFF);
+		System.arraycopy(int2bytes(k_len), 0, buffers, idx, 4);
+		idx += 4;
 		System.arraycopy(keyBuffers, 0, buffers, idx, k_len);
 		return buffers;
 	}
@@ -92,14 +95,13 @@ public class Command {
 		Command cmd = null;
 		try{
 			int idx = 4;
-			byte opt = buffers[idx];
-			int r_len = buffers[++idx] << 8;
-			r_len += buffers[++idx];
+			byte opt = buffers[idx++];
+			int r_len = bytes2int(new byte[]{buffers[idx++], buffers[idx++], 0, 0});
 			if(r_len > 0){
-				String region = new String(buffers, ++idx, r_len);
+				String region = new String(buffers, idx, r_len);
 				idx += r_len;
-				int k_len = buffers[idx++] << 8;
-				k_len += buffers[idx++];
+				int k_len = bytes2int(Arrays.copyOfRange(buffers, idx, idx + 4));
+				idx += 4;
 				if(k_len > 0){
 					//String key = new String(buffers, idx, k_len);
 					byte[] keyBuffers = new byte[k_len];
