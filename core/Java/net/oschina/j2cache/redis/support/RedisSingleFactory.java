@@ -1,6 +1,6 @@
-package net.oschina.j2cache.redis;
+package net.oschina.j2cache.redis.support;
 
-import redis.clients.jedis.Jedis;
+import net.oschina.j2cache.redis.client.SingleRedisClient;
 import redis.clients.jedis.JedisPool;
 
 import java.io.IOException;
@@ -9,25 +9,24 @@ import java.io.IOException;
  * @author vill on 16/1/11 09:30.
  * @desc redis 数据连接池工厂
  */
-public class JedisSinglePoolFactory implements PoolFactory<Jedis> {
+public class RedisSingleFactory implements RedisClientFactory<SingleRedisClient> {
 
     private static JedisPool jedisPool;
     private RedisPoolConfig poolConfig;
-
-    private int cacheDefaultExpire = 1000;
 
     public synchronized JedisPool getJedisPool() {
         return jedisPool;
     }
 
     @Override
-    public Jedis getResource() {
-        return getJedisPool().getResource();
+    public SingleRedisClient getResource() {
+        return new SingleRedisClient(getJedisPool().getResource());
     }
 
     @Override
-    public void returnResource(Jedis client) {
-        client.close();
+    public void returnResource(SingleRedisClient client) {
+        if (client != null)
+            client.close();
     }
 
     public void build() {
@@ -46,14 +45,6 @@ public class JedisSinglePoolFactory implements PoolFactory<Jedis> {
 
     public void setPoolConfig(RedisPoolConfig poolConfig) {
         this.poolConfig = poolConfig;
-    }
-
-    public int getCacheDefaultExpire() {
-        return cacheDefaultExpire;
-    }
-
-    public void setCacheDefaultExpire(int cacheDefaultExpire) {
-        this.cacheDefaultExpire = cacheDefaultExpire;
     }
 
     /**

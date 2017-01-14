@@ -1,4 +1,4 @@
-package net.oschina.j2cache.redis;
+package net.oschina.j2cache.redis.support;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import redis.clients.jedis.Protocol;

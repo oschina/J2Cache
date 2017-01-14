@@ -1,8 +1,9 @@
 package net.oschina.j2cache.redis;
 
 import net.oschina.j2cache.*;
+import net.oschina.j2cache.redis.support.RedisClientFactoryAdapter;
+import net.oschina.j2cache.redis.support.RedisPoolConfig;
 
-import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -48,6 +49,7 @@ public class RedisCacheProvider implements CacheProvider {
         RedisPoolConfig config = new RedisPoolConfig();
 
         config.setHost(getProperty(props, "host", "127.0.0.1"));
+        config.setPort(getProperty(props, "port", 6379));
         config.setPassword(props.getProperty("password", null));
         config.setTimeout(getProperty(props, "timeout", 2000));
         config.setBlockWhenExhausted(getProperty(props, "blockWhenExhausted", true));
@@ -65,17 +67,13 @@ public class RedisCacheProvider implements CacheProvider {
         config.setLifo(getProperty(props, "lifo", false));
 
         String redisPolicy = getProperty(props, "policy", "single");
-        redisCacheProxy = new RedisCacheProxy(new JedisHandlerAdapter(config, JedisHandlerAdapter.RedisPolicy.valueOf(redisPolicy)));
+        redisCacheProxy = new RedisCacheProxy(new RedisClientFactoryAdapter(config, RedisClientFactoryAdapter.RedisPolicy.valueOf(redisPolicy)));
 
     }
 
     @Override
     public void stop() {
-        try {
-            redisCacheProxy.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        redisCacheProxy.close();
         caches.clear();
     }
 

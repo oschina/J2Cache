@@ -1,4 +1,6 @@
-package net.oschina.j2cache.redis;
+package net.oschina.j2cache.redis.support;
+
+import java.io.IOException;
 
 /**
  * jedis 适配器，自动适应平台的redis部署模式
@@ -6,59 +8,54 @@ package net.oschina.j2cache.redis;
  * @author zhangyw
  * @date 16/11/25 12:11
  */
-public class JedisHandlerAdapter {
+public class RedisClientFactoryAdapter {
+
+    private RedisClientFactory redisClientFactory;
 
     private RedisPoolConfig poolConfig;
-    private AbstractJedisTemplate jedisTemplate;
-
     private RedisPolicy policy = RedisPolicy.single; // 缓存策略，single:单机,sharded:分片,cluster:集群
 
-    private int cacheDefaultExpire = 1000;
-
-    public JedisHandlerAdapter(RedisPoolConfig poolConfig, RedisPolicy policy) {
+    public RedisClientFactoryAdapter(RedisPoolConfig poolConfig, RedisPolicy policy) {
         this.policy = policy;
         this.poolConfig = poolConfig;
-        initJedis();
+        initRedisFactory();
     }
 
-    private void initJedis() {
+    private void initRedisFactory() {
         switch (getPolicy()) {
             case single:
-                initSingleJedisPool();
+                initSingleRedis();
                 break;
             case sharded:
-                initShardedJedisPool();
+                initShardedRedis();
                 break;
             case cluster:
-                initClusterJedisPool();
+                initClusterRedis();
                 break;
             default:
-                initSingleJedisPool();
+                initSingleRedis();
         }
     }
 
-    private void initSingleJedisPool() {
-        JedisSinglePoolFactory jedisSinglePoolFactory = new JedisSinglePoolFactory();
-        jedisSinglePoolFactory.setPoolConfig(this.poolConfig);
-        jedisSinglePoolFactory.setCacheDefaultExpire(cacheDefaultExpire);
-        jedisSinglePoolFactory.build();
-        this.setJedisPoolFactory(jedisSinglePoolFactory);
+    private void initSingleRedis() {
+        RedisSingleFactory redisSingleFactory = new RedisSingleFactory();
+        redisSingleFactory.setPoolConfig(this.poolConfig);
+        redisSingleFactory.build();
+        this.setRedisClientFactory(redisSingleFactory);
     }
 
-    private void initShardedJedisPool() {
-        ShardedJedisPoolFactory shardedJedisPoolFactory = new ShardedJedisPoolFactory();
-        shardedJedisPoolFactory.setPoolConfig(this.poolConfig);
-        shardedJedisPoolFactory.setCacheDefaultExpire(cacheDefaultExpire);
-        shardedJedisPoolFactory.build();
-        this.setJedisPoolFactory(shardedJedisPoolFactory);
+    private void initShardedRedis() {
+        RedisShardedFactory redisShardedFactory = new RedisShardedFactory();
+        redisShardedFactory.setPoolConfig(this.poolConfig);
+        redisShardedFactory.build();
+        this.setRedisClientFactory(redisShardedFactory);
     }
 
-    private void initClusterJedisPool() {
-        JedisClusterPoolFactory jedisClusterPoolFactory = new JedisClusterPoolFactory();
-        jedisClusterPoolFactory.setPoolConfig(this.poolConfig);
-        jedisClusterPoolFactory.setCacheDefaultExpire(cacheDefaultExpire);
-        jedisClusterPoolFactory.build();
-        this.setJedisPoolFactory(jedisClusterPoolFactory);
+    private void initClusterRedis() {
+        RedisClusterFactory redisClusterFactory = new RedisClusterFactory();
+        redisClusterFactory.setPoolConfig(this.poolConfig);
+        redisClusterFactory.build();
+        this.setRedisClientFactory(redisClusterFactory);
     }
 
     public void setHost(String host) {
@@ -229,10 +226,6 @@ public class JedisHandlerAdapter {
         poolConfig.setJmxNamePrefix(jmxNamePrefix);
     }
 
-    public void setCacheDefaultExpire(int cacheDefaultExpire) {
-        this.cacheDefaultExpire = cacheDefaultExpire;
-    }
-
     public RedisPolicy getPolicy() {
         return policy;
     }
@@ -241,28 +234,20 @@ public class JedisHandlerAdapter {
         this.policy = RedisPolicy.format(policy);
     }
 
-    public void setJedisPoolFactory(PoolFactory poolFactory) {
-        this.setJedisTemplate(poolFactory);
+    public void setRedisClientFactory(RedisClientFactory redisClientFactory) {
+        this.redisClientFactory = redisClientFactory;
     }
 
-    public void setJedisTemplate(PoolFactory poolFactory) {
-        if (poolFactory instanceof ShardedJedisPoolFactory) {
-            this.setJedisTemplate(new ShardedJedisTemplate((ShardedJedisPoolFactory) poolFactory));
-        } else if (poolFactory instanceof JedisSinglePoolFactory) {
-            this.setJedisTemplate(new JedisSingleTemplate((JedisSinglePoolFactory) poolFactory));
-        } else if (poolFactory instanceof JedisClusterPoolFactory) {
-            this.setJedisTemplate(new JedisClusterTemplate((JedisClusterPoolFactory) poolFactory));
-        } else {
-            throw new RuntimeException("unknowns pool factory");
+    public RedisClientFactory getRedisClientFactory() {
+        return redisClientFactory;
+    }
+
+    public void close() {
+        try {
+            getRedisClientFactory().close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    }
-
-    public void setJedisTemplate(AbstractJedisTemplate jedisTemplate) {
-        this.jedisTemplate = jedisTemplate;
-    }
-
-    public AbstractJedisTemplate getJedisTemplate() {
-        return jedisTemplate;
     }
 
     /**

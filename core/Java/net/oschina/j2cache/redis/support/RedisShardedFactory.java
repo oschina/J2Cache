@@ -1,7 +1,7 @@
-package net.oschina.j2cache.redis;
+package net.oschina.j2cache.redis.support;
 
+import net.oschina.j2cache.redis.client.ShardedRedisClient;
 import redis.clients.jedis.JedisShardInfo;
-import redis.clients.jedis.ShardedJedis;
 import redis.clients.jedis.ShardedJedisPool;
 
 import java.io.IOException;
@@ -13,12 +13,10 @@ import java.util.List;
  * @author vill on 16/1/11 09:30.
  * @desc redis 数据连接池工厂
  */
-public class ShardedJedisPoolFactory implements PoolFactory<ShardedJedis> {
+public class RedisShardedFactory implements RedisClientFactory<ShardedRedisClient> {
 
     private static ShardedJedisPool jedisPool;
     private RedisPoolConfig poolConfig;
-
-    private int cacheDefaultExpire = 1000;
 
     private List<JedisShardInfo> jedisShardInfoList;
 
@@ -27,32 +25,17 @@ public class ShardedJedisPoolFactory implements PoolFactory<ShardedJedis> {
     }
 
     @Override
-    public ShardedJedis getResource() {
-        return getJedisPool().getResource();
+    public ShardedRedisClient getResource() {
+        return new ShardedRedisClient(getJedisPool().getResource());
     }
 
     @Override
-    public void returnResource(ShardedJedis client) {
-        client.close();
+    public void returnResource(ShardedRedisClient client) {
+        if (client != null)
+            client.close();
     }
 
     public void build() {
-
-//        JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
-//        jedisPoolConfig.setMinIdle(minIdle);
-//        jedisPoolConfig.setMaxIdle(maxIdle);
-//        jedisPoolConfig.setMaxTotal(maxTotal);
-//        jedisPoolConfig.setTestOnBorrow(testOnBorrow);
-//        jedisPoolConfig.setTestOnReturn(true);
-        //Idle时进行连接扫描
-//        jedisPoolConfig.setTestWhileIdle(true);
-        //表示idle object evitor两次扫描之间要sleep的毫秒数
-//        jedisPoolConfig.setTimeBetweenEvictionRunsMillis(30000);
-        //表示idle object evitor每次扫描的最多的对象数
-//        jedisPoolConfig.setNumTestsPerEvictionRun(10);
-        //表示一个对象至少停留在idle状态的最短时间，然后才能被idle object evitor扫描并驱逐；
-        // 这一项只有在timeBetweenEvictionRunsMillis大于0时才有意义
-//        jedisPoolConfig.setMinEvictableIdleTimeMillis(60000);
         // redis uri 格式
         // redis://password@127.0.0.1:6379/0  多个用逗号分割
         String host = this.poolConfig.getHost();
@@ -76,14 +59,6 @@ public class ShardedJedisPoolFactory implements PoolFactory<ShardedJedis> {
 
     public void setPoolConfig(RedisPoolConfig poolConfig) {
         this.poolConfig = poolConfig;
-    }
-
-    public int getCacheDefaultExpire() {
-        return cacheDefaultExpire;
-    }
-
-    public void setCacheDefaultExpire(int cacheDefaultExpire) {
-        this.cacheDefaultExpire = cacheDefaultExpire;
     }
 
     public List<JedisShardInfo> getJedisShardInfoList() {

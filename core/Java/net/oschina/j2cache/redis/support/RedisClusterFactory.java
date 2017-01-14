@@ -1,5 +1,6 @@
-package net.oschina.j2cache.redis;
+package net.oschina.j2cache.redis.support;
 
+import net.oschina.j2cache.redis.client.ClusterRedisClient;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 
@@ -12,20 +13,18 @@ import java.util.regex.Pattern;
  * @author vill on 16/1/11 09:30.
  * @desc redis 数据连接池工厂
  */
-public class JedisClusterPoolFactory implements PoolFactory<JedisCluster> {
+public class RedisClusterFactory implements RedisClientFactory<ClusterRedisClient> {
 
-    private static JedisCluster jedisCluster;
+    private static ClusterRedisClient redisClient;
     private RedisPoolConfig poolConfig;
 
     private int maxRedirections = 0;
 
-    private int cacheDefaultExpire = 1000;
-
     private Pattern p = Pattern.compile("^.+[:]\\d{1,5}\\s*$");
 
     @Override
-    public synchronized JedisCluster getResource() {
-        return jedisCluster;
+    public synchronized ClusterRedisClient getResource() {
+        return redisClient;
     }
 
     /**
@@ -35,7 +34,7 @@ public class JedisClusterPoolFactory implements PoolFactory<JedisCluster> {
      * @param client
      */
     @Override
-    public void returnResource(JedisCluster client) {
+    public void returnResource(ClusterRedisClient client) {
 
     }
 
@@ -60,7 +59,8 @@ public class JedisClusterPoolFactory implements PoolFactory<JedisCluster> {
             maxRedirections = hostAndPorts.size();
         }
 
-        jedisCluster = new JedisCluster(hostAndPorts, poolConfig.getTimeout(), maxRedirections, poolConfig);
+        redisClient = new ClusterRedisClient(
+                new JedisCluster(hostAndPorts, poolConfig.getTimeout(), maxRedirections, poolConfig));
     }
 
     private Set<HostAndPort> parseHostAndPort() {
@@ -73,7 +73,7 @@ public class JedisClusterPoolFactory implements PoolFactory<JedisCluster> {
             boolean isIpPort = p.matcher(val).matches();
 
             if (!isIpPort) {
-                throw new IllegalArgumentException("ip 或 port 不合法");
+                throw new IllegalArgumentException("ip or port is illegal.");
             }
             String[] ipAndPort = val.split(":");
             HostAndPort hap = new HostAndPort(ipAndPort[0], Integer.parseInt(ipAndPort[1]));
@@ -94,14 +94,6 @@ public class JedisClusterPoolFactory implements PoolFactory<JedisCluster> {
         return this.poolConfig;
     }
 
-    public int getCacheDefaultExpire() {
-        return cacheDefaultExpire;
-    }
-
-    public void setCacheDefaultExpire(int cacheDefaultExpire) {
-        this.cacheDefaultExpire = cacheDefaultExpire;
-    }
-
     /**
      * Closes this stream and releases any system resources associated
      * with it. If the stream is already closed then invoking this
@@ -111,6 +103,6 @@ public class JedisClusterPoolFactory implements PoolFactory<JedisCluster> {
      */
     @Override
     public void close() throws IOException {
-        jedisCluster.close();
+        redisClient.close();
     }
 }

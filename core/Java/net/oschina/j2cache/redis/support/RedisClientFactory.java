@@ -1,6 +1,6 @@
-package net.oschina.j2cache.redis;
+package net.oschina.j2cache.redis.support;
 
-import redis.clients.jedis.JedisCommands;
+import net.oschina.j2cache.redis.client.RedisClient;
 
 import java.io.Closeable;
 
@@ -10,7 +10,7 @@ import java.io.Closeable;
  * @Description
  * @date 16/11/25 09:42
  */
-public interface PoolFactory<C extends JedisCommands> extends Closeable {
+public interface RedisClientFactory<C extends RedisClient> extends Closeable {
 
     void build();
 
@@ -24,6 +24,5 @@ public interface PoolFactory<C extends JedisCommands> extends Closeable {
     C getResource();
 
     void returnResource(C client);
-
 
 }
