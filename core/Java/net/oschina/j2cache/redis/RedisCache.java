@@ -25,14 +25,14 @@ public class RedisCache implements Cache {
 	// 记录region
 	protected byte[] region2;
 	protected String region;
-	protected JedisPool pool;
+	protected RedisCacheProxy redisCacheProxy;
 
-	public RedisCache(String region, JedisPool pool) {
+	public RedisCache(String region, RedisCacheProxy redisCacheProxy) {
 		if (region == null || region.isEmpty())
 			region = "_"; // 缺省region
 
 		region = getRegionName(region);
-		this.pool = pool;
+		this.redisCacheProxy = redisCacheProxy;
 		this.region = region;
 		this.region2 = region.getBytes();
 	}
@@ -63,8 +63,8 @@ public class RedisCache implements Cache {
 		if (null == key)
 			return null;
 		Object obj = null;
-		try (Jedis cache = pool.getResource()) {
-			byte[] b = cache.hget(region2, getKeyName(key));
+		try {
+			byte[] b = redisCacheProxy.hget(region2, getKeyName(key));
 			if(b != null)
 				obj = SerializationUtils.deserialize(b);
 		} catch (Exception e) {
@@ -81,8 +81,8 @@ public class RedisCache implements Cache {
 		if (value == null)
 			evict(key);
 		else {
-			try (Jedis cache = pool.getResource()) {
-				cache.hset(region2, getKeyName(key), SerializationUtils.serialize(value));
+			try {
+				redisCacheProxy.hset(region2, getKeyName(key), SerializationUtils.serialize(value));
 			} catch (Exception e) {
 				throw new CacheException(e);
 			}
@@ -96,8 +96,8 @@ public class RedisCache implements Cache {
 	public void evict(Object key) throws CacheException {
 		if (key == null)
 			return;
-		try (Jedis cache = pool.getResource()) {
-			cache.hdel(region2, getKeyName(key));
+		try {
+			redisCacheProxy.hdel(region2, getKeyName(key));
 		} catch (Exception e) {
 			throw new CacheException(e);
 		}
@@ -107,29 +107,29 @@ public class RedisCache implements Cache {
 	public void evict(List keys) throws CacheException {
 		if(keys == null || keys.size() == 0)
 			return ;
-		try (Jedis cache = pool.getResource()) {
+		try {
 			int size = keys.size();
 			byte[][] okeys = new byte[size][];
 			for(int i=0; i<size; i++){
 				okeys[i] = getKeyName(keys.get(i));
 			}
-			cache.hdel(region2, okeys);
+			redisCacheProxy.hdel(region2, okeys);
 		} catch (Exception e) {
 			throw new CacheException(e);
 		}
 	}
 
 	public List<String> keys() throws CacheException {
-		try (Jedis cache = pool.getResource()) {
-			return new ArrayList<String>(cache.hkeys(region));
+		try {
+			return new ArrayList<String>(redisCacheProxy.hkeys(region));
 		} catch (Exception e) {
 			throw new CacheException(e);
 		}
 	}
 
 	public void clear() throws CacheException {
-		try (Jedis cache = pool.getResource()) {
-			cache.del(region2);
+		try {
+			redisCacheProxy.del(region2);
 		} catch (Exception e) {
 			throw new CacheException(e);
 		}

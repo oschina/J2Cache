@@ -126,7 +126,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.6.6</version>
+            <version>1.7.22</version>
         </dependency>
         <dependency>
             <groupId>redis.clients</groupId>
@@ -156,7 +156,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>1.6.1</version>
+            <version>1.7.22</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -176,6 +176,11 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.37</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.8</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
