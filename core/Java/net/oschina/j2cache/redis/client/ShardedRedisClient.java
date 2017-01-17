@@ -1479,14 +1479,84 @@ public class ShardedRedisClient implements RedisClient {
         return jedis.getAllShards();
     }
 
-    /***********************  under method not support **********************/
+
+
     @Override
-    public Long exists(String... keys) {
-        return null;
+    public Long publish(String channel, String message) {
+        Long count = 0L;
+        try (Jedis client = this.getShard(channel)) {
+            count = client.publish(channel, message);
+        }
+        return count;
+    }
+
+    @Override
+    public Long publish(byte[] channel, byte[] message) {
+        Long count = 0L;
+        try (Jedis client = this.getShard(channel)) {
+            count = client.publish(channel, message);
+        }
+        return count;
+    }
+
+    @Override
+    public void subscribe(JedisPubSub jedisPubSub, String... channels) {
+        for (String channel : channels) {
+            try (Jedis client = this.getShard(channel)) {
+                client.subscribe(jedisPubSub, channel);
+            }
+        }
+    }
+
+    @Override
+    public void subscribe(BinaryJedisPubSub jedisPubSub, byte[]... channels) {
+        for (byte[] channel : channels) {
+            try (Jedis client = this.getShard(channel)) {
+                client.subscribe(jedisPubSub, channel);
+            }
+        }
+    }
+
+    @Override
+    public void psubscribe(JedisPubSub jedisPubSub, String... patterns) {
+        for (String pattern : patterns) {
+            try (Jedis client = this.getShard(pattern)) {
+                client.psubscribe(jedisPubSub, pattern);
+            }
+        }
+    }
+
+    @Override
+    public void psubscribe(BinaryJedisPubSub jedisPubSub, byte[]... patterns) {
+        for (byte[] pattern : patterns) {
+            try (Jedis client = this.getShard(pattern)) {
+                client.psubscribe(jedisPubSub, pattern);
+            }
+        }
     }
 
     @Override
     public Long del(String... keys) {
+        Long count = 0L;
+        for (String key : keys) {
+            count += del(key);
+        }
+        return count;
+    }
+
+    @Override
+    public Long del(byte[]... keys) {
+        Long count = 0L;
+        for (byte[] key : keys) {
+            count += del(key);
+        }
+        return count;
+    }
+
+
+    /***********************  under method not support **********************/
+    @Override
+    public Long exists(String... keys) {
         return null;
     }
 
@@ -1601,21 +1671,6 @@ public class ShardedRedisClient implements RedisClient {
     }
 
     @Override
-    public Long publish(String channel, String message) {
-        return null;
-    }
-
-    @Override
-    public void subscribe(JedisPubSub jedisPubSub, String... channels) {
-
-    }
-
-    @Override
-    public void psubscribe(JedisPubSub jedisPubSub, String... patterns) {
-
-    }
-
-    @Override
     public Long bitop(BitOP op, String destKey, String... srcKeys) {
         return null;
     }
@@ -1637,11 +1692,6 @@ public class ShardedRedisClient implements RedisClient {
 
     @Override
     public ScanResult<byte[]> scan(byte[] cursor, ScanParams params) {
-        return null;
-    }
-
-    @Override
-    public Long del(byte[]... keys) {
         return null;
     }
 
@@ -1783,21 +1833,6 @@ public class ShardedRedisClient implements RedisClient {
     @Override
     public byte[] brpoplpush(byte[] source, byte[] destination, int timeout) {
         return new byte[0];
-    }
-
-    @Override
-    public Long publish(byte[] channel, byte[] message) {
-        return null;
-    }
-
-    @Override
-    public void subscribe(BinaryJedisPubSub jedisPubSub, byte[]... channels) {
-
-    }
-
-    @Override
-    public void psubscribe(BinaryJedisPubSub jedisPubSub, byte[]... patterns) {
-
     }
 
     @Override
