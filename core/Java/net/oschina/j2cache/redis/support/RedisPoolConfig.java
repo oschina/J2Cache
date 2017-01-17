@@ -12,8 +12,10 @@ public class RedisPoolConfig extends GenericObjectPoolConfig {
     private String host;
     private int port;
     private String password;
+    
+    private int database;
 
-    private int timeout = Protocol.DEFAULT_TIMEOUT;
+	private int timeout = Protocol.DEFAULT_TIMEOUT;
 
     public String getHost() {
         return host;
@@ -46,4 +48,13 @@ public class RedisPoolConfig extends GenericObjectPoolConfig {
     public void setTimeout(int timeout) {
         this.timeout = timeout;
     }
+    
+    public int getDatabase() {
+		return database;
+	}
+
+	public void setDatabase(int database) {
+		this.database = database;
+	}
+	
 }

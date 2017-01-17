@@ -68,4 +68,12 @@ public class NullCache implements Cache {
 	public void destroy() throws CacheException {
 	}
 
+	@Override
+	public void put(Object key, Object value, Integer expireInSec) throws CacheException {
+	}
+
+	@Override
+	public void update(Object key, Object value, Integer expireInSec) throws CacheException {
+	}
+
 }

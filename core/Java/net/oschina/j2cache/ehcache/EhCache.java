@@ -204,4 +204,27 @@ public class EhCache implements Cache, CacheEventListener {
 	@Override
 	public void notifyRemoveAll(Ehcache arg0) {}
 
+	@Override
+	public void put(Object key, Object value, Integer expireInSec) throws CacheException {
+		try {
+			Element element = new Element( key, value );
+			element.setTimeToLive(expireInSec);
+			cache.put( element );
+		}
+		catch (IllegalArgumentException e) {
+			throw new CacheException( e );
+		}
+		catch (IllegalStateException e) {
+			throw new CacheException( e );
+		}
+		catch (net.sf.ehcache.CacheException e) {
+			throw new CacheException( e );
+		}
+	}
+
+	@Override
+	public void update(Object key, Object value, Integer expireInSec) throws CacheException {
+		put(key, value, expireInSec);
+	}
+
 }

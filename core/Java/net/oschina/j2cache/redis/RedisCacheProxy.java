@@ -51,6 +51,17 @@ public class RedisCacheProxy implements Closeable {
             returnResource(redisClient);
         }
     }
+    
+    public void hset(byte[] key, byte[] fieldKey, byte[] val, int expireInSec) {
+        RedisClient redisClient = null;
+        try {
+            redisClient = getResource();
+            redisClient.hset(key, fieldKey, val);
+            redisClient.expire(key, expireInSec);
+        } finally {
+            returnResource(redisClient);
+        }
+    }
 
     public void hdel(byte[] key, byte[]... fieldKey) {
         RedisClient redisClient = null;

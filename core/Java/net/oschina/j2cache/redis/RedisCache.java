@@ -137,4 +137,24 @@ public class RedisCache implements Cache {
     public void destroy() throws CacheException {
         this.clear();
     }
+
+	@Override
+	public void put(Object key, Object value, Integer expireInSec) throws CacheException {
+		if (key == null)
+            return;
+        if (value == null)
+            evict(key);
+        else {
+            try {
+                redisCacheProxy.hset(region2, getKeyName(key), SerializationUtils.serialize(value), expireInSec);
+            } catch (Exception e) {
+                throw new CacheException(e);
+            }
+        }
+	}
+
+	@Override
+	public void update(Object key, Object value, Integer expireInSec) throws CacheException {
+		put(key, value, expireInSec);
+	}
 }

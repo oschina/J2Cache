@@ -138,6 +138,15 @@ public class CacheManager {
         }
 	}
 	
+	public final static void set(int level, String name, Object key, Object value, Integer expireInSec){
+		//System.out.println("SET => " + name+":"+key+"="+value);
+		if(name!=null && key != null && value!=null) {
+            Cache cache =_GetCache(level, name, true);
+            if (cache != null)
+                cache.put(key, value, expireInSec);
+        }
+	}
+	
 	/**
 	 * 清除缓存中的某个数据
 	 * @param level Cache Level: L1 and L2

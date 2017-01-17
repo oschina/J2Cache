@@ -33,10 +33,13 @@ public class RedisSingleFactory implements RedisClientFactory<SingleRedisClient>
         String host = this.poolConfig.getHost();
         int port = this.poolConfig.getPort();
         int timeout = this.poolConfig.getTimeout();
+        int database = this.poolConfig.getDatabase();
         String password = this.poolConfig.getPassword();
         if (password != null && !"".equals(password))
-            jedisPool = new JedisPool(poolConfig, host, port, timeout, password);
-        else jedisPool = new JedisPool(poolConfig, host, port, timeout);
+            jedisPool = new JedisPool(poolConfig, host, port, timeout, password, database);
+        else {
+        	jedisPool = new JedisPool(poolConfig, host, port, timeout, null, database);
+        }
     }
 
     public RedisPoolConfig getPoolConfig() {

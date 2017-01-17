@@ -108,6 +108,26 @@ public class JGroupsCacheChannel extends ReceiverAdapter implements CacheExpired
 		//log.info("write data to cache region="+region+",key="+key+",value="+value);
 	}
 	
+	public void set(String region, Object key, Object value, Integer expireInSec){
+		if(region!=null && key != null){
+			if(value == null)
+				evict(region, key);
+			else{
+				//分几种情况
+				//Object obj1 = CacheManager.get(LEVEL_1, region, key);
+				//Object obj2 = CacheManager.get(LEVEL_2, region, key);
+				//1. L1 和 L2 都没有
+				//2. L1 有 L2 没有（这种情况不存在，除非是写 L2 的时候失败
+				//3. L1 没有，L2 有
+				//4. L1 和 L2 都有
+				_sendEvictCmd(region, key);//清除原有的一级缓存的内容
+				CacheManager.set(LEVEL_1, region, key, value, expireInSec);
+				CacheManager.set(LEVEL_2, region, key, value, expireInSec);
+			}
+		}
+		//log.info("write data to cache region="+region+",key="+key+",value="+value);
+	}
+	
 	/**
 	 * 删除缓存
 	 * @param region:  Cache Region name
