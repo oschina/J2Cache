@@ -26,6 +26,15 @@ public interface CacheChannel {
 	 * @param value: Cache value
 	 */
 	public void set(String region, Object key, Object value);
+	
+	/**
+	 * 写入缓存，并设置过期时间
+	 * @param region
+	 * @param key
+	 * @param value
+	 * @param expireInSec
+	 */
+	public void set(String region, Object key, Object value, Integer expireInSec);
 
 	/**
 	 * 删除缓存

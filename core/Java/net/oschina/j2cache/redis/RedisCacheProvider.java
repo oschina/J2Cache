@@ -66,6 +66,8 @@ public class RedisCacheProvider implements CacheProvider {
         config.setTimeBetweenEvictionRunsMillis(getProperty(props, "timeBetweenEvictionRunsMillis", 10));
         config.setLifo(getProperty(props, "lifo", false));
 
+        config.setDatabase(getProperty(props, "database", 0));
+        
         String redisPolicy = getProperty(props, "policy", "single");
         redisCacheProxy = new RedisCacheProxy(new RedisClientFactoryAdapter(config, RedisClientFactoryAdapter.RedisPolicy.valueOf(redisPolicy)));
 

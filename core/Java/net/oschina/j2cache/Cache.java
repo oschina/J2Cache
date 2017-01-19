@@ -25,11 +25,30 @@ public interface Cache {
 	public void put(Object key, Object value) throws CacheException;
 	
 	/**
+	 * Add an item to the cache, nontransactionally, with
+	 * failfast semantics
+	 * @param key
+	 * @param value
+	 * @param expireInSec  expire time. (seconds)
+	 * @throws CacheException
+	 */
+	public void put(Object key, Object value, Integer expireInSec) throws CacheException;
+	
+	/**
 	 * Add an item to the cache
 	 * @param key cache key
 	 * @param value cache value
 	 */
 	public void update(Object key, Object value) throws CacheException;
+	
+	/**
+	 * Add an item to the cache
+	 * @param key
+	 * @param value
+	 * @param expireInSec  expire time. (seconds)
+	 * @throws CacheException
+	 */
+	public void update(Object key, Object value, Integer expireInSec) throws CacheException;
 
 	@SuppressWarnings("rawtypes")
 	public List keys() throws CacheException ;

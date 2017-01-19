@@ -35,7 +35,8 @@ public class CacheTester {
 	            }
 	            else
 	            if("set".equalsIgnoreCase(cmds[0])){
-	            	cache.set(cmds[1], cmds[2],cmds[3]);
+//	            	cache.set(cmds[1], cmds[2],cmds[3]);
+	            	cache.set(cmds[1], cmds[2],cmds[3], Integer.valueOf(cmds[4]));
 	            	System.out.printf("[%s,%s]<=%s\n",cmds[1], cmds[2], cmds[3]);
 	            }
 	            else
