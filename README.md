@@ -3,6 +3,8 @@ J2Cache —— 基于 Ehcache 和 Redis 实现的两级 Java 缓存框架
 
 J2Cache 是 OSChina 目前正在使用的两级缓存框架。第一级缓存使用 Ehcache，第二级缓存使用 Redis 。由于大量的缓存读取会导致 L2 的网络成为整个系统的瓶颈，因此 L1 的目标是降低对 L2 的读取次数。该缓存框架主要用于集群环境中。单机也可使用，用于避免应用重启导致的 Ehcache 缓存数据丢失。
 
+J2Cache 已经有 Python 语言版本了，详情请看 [https://git.oschina.net/ld/Py3Cache](https://git.oschina.net/ld/Py3Cache)
+
 J2Cache 从 1.3.0 版本开始支持 JGroups 和 Redis Subscribe 两种方式进行缓存时间的通知。在某些云平台上可能无法使用 JGroups 组播方式，可以采用 Redis 发布订阅的方式。详情请看 j2cache.properties 配置文件的说明。
 
 视频介绍：http://v.youku.com/v_show/id_XNzAzMTY5MjUy.html  
