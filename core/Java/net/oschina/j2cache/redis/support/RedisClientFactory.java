@@ -6,9 +6,6 @@ import java.io.Closeable;
 
 /**
  * @author zhangyw
- * @ClassName PoolFactory
- * @Description
- * @date 16/11/25 09:42
  */
 public interface RedisClientFactory<C extends RedisClient> extends Closeable {
 

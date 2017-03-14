@@ -6,7 +6,6 @@ import java.io.IOException;
  * jedis 适配器，自动适应平台的redis部署模式
  *
  * @author zhangyw
- * @date 16/11/25 12:11
  */
 public class RedisClientFactoryAdapter {
 

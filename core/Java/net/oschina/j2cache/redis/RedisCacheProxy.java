@@ -11,7 +11,6 @@ import java.util.Set;
  * Redis cache 代理，用来获取 redis client
  *
  * @author zhangyw
- * @date 20170106
  */
 public class RedisCacheProxy implements Closeable {
 

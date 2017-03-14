@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 /**
  * @author vill on 16/1/11 09:30.
- * @desc redis 数据连接池工厂
+ * redis 数据连接池工厂
  */
 public class RedisClusterFactory implements RedisClientFactory<ClusterRedisClient> {
 

@@ -16,7 +16,6 @@ import java.util.Set;
  * 用完要及时关闭
  *
  * @author zhangyw
- * @date 2017/1/13 10:47
  */
 public interface RedisClient extends JedisCommands, BasicCommands, Closeable {
 

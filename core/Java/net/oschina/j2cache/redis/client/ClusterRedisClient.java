@@ -13,7 +13,6 @@ import java.util.Set;
 
 /**
  * @author zhangyw
- * @date 2017/1/13 11:14
  */
 public class ClusterRedisClient implements RedisClient {
 
