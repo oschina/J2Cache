@@ -1,6 +1,7 @@
 package net.oschina.j2cache.redis;
 
 import net.oschina.j2cache.*;
+import net.oschina.j2cache.redis.support.BlockSupportConfig;
 import net.oschina.j2cache.redis.support.RedisClientFactoryAdapter;
 import net.oschina.j2cache.redis.support.RedisPoolConfig;
 
@@ -67,9 +68,15 @@ public class RedisCacheProvider implements CacheProvider {
         config.setLifo(getProperty(props, "lifo", false));
 
         config.setDatabase(getProperty(props, "database", 0));
-        
+
         String redisPolicy = getProperty(props, "policy", "single");
-        redisCacheProxy = new RedisCacheProxy(new RedisClientFactoryAdapter(config, RedisClientFactoryAdapter.RedisPolicy.valueOf(redisPolicy)));
+        BlockSupportConfig blockSupportConfig = new BlockSupportConfig();
+        blockSupportConfig.setBlock(getProperty(props, "block", false));
+        blockSupportConfig.setTimeLockMillis(getProperty(props, "timeLockMillis", 60000));
+        blockSupportConfig.setTimeWaitMillis(getProperty(props, "timeWaitMillis", 300));
+        blockSupportConfig.setTimeOutMillis(getProperty(props, "timeOutMillis", 60000));
+        blockSupportConfig.setStripes(getProperty(props, "stripes", 1024));
+        redisCacheProxy = new RedisCacheProxy(blockSupportConfig, new RedisClientFactoryAdapter(config, RedisClientFactoryAdapter.RedisPolicy.valueOf(redisPolicy)));
 
     }
 
