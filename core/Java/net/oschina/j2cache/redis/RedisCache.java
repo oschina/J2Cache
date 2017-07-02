@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Redis 缓存基于Hashs实现
@@ -17,6 +18,17 @@ import java.util.List;
  * @author wendal
  */
 public class RedisCache implements Cache {
+
+
+    private String locksPattern = "%s:lock:";
+    private String lockPattern = locksPattern + "%s";
+    private static byte[] NX = "NX".getBytes(); // NX -- Only set the key if it does not already exist.
+    private static byte[] XX = "XX".getBytes();//XX -- Only set the key if it already exist.
+
+    private static byte[] EX = "EX".getBytes();//expire time units: EX = seconds;
+
+    private static byte[] PX = "PX".getBytes();//expire time units:  PX = milliseconds
+
 
     private final static Logger log = LoggerFactory.getLogger(RedisCache.class);
 
@@ -63,15 +75,48 @@ public class RedisCache implements Cache {
             return null;
         Object obj = null;
         try {
-            byte[] b = redisCacheProxy.hget(region2, getKeyName(key));
-            if (b != null)
+            byte[] keyName = getKeyName(key);
+            byte[] b = redisCacheProxy.hget(region2, keyName);
+            if (b != null) {
                 obj = SerializationUtils.deserialize(b);
+            } else if (redisCacheProxy.isBlock()) {
+                byte[] lockKey = getLockKey(key);
+                boolean locked = getLock(lockKey, keyName);
+                if (locked) {
+                    return null;
+                } else {
+                    int timeLeft = redisCacheProxy.getTimeOutMillis();
+                    while (timeLeft > 0) {
+                        Thread.sleep(redisCacheProxy.getTimeWaitMillis());
+                        timeLeft -= redisCacheProxy.getTimeWaitMillis();
+                        b = redisCacheProxy.hget(region2, keyName);
+                        if (b != null) {
+                            obj = SerializationUtils.deserialize(b);
+                            break;
+                        }
+                    }
+                }
+
+            }
         } catch (Exception e) {
             log.error("Error occured when get data from redis2 cache", e);
             if (e instanceof IOException || e instanceof NullPointerException)
                 evict(key);
         }
         return obj;
+    }
+
+    private boolean getLock(byte[] lockKey, byte[] keyName) {
+        return "OK".equals(redisCacheProxy.set(lockKey, keyName, NX, PX, redisCacheProxy.getTimeLockMillis()));
+    }
+
+    private void releaseLock(byte[] lockKey) {
+        redisCacheProxy.del(lockKey);
+    }
+
+    private byte[] getLockKey(Object key) {
+        String keyName = String.format(lockPattern, region, key.hashCode() % redisCacheProxy.getStripes());
+        return keyName.getBytes();
     }
 
     public void put(Object key, Object value) throws CacheException {
@@ -82,6 +127,9 @@ public class RedisCache implements Cache {
         else {
             try {
                 redisCacheProxy.hset(region2, getKeyName(key), SerializationUtils.serialize(value));
+                if (redisCacheProxy.isBlock()) {
+                    releaseLock(getLockKey(key));
+                }
             } catch (Exception e) {
                 throw new CacheException(e);
             }
@@ -120,7 +168,7 @@ public class RedisCache implements Cache {
 
     public List<String> keys() throws CacheException {
         try {
-            return new ArrayList<String>(redisCacheProxy.hkeys(region));
+            return new ArrayList<>(redisCacheProxy.hkeys(region));
         } catch (Exception e) {
             throw new CacheException(e);
         }
@@ -129,6 +177,12 @@ public class RedisCache implements Cache {
     public void clear() throws CacheException {
         try {
             redisCacheProxy.del(region2);
+            if(redisCacheProxy.isBlock()) {
+                Set<byte[]> keys = redisCacheProxy.keys(String.format(locksPattern, region).getBytes());
+                if (!keys.isEmpty()) {
+                    redisCacheProxy.del(keys.toArray(new byte[][]{}));
+                }
+            }
         } catch (Exception e) {
             throw new CacheException(e);
         }
@@ -138,23 +192,26 @@ public class RedisCache implements Cache {
         this.clear();
     }
 
-	@Override
-	public void put(Object key, Object value, Integer expireInSec) throws CacheException {
-		if (key == null)
+    @Override
+    public void put(Object key, Object value, Integer expireInSec) throws CacheException {
+        if (key == null)
             return;
         if (value == null)
             evict(key);
         else {
             try {
                 redisCacheProxy.hset(region2, getKeyName(key), SerializationUtils.serialize(value), expireInSec);
+                if (redisCacheProxy.isBlock()) {
+                    releaseLock(getLockKey(key));
+                }
             } catch (Exception e) {
                 throw new CacheException(e);
             }
         }
-	}
+    }
 
-	@Override
-	public void update(Object key, Object value, Integer expireInSec) throws CacheException {
-		put(key, value, expireInSec);
-	}
+    @Override
+    public void update(Object key, Object value, Integer expireInSec) throws CacheException {
+        put(key, value, expireInSec);
+    }
 }
