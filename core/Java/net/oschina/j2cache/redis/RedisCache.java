@@ -21,7 +21,8 @@ public class RedisCache implements Cache {
 
 
     private String locksPattern = "%s:lock:";
-    private String lockPattern = locksPattern + "%s";
+    private String locksNamePattern = locksPattern + "*";
+    private String lockPattern = locksPattern + "%s"; //暂时使用keys xxx:* 因为一般也就最多1024个key不会阻塞 后续可以改造成scan
     private static byte[] NX = "NX".getBytes(); // NX -- Only set the key if it does not already exist.
     private static byte[] XX = "XX".getBytes();//XX -- Only set the key if it already exist.
 
@@ -93,7 +94,13 @@ public class RedisCache implements Cache {
                         if (b != null) {
                             obj = SerializationUtils.deserialize(b);
                             break;
+                        } else {
+                            //如果拿不到再尝试一次获取lock，防止出现部分情况一直没有put导致等待时间过长。后续要改造成可重入
+                            if (getLock(lockKey, keyName)) {
+                                return null;
+                            }
                         }
+                        //超时是应该抛异常呢还是直接返回null？ 目前返回null
                     }
                 }
 
@@ -177,8 +184,8 @@ public class RedisCache implements Cache {
     public void clear() throws CacheException {
         try {
             redisCacheProxy.del(region2);
-            if(redisCacheProxy.isBlock()) {
-                Set<byte[]> keys = redisCacheProxy.keys(String.format(locksPattern, region).getBytes());
+            if (redisCacheProxy.isBlock()) {
+                Set<byte[]> keys = redisCacheProxy.keys(String.format(locksNamePattern, region).getBytes());
                 if (!keys.isEmpty()) {
                     redisCacheProxy.del(keys.toArray(new byte[][]{}));
                 }
