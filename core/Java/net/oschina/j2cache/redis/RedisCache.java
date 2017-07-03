@@ -82,8 +82,8 @@ public class RedisCache implements Cache {
                 obj = SerializationUtils.deserialize(b);
             } else if (redisCacheProxy.isBlock()) {
                 byte[] lockKey = getLockKey(key);
-                boolean locked = getLock(lockKey, keyName);
-                if (locked) {
+                boolean locked = getLock(lockKey);
+                if (locked || canReentrant(key)) {
                     return null;
                 } else {
                     int timeLeft = redisCacheProxy.getTimeOutMillis();
@@ -96,7 +96,7 @@ public class RedisCache implements Cache {
                             break;
                         } else {
                             //如果拿不到再尝试一次获取lock，防止出现部分情况一直没有put导致等待时间过长。后续要改造成可重入
-                            if (getLock(lockKey, keyName)) {
+                            if (getLock(lockKey)) {
                                 return null;
                             }
                         }
@@ -113,6 +113,24 @@ public class RedisCache implements Cache {
         return obj;
     }
 
+    private boolean canReentrant(Object key) {
+        //对于缓存来说要求不精确，使用线程id即可
+        try {
+            String value = redisCacheProxy.get(getLockKeyString(key));
+            if (value != null) {
+                long oriThreadId = Long.parseLong(value);
+                return oriThreadId == Thread.currentThread().getId();
+            }
+        } catch (Exception ex) {
+            log.error(ex.getMessage(), ex);
+        }
+        return false;
+    }
+
+    private boolean getLock(byte[] lockKey) {
+        return getLock(lockKey, String.valueOf(Thread.currentThread().getId()).getBytes());
+    }
+
     private boolean getLock(byte[] lockKey, byte[] keyName) {
         return "OK".equals(redisCacheProxy.set(lockKey, keyName, NX, PX, redisCacheProxy.getTimeLockMillis()));
     }
@@ -121,8 +139,12 @@ public class RedisCache implements Cache {
         redisCacheProxy.del(lockKey);
     }
 
+    private String getLockKeyString(Object key) {
+        return String.format(lockPattern, region, key.hashCode() % redisCacheProxy.getStripes());
+    }
+
     private byte[] getLockKey(Object key) {
-        String keyName = String.format(lockPattern, region, key.hashCode() % redisCacheProxy.getStripes());
+        String keyName = getLockKeyString(key);
         return keyName.getBytes();
     }
 
