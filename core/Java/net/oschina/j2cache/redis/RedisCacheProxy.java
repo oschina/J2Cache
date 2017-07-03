@@ -174,6 +174,16 @@ public class RedisCacheProxy implements Closeable {
             returnResource(redisClient);
         }
     }
+    //再有变更考虑使用动态代理，加的太多了
+    public String get(String key) {
+        RedisClient redisClient = null;
+        try {
+            redisClient = getResource();
+            return redisClient.get(key);
+        } finally {
+            returnResource(redisClient);
+        }
+    }
 
     public Long del(byte[]... keys) {
         RedisClient redisClient = null;
