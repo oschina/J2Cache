@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Implementors define a caching algorithm. All implementors
  * <b>must</b> be threadsafe.
- * @author liudong
+ * @author Winter Lau
  */
 public interface Cache {
 
