@@ -1,7 +1,7 @@
 <ehcache updateCheck="false" dynamicConfig="false">
 
     <diskStore path="java.io.tmpdir"/>
-	
+
 	<cacheManagerEventListenerFactory class="" properties=""/>
 
     <!--Default Cache configuration. These will applied to caches programmatically created through
@@ -48,12 +48,12 @@
 
         -->
 
-    <cache name="session"
+    <cache name="default"
         maxElementsInMemory="5000"
         eternal="false"
         timeToIdleSeconds="1800"
         timeToLiveSeconds="1800"
         overflowToDisk="false"
         />
-		
+
 </ehcache>

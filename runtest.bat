@@ -1,1 +1,0 @@
-java -Djava.ext.dirs=lib -cp bin net.oschina.j2cache.CacheTester
