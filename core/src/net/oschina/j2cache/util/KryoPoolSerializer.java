@@ -3,9 +3,7 @@ package net.oschina.j2cache.util;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import net.oschina.j2cache.CacheException;
 
-import java.io.IOException;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
@@ -20,16 +18,15 @@ public class KryoPoolSerializer implements Serializer{
      * @return return serialize data
      */
     @Override
-    public byte[] serialize(Object obj) throws IOException {
+    public byte[] serialize(Object obj) {
         KryoHolder kryoHolder = null;
-        if (obj == null) throw new CacheException("obj can not be null");
+        if (obj == null)
+            return null;
         try {
             kryoHolder = KryoPoolImpl.getInstance().get();
             kryoHolder.output.clear();  //clear Output    -->每次调用的时候  重置
             kryoHolder.kryo.writeClassAndObject(kryoHolder.output, obj);
             return kryoHolder.output.toBytes();// 无法避免拷贝  ~~~
-        } catch (CacheException e) {
-            throw new CacheException("Serialize obj exception");
         } finally {
             KryoPoolImpl.getInstance().offer(kryoHolder);
         }
@@ -41,15 +38,14 @@ public class KryoPoolSerializer implements Serializer{
      * @return object
      */
     @Override
-    public Object deserialize(byte[] bytes) throws IOException {
+    public Object deserialize(byte[] bytes) {
         KryoHolder kryoHolder = null;
-        if (bytes == null) throw new CacheException("bytes can not be null");
+        if (bytes == null)
+            return null;
         try {
             kryoHolder = KryoPoolImpl.getInstance().get();
             kryoHolder.input.setBuffer(bytes, 0, bytes.length);//call it ,and then use input object  ,discard any array
             return kryoHolder.kryo.readClassAndObject(kryoHolder.input);
-        } catch (CacheException e) {
-            throw new CacheException("Deserialize bytes exception");
         } finally {
             KryoPoolImpl.getInstance().offer(kryoHolder);
         }
