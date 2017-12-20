@@ -1,5 +1,7 @@
 package net.oschina.j2cache.ehcache;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,7 +17,7 @@ import net.sf.ehcache.event.CacheEventListener;
 /**
  * EHCache
  */
-class EhCache<K, V> implements Cache<K, V>, CacheEventListener {
+class EhCache implements Cache, CacheEventListener {
 	
 	private net.sf.ehcache.Cache cache;
 	private CacheExpiredListener listener;
@@ -33,8 +35,8 @@ class EhCache<K, V> implements Cache<K, V>, CacheEventListener {
 	}
 
 	@Override
-	public Set<K> keys() throws CacheException {
-		Set<K> keys = new HashSet<>();
+	public Set<Serializable> keys() throws CacheException {
+		Set<Serializable> keys = new HashSet<>();
 		keys.addAll(this.cache.getKeys());
 		return keys;
 	}
@@ -47,13 +49,13 @@ class EhCache<K, V> implements Cache<K, V>, CacheEventListener {
 	 * @throws CacheException cache exception
 	 */
 	@Override
-	public V get(K key) throws CacheException {
+	public Serializable get(Serializable key) throws CacheException {
 		try {
 			if ( key == null ) 
 				return null;
 			Element element = cache.get( key );
 			if ( element != null )
-				return (V)element.getObjectValue();
+				return (Serializable)element.getObjectValue();
 
 			return null;
 		}
@@ -71,7 +73,7 @@ class EhCache<K, V> implements Cache<K, V>, CacheEventListener {
 	 *                        is shutdown or another {@link Exception} occurs.
 	 */
 	@Override
-	public void update(K key, V value) throws CacheException {
+	public void update(Serializable key, Serializable value) throws IOException {
 		put( key, value );
 	}
 
@@ -84,7 +86,7 @@ class EhCache<K, V> implements Cache<K, V>, CacheEventListener {
 	 *                        is shutdown or another {@link Exception} occurs.
 	 */
 	@Override
-	public void put(K key, V value) throws CacheException {
+	public void put(Serializable key, Serializable value) throws CacheException {
 		Element element = new Element( key, value );
 		cache.put( element );
 	}
@@ -97,14 +99,10 @@ class EhCache<K, V> implements Cache<K, V>, CacheEventListener {
 	 * @throws CacheException cache exception
 	 */
 	@Override
-	public void evict(K key) throws CacheException {
+	public void evict(Serializable key) throws CacheException {
 		try {
 			cache.remove( key );
-		}
-		catch (IllegalStateException e) {
-			throw new CacheException( e );
-		}
-		catch (net.sf.ehcache.CacheException e) {
+		} catch (IllegalStateException | net.sf.ehcache.CacheException e) {
 			throw new CacheException( e );
 		}
 	}
@@ -113,7 +111,7 @@ class EhCache<K, V> implements Cache<K, V>, CacheEventListener {
 	 * @see net.oschina.j2cache.Cache#batchRemove(java.util.List)
 	 */
 	@Override
-	public void evicts(List<K> keys) throws CacheException {
+	public void evicts(List<Serializable> keys) throws CacheException {
 		cache.removeAll(keys);
 	}
 
@@ -127,15 +125,6 @@ class EhCache<K, V> implements Cache<K, V>, CacheEventListener {
 		cache.removeAll();
 	}
 
-	/**
-	 * Remove the cache and make it unuseable.
-	 *
-	 * @throws CacheException  cache exception
-	 */
-	public void destroy() throws CacheException {
-		cache.getCacheManager().removeCache( cache.getName() );
-	}
-	
 	public Object clone() throws CloneNotSupportedException { 
 		throw new CloneNotSupportedException(); 
 	}
@@ -146,14 +135,14 @@ class EhCache<K, V> implements Cache<K, V>, CacheEventListener {
 	@Override
 	public void notifyElementEvicted(Ehcache cache, Element elem) {
 		if(listener != null){
-			listener.notifyElementExpired(cache.getName(), elem.getObjectKey());
+			listener.notifyElementExpired(cache.getName(), (Serializable)elem.getObjectKey());
 		}
 	}
 
 	@Override
 	public void notifyElementExpired(Ehcache cache, Element elem) {
 		if(listener != null){
-			listener.notifyElementExpired(cache.getName(), elem.getObjectKey());
+			listener.notifyElementExpired(cache.getName(), (Serializable)elem.getObjectKey());
 		}
 	}
 

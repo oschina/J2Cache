@@ -1,5 +1,6 @@
 package net.oschina.j2cache;
 
+import net.oschina.j2cache.redis.RedisClient;
 import net.oschina.j2cache.redis.RedisPubSubClusterPolicy;
 import redis.clients.jedis.JedisCluster;
 
@@ -15,7 +16,7 @@ public class ClusterPolicyFactory {
      * @param redis
      * @return
      */
-    public final static ClusterPolicy redis(String name, JedisCluster redis) {
+    public final static ClusterPolicy redis(String name, RedisClient redis) {
         RedisPubSubClusterPolicy policy = new RedisPubSubClusterPolicy(name, redis);
         policy.connect();
         return policy;

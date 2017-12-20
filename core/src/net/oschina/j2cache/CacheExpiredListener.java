@@ -1,5 +1,7 @@
 package net.oschina.j2cache;
 
+import java.io.Serializable;
+
 /**
  * 侦听缓存中的某个记录超时
  * @author winterlau
@@ -11,6 +13,6 @@ public interface CacheExpiredListener {
 	 * @param region: Cache region name
 	 * @param key: cache key
 	 */
-	void notifyElementExpired(String region, Object key) ;
+	void notifyElementExpired(String region, Serializable key) ;
 
 }

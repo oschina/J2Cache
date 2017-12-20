@@ -1,5 +1,7 @@
 package net.oschina.j2cache;
 
+import java.io.Serializable;
+
 /**
  * 所获取的缓存对象
  * @author winterlau
@@ -7,8 +9,8 @@ package net.oschina.j2cache;
 public class CacheObject {
 
 	private String region;
-	private Object key;
-	private Object value;
+	private Serializable key;
+	private Serializable value;
 	private byte level;
 	public String getRegion() {
 		return region;
@@ -16,16 +18,16 @@ public class CacheObject {
 	public void setRegion(String region) {
 		this.region = region;
 	}
-	public Object getKey() {
+	public Serializable getKey() {
 		return key;
 	}
-	public void setKey(Object key) {
+	public void setKey(Serializable key) {
 		this.key = key;
 	}
-	public Object getValue() {
+	public Serializable getValue() {
 		return value;
 	}
-	public void setValue(Object value) {
+	public void setValue(Serializable value) {
 		this.value = value;
 	}
 	public byte getLevel() {

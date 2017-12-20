@@ -1,6 +1,7 @@
 package net.oschina.j2cache;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -9,14 +10,14 @@ import java.util.Set;
  * <b>must</b> be threadsafe.
  * @author Winter Lau
  */
-public interface Cache<K, V> {
+public interface Cache {
 
 	/**
 	 * Get an item from the cache, nontransactionally
 	 * @param key cache key
 	 * @return the cached object or null
 	 */
-	V get(K key) throws IOException, CacheException;
+	Serializable get(Serializable key) throws IOException;
 	
 	/**
 	 * Add an item to the cache, nontransactionally, with
@@ -24,14 +25,14 @@ public interface Cache<K, V> {
 	 * @param key cache key
 	 * @param value cache value
 	 */
-	void put(K key, V value) throws IOException, CacheException;
+	void put(Serializable key, Serializable value) throws IOException;
 
 	/**
 	 * Add an item to the cache
 	 * @param key cache key
 	 * @param value cache value
 	 */
-	void update(K key, V value) throws IOException, CacheException;
+	void update(Serializable key, Serializable value) throws IOException;
 
 	/**
 	 * Return all keys
@@ -39,28 +40,23 @@ public interface Cache<K, V> {
 	 * @throws IOException
 	 * @throws CacheException
 	 */
-	Set<K> keys() throws IOException, CacheException ;
+	Set<Serializable> keys() throws IOException ;
 	
 	/**
 	 * @param key Cache key
 	 * Remove an item from the cache
 	 */
-	void evict(K key) throws IOException, CacheException;
-	
+	void evict(Serializable key) throws IOException;
+
 	/**
 	 * Batch remove cache objects
 	 * @param keys the cache keys to be evicted
 	 */
-	void evicts(List<K> keys) throws IOException, CacheException;
+	void evicts(List<Serializable> keys) throws IOException;
 	
 	/**
 	 * Clear the cache
 	 */
-	void clear() throws IOException, CacheException;
-	
-	/**
-	 * Clean up
-	 */
-	void destroy() throws IOException, CacheException;
-	
+	void clear() throws IOException;
+
 }

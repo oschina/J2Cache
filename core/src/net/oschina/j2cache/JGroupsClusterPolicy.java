@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jgroups.*;
 
+import java.io.Serializable;
 import java.net.URL;
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
             channel.setReceiver(this);
             channel.connect(name);
 
-            log.info("Connected to channel:" + name + ", time " + (System.currentTimeMillis()-ct) + " ms.");
+            log.info("Connected to jgroups channel:" + name + ", time " + (System.currentTimeMillis()-ct) + " ms.");
 
         }catch(Exception e){
             throw new CacheException(e);
@@ -88,7 +89,7 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
      * @param key    : cache key
      */
     @Override
-    public void sendEvictCmd(String region, Object key) {
+    public void sendEvictCmd(String region, Serializable key) {
         Command cmd = new Command(Command.OPT_DELETE_KEY, region, key);
         try {
             Message msg = new Message(null, null, cmd.toBuffers());

@@ -7,6 +7,8 @@ import org.apache.commons.logging.LogFactory;
 import redis.clients.jedis.BinaryJedisPubSub;
 import redis.clients.jedis.JedisCluster;
 
+import java.io.Serializable;
+
 /**
  * 使用 Redis 的订阅和发布进行集群中的节点通知
  * @author winterlau
@@ -15,10 +17,10 @@ public class RedisPubSubClusterPolicy extends BinaryJedisPubSub implements Clust
 
     private final static Log log = LogFactory.getLog(RedisPubSubClusterPolicy.class);
 
-    private JedisCluster redis;
+    private RedisClient redis;
     private String channel;
 
-    public RedisPubSubClusterPolicy(String channel, JedisCluster redis){
+    public RedisPubSubClusterPolicy(String channel, RedisClient redis){
         this.redis = redis;
         this.channel = channel;
     }
@@ -28,7 +30,9 @@ public class RedisPubSubClusterPolicy extends BinaryJedisPubSub implements Clust
      */
     @Override
     public void connect() {
-        redis.subscribe(this, channel.getBytes());
+        long ct = System.currentTimeMillis();
+        new Thread(()-> redis.subscribe(this, channel)).start();
+        log.info("Connected to redis channel:" + channel + ", time " + (System.currentTimeMillis()-ct) + " ms.");
     }
 
     /**
@@ -38,7 +42,7 @@ public class RedisPubSubClusterPolicy extends BinaryJedisPubSub implements Clust
      * @param key    : cache key
      */
     @Override
-    public void sendEvictCmd(String region, Object key) {
+    public void sendEvictCmd(String region, Serializable key) {
         // 发送广播
         Command cmd = new Command(Command.OPT_DELETE_KEY, region, key);
         try {

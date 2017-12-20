@@ -1,6 +1,7 @@
 package net.oschina.j2cache;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -19,7 +20,7 @@ public interface ClusterPolicy {
      * @param region
      * @param key
      */
-    void sendEvictCmd(String region, Object key);
+    void sendEvictCmd(String region, Serializable key);
 
     /**
      * 发送清除整个缓存区域的命令
@@ -37,7 +38,7 @@ public interface ClusterPolicy {
      * @param region
      * @param key
      */
-    default void evict(String region, Object key) throws IOException {
+    default void evict(String region, Serializable key) throws IOException {
         if (key instanceof List)
             CacheProviderHolder.evicts(CacheProviderHolder.LEVEL_1, region, (List) key);
         else

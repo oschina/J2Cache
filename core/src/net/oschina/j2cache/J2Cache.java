@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.Properties;
 
 /**
@@ -33,7 +34,7 @@ public class J2Cache {
 				}
 
 				@Override
-				public void sendEvictCmd(String region, Object key) {
+				public void sendEvictCmd(String region, Serializable key) {
 					policy.sendEvictCmd(region, key);
 				}
 
@@ -58,8 +59,8 @@ public class J2Cache {
 
 	public static void main(String[] args) throws IOException {
 		try(CacheChannel channel = J2Cache.getChannel()){
-			channel.set("Users",1, "Winter Lau");
-			System.out.println(channel.get("Users", 1));
+			//channel.set("Users",1, "Winter Lau");
+			System.out.println(channel.getRawObject("Users", 1));
 		}
 	}
 
@@ -82,7 +83,7 @@ public class J2Cache {
 			String cache_broadcast = props.getProperty("j2cache.broadcast");
 			if ("redis".equalsIgnoreCase(cache_broadcast)) {
 				String channel = props.getProperty("redis.channel");
-				policy = ClusterPolicyFactory.redis(channel, null);//.getInstance();
+				policy = ClusterPolicyFactory.redis(channel, CacheProviderHolder.getRedisClient());//.getInstance();
 			}
 			else if ("jgroups".equalsIgnoreCase(cache_broadcast)) {
 				String channel_name = props.getProperty("jgroups.channel.name");

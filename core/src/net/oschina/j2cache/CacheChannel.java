@@ -1,8 +1,5 @@
 package net.oschina.j2cache;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
@@ -15,14 +12,18 @@ import java.util.Set;
  */
 public interface CacheChannel extends Closeable {
 
-    Log log = LogFactory.getLog(CacheChannel.class);
-
-	byte LEVEL_1 = 1;
-	byte LEVEL_2 = 2;
-
+	/**
+	 * 发送清除整个缓存区域的通知
+	 * @param region
+	 */
     void sendClearCmd(String region);
 
-    void sendEvictCmd(String region, Object key);
+	/**
+	 * 发送清除缓存对象的通知
+	 * @param region
+	 * @param key
+	 */
+	void sendEvictCmd(String region, Serializable key);
 
     /**
 	 * 获取缓存中的数据
@@ -35,18 +36,30 @@ public interface CacheChannel extends Closeable {
 		obj.setRegion(region);
 		obj.setKey(key);
 		if(region!=null && key != null){
-			obj.setValue(CacheProviderHolder.get(LEVEL_1, region, key));
+			obj.setValue(CacheProviderHolder.get(CacheProviderHolder.LEVEL_1, region, key));
 			if(obj.getValue() == null) {
-				obj.setValue(CacheProviderHolder.get(LEVEL_2, region, key));
+				obj.setValue(CacheProviderHolder.get(CacheProviderHolder.LEVEL_2, region, key));
 				if(obj.getValue() != null){
-					obj.setLevel(LEVEL_2);
-					CacheProviderHolder.set(LEVEL_1, region, key, obj.getValue());
+					obj.setLevel(CacheProviderHolder.LEVEL_2);
+					CacheProviderHolder.set(CacheProviderHolder.LEVEL_1, region, key, obj.getValue());
 				}
 			}
 			else
-				obj.setLevel(LEVEL_1);
+				obj.setLevel(CacheProviderHolder.LEVEL_1);
 		}
 		return obj;
+	}
+
+	/**
+	 * 获取缓存中的原生对象
+	 * @param region
+	 * @param key
+	 * @return
+	 * @throws IOException
+	 */
+	default Serializable getRawObject(String region, Serializable key) throws IOException {
+		CacheObject cache = get(region, key);
+		return (cache != null)?cache.getValue():null;
 	}
 	
 	/**
@@ -68,8 +81,8 @@ public interface CacheChannel extends Closeable {
                 //3. L1 没有，L2 有
                 //4. L1 和 L2 都有
                 //有可能引起缓存不同步_sendEvictCmd(region, key);//清除原有的一级缓存的内容
-                CacheProviderHolder.set(LEVEL_1, region, key, value);
-                CacheProviderHolder.set(LEVEL_2, region, key, value);
+                CacheProviderHolder.set(CacheProviderHolder.LEVEL_1, region, key, value);
+                CacheProviderHolder.set(CacheProviderHolder.LEVEL_2, region, key, value);
                 sendEvictCmd(region, key);//清除原有的一级缓存的内容
             }
         }
@@ -82,8 +95,8 @@ public interface CacheChannel extends Closeable {
 	 * @param key: Cache key
 	 */
 	default void evict(String region, Serializable key) throws IOException {
-        CacheProviderHolder.evict(LEVEL_1, region, key); //删除一级缓存
-        CacheProviderHolder.evict(LEVEL_2, region, key); //删除二级缓存
+        CacheProviderHolder.evict(CacheProviderHolder.LEVEL_1, region, key); //删除一级缓存
+        CacheProviderHolder.evict(CacheProviderHolder.LEVEL_2, region, key); //删除二级缓存
         sendEvictCmd(region, key); //发送广播
     }
 
@@ -93,9 +106,9 @@ public interface CacheChannel extends Closeable {
 	 * @param keys: Cache key
 	 */
 	default void evicts(String region, List<Serializable> keys) throws IOException {
-        CacheProviderHolder.evicts(LEVEL_1, region, keys);
-        CacheProviderHolder.evicts(LEVEL_2, region, keys);
-        sendEvictCmd(region, keys);
+        CacheProviderHolder.evicts(CacheProviderHolder.LEVEL_1, region, keys);
+        CacheProviderHolder.evicts(CacheProviderHolder.LEVEL_2, region, keys);
+        keys.forEach(key -> sendEvictCmd(region, key));
     }
 
 	/**
@@ -103,8 +116,8 @@ public interface CacheChannel extends Closeable {
 	 * @param region: Cache region name
 	 */
 	default void clear(String region) throws IOException {
-        CacheProviderHolder.clear(LEVEL_1, region);
-        CacheProviderHolder.clear(LEVEL_2, region);
+        CacheProviderHolder.clear(CacheProviderHolder.LEVEL_1, region);
+        CacheProviderHolder.clear(CacheProviderHolder.LEVEL_2, region);
         sendClearCmd(region);
     }
 	
@@ -114,7 +127,7 @@ public interface CacheChannel extends Closeable {
 	 * @return key list
 	 */
 	default Set<Serializable> keys(String region) throws IOException {
-        return CacheProviderHolder.keys(LEVEL_1, region);
+        return CacheProviderHolder.keys(CacheProviderHolder.LEVEL_1, region);
     }
 
 	/**

@@ -26,7 +26,6 @@
         timeToIdleSeconds="60"
         timeToLiveSeconds="120"
         overflowToDisk="true">
-        <!--  cacheEventListenerFactory class="net.oschina.j2cache.ehcache.EhCacheEventListenerFactory"/-->
     </defaultCache>
 
     <!--Predefined caches.  Add your cache configuration settings here.
@@ -48,12 +47,13 @@
 
         -->
 
-    <cache name="default"
+    <cache name="example"
         maxElementsInMemory="5000"
         eternal="false"
         timeToIdleSeconds="1800"
         timeToLiveSeconds="1800"
         overflowToDisk="false"
-        />
+        >
+    </cache>
 
 </ehcache>

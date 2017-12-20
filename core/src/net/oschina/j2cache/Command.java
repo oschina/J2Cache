@@ -4,6 +4,7 @@
 package net.oschina.j2cache;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -34,7 +35,7 @@ public class Command {
 	private int src;
 	private byte operator;
 	private String region;
-	private Object key;
+	private Serializable key;
 	
 	private static int genRandomSrc() {
 		long ct = System.currentTimeMillis();
@@ -56,7 +57,7 @@ public class Command {
 		}
 	}
 
-	public Command(byte o, String r, Object k){
+	public Command(byte o, String r, Serializable k){
 		this.operator = o;
 		this.region = r;
 		this.key = k;
@@ -64,7 +65,7 @@ public class Command {
 	}
 	
 	public byte[] toBuffers(){
-		byte[] keyBuffers = null;
+		byte[] keyBuffers;
 		try {
 			keyBuffers = SerializationUtils.serialize(key);
 		} catch (IOException e) {
@@ -105,7 +106,7 @@ public class Command {
 					//String key = new String(buffers, idx, k_len);
 					byte[] keyBuffers = new byte[k_len];
 					System.arraycopy(buffers, idx, keyBuffers, 0, k_len);
-					Object key = SerializationUtils.deserialize(keyBuffers);
+					Serializable key = (Serializable)SerializationUtils.deserialize(keyBuffers);
 					cmd = new Command(opt, region, key);
 					cmd.src = bytes2int(buffers);
 				}
@@ -155,11 +156,11 @@ public class Command {
 		this.region = region;
 	}
 
-	public Object getKey() {
+	public Serializable getKey() {
 		return key;
 	}
 
-	public void setKey(Object key) {
+	public void setKey(Serializable key) {
 		this.key = key;
 	}
 

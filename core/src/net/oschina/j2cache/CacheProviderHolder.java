@@ -1,16 +1,19 @@
 package net.oschina.j2cache;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import net.oschina.j2cache.redis.RedisClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.oschina.j2cache.ehcache.EhCacheProvider;
 import net.oschina.j2cache.redis.RedisCacheProvider;
+import redis.clients.jedis.JedisCluster;
 
 /**
  * 缓存管理器
@@ -25,7 +28,7 @@ class CacheProviderHolder {
 
 	private static CacheProvider l1_provider;
 	private static CacheProvider l2_provider;
-	
+
 	private static CacheExpiredListener listener;
 
 	
@@ -47,6 +50,14 @@ class CacheProviderHolder {
 		}catch(Exception e){
 			throw new CacheException("Failed to initialize cache manager", e);
 		}
+	}
+
+	/**
+	 * FIXME 此代码让整个接口设计变得很糟糕
+	 * @return
+	 */
+	public static RedisClient getRedisClient() {
+		return ((RedisCacheProvider)l2_provider).getClient();
 	}
 
 	private final static CacheProvider getProviderInstance(String value) throws Exception {
@@ -87,7 +98,7 @@ class CacheProviderHolder {
 	 * @param key Cache key
 	 * @return Cache object
 	 */
-	public final static Object get(int level, String name, Object key) throws IOException {
+	public final static Serializable get(int level, String name, Serializable key) throws IOException {
 		//System.out.println("GET1 => " + name+":"+key);
 		if(name!=null && key != null) {
             Cache cache = _GetCache(level, name, false);
@@ -104,7 +115,7 @@ class CacheProviderHolder {
 	 * @param key Cache key
 	 * @param value Cache value
 	 */
-	public final static void set(int level, String name, Object key, Object value) throws IOException {
+	public final static void set(int level, String name, Serializable key, Serializable value) throws IOException {
 		//System.out.println("SET => " + name+":"+key+"="+value);
 		if(name!=null && key != null && value!=null) {
             Cache cache =_GetCache(level, name, true);
@@ -119,7 +130,7 @@ class CacheProviderHolder {
 	 * @param name Cache region name
 	 * @param key Cache key
 	 */
-	public final static void evict(int level, String name, Object key) throws IOException {
+	public final static void evict(int level, String name, Serializable key) throws IOException {
 		//batchEvict(level, name, java.util.Arrays.asList(key));
 		if(name!=null && key != null) {
             Cache cache =_GetCache(level, name, false);
@@ -134,12 +145,11 @@ class CacheProviderHolder {
 	 * @param name Cache region name
 	 * @param keys Cache keys
 	 */
-	@SuppressWarnings("rawtypes")
-	public final static void evicts(int level, String name, List keys) throws IOException {
+	public final static void evicts(int level, String name, List<Serializable> keys) throws IOException {
 		if(name!=null && keys != null && keys.size() > 0) {
             Cache cache =_GetCache(level, name, false);
             if (cache != null)
-                cache.evict(keys);
+                cache.evicts(keys);
         }
 	}
 
@@ -160,8 +170,7 @@ class CacheProviderHolder {
 	 * @param name cache region name
 	 * @return Key List
 	 */
-	@SuppressWarnings("rawtypes")
-	public final static Set keys(int level, String name) throws IOException {
+	public final static Set<Serializable> keys(int level, String name) throws IOException {
         Cache cache =_GetCache(level, name, false);
 		return (cache!=null)?cache.keys():null;
 	}

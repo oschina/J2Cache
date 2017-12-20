@@ -1,6 +1,7 @@
 package net.oschina.j2cache;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -8,44 +9,39 @@ import java.util.Set;
  * 空的缓存Provider
  * @author winterlau
  */
-public class NullCache<K,V> implements Cache<K,V> {
+public class NullCache implements Cache {
 	@Override
-	public V get(K key) throws IOException, CacheException {
+	public Serializable get(Serializable key) throws IOException, CacheException {
 		return null;
 	}
 
 	@Override
-	public void put(K key, V value) throws IOException, CacheException {
+	public void put(Serializable key, Serializable value) throws IOException, CacheException {
 
 	}
 
 	@Override
-	public void update(K key, V value) throws IOException, CacheException {
+	public void update(Serializable key, Serializable value) throws IOException, CacheException {
 
 	}
 
 	@Override
-	public Set<K> keys() throws IOException, CacheException {
+	public Set<Serializable> keys() throws IOException, CacheException {
 		return null;
 	}
 
 	@Override
-	public void evict(K key) throws IOException, CacheException {
+	public void evict(Serializable key) throws IOException, CacheException {
 
 	}
 
 	@Override
-	public void evicts(List<K> keys) throws IOException, CacheException {
+	public void evicts(List<Serializable> keys) throws IOException, CacheException {
 
 	}
 
 	@Override
 	public void clear() throws IOException, CacheException {
-
-	}
-
-	@Override
-	public void destroy() throws IOException, CacheException {
 
 	}
 }

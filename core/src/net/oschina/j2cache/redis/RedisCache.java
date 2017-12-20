@@ -2,16 +2,10 @@ package net.oschina.j2cache.redis;
 
 import net.oschina.j2cache.Cache;
 import net.oschina.j2cache.CacheException;
-import net.oschina.j2cache.J2Cache;
 import net.oschina.j2cache.util.SerializationUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import redis.clients.jedis.JedisCluster;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,21 +15,19 @@ import java.util.Set;
  *
  * @author wendal
  */
-class RedisCache<V> implements Cache<String, V> {
-
-    private final static Log log = LogFactory.getLog(RedisCache.class);
+class RedisCache implements Cache {
 
     // 记录region
     protected String namespace;
     protected String region;
     protected byte[] regionBytes;
-    protected JedisCluster cluster;
+    protected RedisClient client;
 
-    public RedisCache(String namespace, String region, JedisCluster cluster) {
+    public RedisCache(String namespace, String region, RedisClient client) {
         if (region == null || region.isEmpty())
             region = "_"; // 缺省region
 
-        this.cluster = cluster;
+        this.client = client;
         this.namespace = namespace;
         this.region = getRegionName(region);
         this.regionBytes = region.getBytes();
@@ -64,61 +56,61 @@ class RedisCache<V> implements Cache<String, V> {
     }
 
     @Override
-    public V get(String key) throws IOException, CacheException {
+    public Serializable get(Serializable key) throws IOException, CacheException {
         if (null == key)
             return null;
-        byte[] b = cluster.hget(regionBytes, getKeyName(key));
-        return (V)SerializationUtils.deserialize(b);
+        byte[] bytes = client.get().hget(regionBytes, getKeyName(key));
+        return (Serializable)SerializationUtils.deserialize(bytes);
     }
 
     @Override
-    public void put(String key, V value) throws IOException, CacheException {
+    public void put(Serializable key, Serializable value) throws IOException, CacheException {
         if (key == null)
             return;
         if (value == null)
             evict(key);
         else
-            cluster.hset(regionBytes, getKeyName(key), SerializationUtils.serialize(value));
+            client.get().hset(regionBytes, getKeyName(key), SerializationUtils.serialize(value));
     }
 
     @Override
-    public void update(String key, V value) throws IOException, CacheException {
+    public void update(Serializable key, Serializable value) throws IOException, CacheException {
         this.put(key, value);
     }
 
     @Override
-    public void evict(String key) throws CacheException {
+    public void evict(Serializable key) {
         if (key == null)
             return;
-        cluster.hdel(regionBytes, getKeyName(key));
+        client.get().hdel(regionBytes, getKeyName(key));
     }
 
     @Override
-    @SuppressWarnings("rawtypes")
-    public void evicts(List<String> keys) throws CacheException {
+    public void evicts(List<Serializable> keys) {
         if (keys == null || keys.size() == 0)
             return;
         int size = keys.size();
-        byte[][] okeys = new byte[size][];
+        byte[][] o_keys = new byte[size][];
         for (int i = 0; i < size; i++) {
-            okeys[i] = getKeyName(keys.get(i));
+            o_keys[i] = getKeyName(keys.get(i));
         }
-        cluster.hdel(regionBytes, okeys);
+        client.get().hdel(regionBytes, o_keys);
     }
 
     @Override
-    public Set<String> keys() throws CacheException {
-        Set<String> keys = new HashSet<>();
-        keys.addAll(cluster.hkeys(region));
+    public Set<Serializable> keys() {
+        Set<Serializable> keys = new HashSet<>();
+        client.get().hkeys(regionBytes).forEach(keyBytes -> {
+            try {
+                keys.add((Serializable)SerializationUtils.deserialize(keyBytes));
+            }catch(IOException e){}
+        });
         return keys;
     }
 
+    @Override
     public void clear() throws CacheException {
-        cluster.del(regionBytes);
-    }
-
-    public void destroy() throws CacheException {
-        this.clear();
+        client.get().del(regionBytes);
     }
 
 }

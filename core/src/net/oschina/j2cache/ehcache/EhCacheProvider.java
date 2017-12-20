@@ -1,5 +1,6 @@
 package net.oschina.j2cache.ehcache;
 
+import java.net.URL;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -44,6 +45,7 @@ public class EhCacheProvider implements CacheProvider {
      * @return a newly built cache will be built and initialised
      * @throws CacheException inter alia, if a cache of the same regionName already exists
      */
+    @Override
     public EhCache buildCache(String regionName, boolean autoCreate, CacheExpiredListener listener) throws CacheException {
     	EhCache ehcache = _CacheManager.get(regionName);
     	if(ehcache == null && autoCreate){
@@ -88,7 +90,8 @@ public class EhCacheProvider implements CacheProvider {
 		if (manager == null) {
 			// 指定了配置文件路径? 加载之
 			if (props.containsKey(KEY_EHCACHE_CONFIG_XML)) {
-				manager = new CacheManager(props.getProperty(KEY_EHCACHE_CONFIG_XML));
+				URL url = getClass().getResource(props.getProperty(KEY_EHCACHE_CONFIG_XML));
+				manager = CacheManager.newInstance(url);//props.getProperty(KEY_EHCACHE_CONFIG_XML));
 			} else {
 				// 加载默认实例
 				manager = CacheManager.getInstance();
