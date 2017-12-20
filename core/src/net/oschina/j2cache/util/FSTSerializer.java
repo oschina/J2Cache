@@ -1,6 +1,3 @@
-/**
- *
- */
 package net.oschina.j2cache.util;
 
 import java.io.ByteArrayInputStream;
@@ -25,18 +22,11 @@ public class FSTSerializer implements Serializer {
 	@Override
 	public byte[] serialize(Object obj) throws IOException {
 		ByteArrayOutputStream out = null;
-		FSTObjectOutput fout = null;
-		try {
-			out = new ByteArrayOutputStream();
-			fout = new FSTObjectOutput(out);
-			fout.writeObject(obj);
-			fout.flush();
+		out = new ByteArrayOutputStream();
+		try (FSTObjectOutput fOut = new FSTObjectOutput(out)) {
+			fOut.writeObject(obj);
+			fOut.flush();
 			return out.toByteArray();
-		} finally {
-			if(fout != null)
-			try {
-				fout.close();
-			} catch (IOException e) {}
 		}
 	}
 
@@ -44,17 +34,10 @@ public class FSTSerializer implements Serializer {
 	public Object deserialize(byte[] bytes) throws IOException {
 		if(bytes == null || bytes.length == 0)
 			return null;
-		FSTObjectInput in = null;
-		try {
-			in = new FSTObjectInput(new ByteArrayInputStream(bytes));
+		try (FSTObjectInput in = new FSTObjectInput(new ByteArrayInputStream(bytes))){
 			return in.readObject();
 		} catch (ClassNotFoundException e) {
 			throw new CacheException(e);
-		} finally {
-			if(in != null)
-			try {
-				in.close();
-			} catch (IOException e) {}
 		}
 	}
 

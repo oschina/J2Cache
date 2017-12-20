@@ -19,9 +19,9 @@ public class KryoPoolSerializer implements Serializer{
      */
     @Override
     public byte[] serialize(Object obj) {
-        KryoHolder kryoHolder = null;
         if (obj == null)
             return null;
+        KryoHolder kryoHolder = null;
         try {
             kryoHolder = KryoPoolImpl.getInstance().get();
             kryoHolder.output.clear();  //clear Output    -->每次调用的时候  重置

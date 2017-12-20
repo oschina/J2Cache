@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.oschina.j2cache.util;
 
 import java.io.ByteArrayInputStream;
@@ -24,17 +21,10 @@ public class JavaSerializer implements Serializer {
 	
 	@Override
 	public byte[] serialize(Object obj) throws IOException {
-		ObjectOutputStream oos = null;
-		try {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			oos = new ObjectOutputStream(baos);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try (ObjectOutputStream oos = new ObjectOutputStream(baos)){
 			oos.writeObject(obj);
 			return baos.toByteArray();
-		} finally {
-			if(oos != null)
-			try {
-				oos.close();
-			} catch (IOException e) {}
 		}
 	}
 
@@ -42,18 +32,11 @@ public class JavaSerializer implements Serializer {
 	public Object deserialize(byte[] bits) throws IOException {
 		if(bits == null || bits.length == 0)
 			return null;
-		ObjectInputStream ois = null;
-		try {
-			ByteArrayInputStream bais = new ByteArrayInputStream(bits);
-			ois = new ObjectInputStream(bais);
+		ByteArrayInputStream bais = new ByteArrayInputStream(bits);
+		try (ObjectInputStream ois = new ObjectInputStream(bais)){
 			return ois.readObject();
 		} catch (ClassNotFoundException e) {
 			throw new CacheException(e);
-		} finally {
-			if(ois != null)
-			try {
-				ois.close();
-			} catch (IOException e) {}
 		}
 	}
 	

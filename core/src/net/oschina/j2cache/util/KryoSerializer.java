@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.oschina.j2cache.util;
 
 import com.esotericsoftware.kryo.Kryo;
@@ -27,16 +24,11 @@ public class KryoSerializer implements Serializer {
 
 	@Override
 	public byte[] serialize(Object obj) throws IOException {
-		Output output = null;
-		try {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			output = new Output(baos);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try (Output output = new Output(baos);){
 			kryo.writeClassAndObject(output, obj);
 			output.flush();
 			return baos.toByteArray();
-		}finally{
-			if(output != null)
-				output.close();
 		}
 	}
 
@@ -44,14 +36,8 @@ public class KryoSerializer implements Serializer {
 	public Object deserialize(byte[] bits) throws IOException {
 		if(bits == null || bits.length == 0)
 			return null;
-		Input ois = null;
-		try {
-			ByteArrayInputStream bais = new ByteArrayInputStream(bits);
-			ois = new Input(bais);
+		try (Input ois = new Input(new ByteArrayInputStream(bits))){
 			return kryo.readClassAndObject(ois);
-		} finally {
-			if(ois != null)
-				ois.close();
 		}
 	}
 	

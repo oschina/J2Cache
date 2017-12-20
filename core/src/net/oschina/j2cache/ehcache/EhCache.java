@@ -1,6 +1,5 @@
 package net.oschina.j2cache.ehcache;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
@@ -9,7 +8,6 @@ import java.util.Set;
 import net.oschina.j2cache.Cache;
 import net.oschina.j2cache.CacheException;
 import net.oschina.j2cache.CacheExpiredListener;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
@@ -35,7 +33,7 @@ class EhCache implements Cache, CacheEventListener {
 	}
 
 	@Override
-	public Set<Serializable> keys() throws CacheException {
+	public Set<Serializable> keys() {
 		Set<Serializable> keys = new HashSet<>();
 		keys.addAll(this.cache.getKeys());
 		return keys;
@@ -46,22 +44,13 @@ class EhCache implements Cache, CacheEventListener {
 	 *
 	 * @param key the key of the element to return.
 	 * @return The value placed into the cache with an earlier put, or null if not found or expired
-	 * @throws CacheException cache exception
 	 */
 	@Override
-	public Serializable get(Serializable key) throws CacheException {
-		try {
-			if ( key == null ) 
-				return null;
-			Element element = cache.get( key );
-			if ( element != null )
-				return (Serializable)element.getObjectValue();
-
+	public Serializable get(Serializable key) {
+		if ( key == null )
 			return null;
-		}
-		catch (net.sf.ehcache.CacheException e) {
-			throw new CacheException( e );
-		}
+		Element elem = cache.get( key );
+		return (elem == null)?null:(Serializable)elem.getObjectValue();
 	}
 
 	/**
@@ -69,12 +58,10 @@ class EhCache implements Cache, CacheEventListener {
 	 *
 	 * @param key   a key
 	 * @param value a value
-	 * @throws CacheException if the {@link CacheManager}
-	 *                        is shutdown or another {@link Exception} occurs.
 	 */
 	@Override
-	public void update(Serializable key, Serializable value) throws IOException {
-		put( key, value );
+	public void update(Serializable key, Serializable value) {
+		put(key, value);
 	}
 
 	/**
@@ -82,13 +69,10 @@ class EhCache implements Cache, CacheEventListener {
 	 *
 	 * @param key   a key
 	 * @param value a value
-	 * @throws CacheException if the {@link CacheManager}
-	 *                        is shutdown or another {@link Exception} occurs.
 	 */
 	@Override
-	public void put(Serializable key, Serializable value) throws CacheException {
-		Element element = new Element( key, value );
-		cache.put( element );
+	public void put(Serializable key, Serializable value) {
+		cache.put(new Element(key, value));
 	}
 
 	/**
@@ -96,10 +80,9 @@ class EhCache implements Cache, CacheEventListener {
 	 * If no element matches, nothing is removed and no Exception is thrown.
 	 *
 	 * @param key the key of the element to remove
-	 * @throws CacheException cache exception
 	 */
 	@Override
-	public void evict(Serializable key) throws CacheException {
+	public void evict(Serializable key) {
 		try {
 			cache.remove( key );
 		} catch (IllegalStateException | net.sf.ehcache.CacheException e) {
@@ -111,17 +94,15 @@ class EhCache implements Cache, CacheEventListener {
 	 * @see net.oschina.j2cache.Cache#batchRemove(java.util.List)
 	 */
 	@Override
-	public void evicts(List<Serializable> keys) throws CacheException {
+	public void evicts(List<Serializable> keys) {
 		cache.removeAll(keys);
 	}
 
 	/**
 	 * Remove all elements in the cache, but leave the cache
 	 * in a useable state.
-	 *
-	 * @throws CacheException cache exception
 	 */
-	public void clear() throws CacheException {
+	public void clear() {
 		cache.removeAll();
 	}
 
@@ -147,13 +128,13 @@ class EhCache implements Cache, CacheEventListener {
 	}
 
 	@Override
-	public void notifyElementPut(Ehcache cache, Element elem) throws net.sf.ehcache.CacheException {}
+	public void notifyElementPut(Ehcache cache, Element elem) {}
 
 	@Override
-	public void notifyElementRemoved(Ehcache cache, Element elem) throws net.sf.ehcache.CacheException {}
+	public void notifyElementRemoved(Ehcache cache, Element elem) {}
 
 	@Override
-	public void notifyElementUpdated(Ehcache cache, Element elem) throws net.sf.ehcache.CacheException {}
+	public void notifyElementUpdated(Ehcache cache, Element elem) {}
 
 	@Override
 	public void notifyRemoveAll(Ehcache cache) {}

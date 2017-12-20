@@ -28,21 +28,13 @@ public class FstSnappySerializer implements Serializer {
 	
 	@Override
 	public byte[] serialize(Object obj) throws IOException {
-		try {
-			return Snappy.compress(inner.serialize(obj));
-		} catch (Exception e) {
-			throw new CacheException(e);
-		}
+		return Snappy.compress(inner.serialize(obj));
 	}
 
 	@Override
-	public Object deserialize(byte[] bytes) {
+	public Object deserialize(byte[] bytes) throws IOException {
 		if (bytes == null || bytes.length == 0)
 			return null;
-		try {
-			return inner.deserialize(Snappy.uncompress(bytes));
-		} catch (Exception e) {
-			throw new CacheException(e);
-		}
+		return inner.deserialize(Snappy.uncompress(bytes));
 	}
 }

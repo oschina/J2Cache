@@ -7,7 +7,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.oschina.j2cache.CacheException;
 import net.oschina.j2cache.CacheExpiredListener;
 import net.oschina.j2cache.CacheProvider;
 import net.sf.ehcache.CacheManager;
@@ -43,31 +42,25 @@ public class EhCacheProvider implements CacheProvider {
      * @param autoCreate auto create cache region ?
      * @param listener cache listener
      * @return a newly built cache will be built and initialised
-     * @throws CacheException inter alia, if a cache of the same regionName already exists
      */
     @Override
-    public EhCache buildCache(String regionName, boolean autoCreate, CacheExpiredListener listener) throws CacheException {
+    public EhCache buildCache(String regionName, boolean autoCreate, CacheExpiredListener listener) {
     	EhCache ehcache = _CacheManager.get(regionName);
     	if(ehcache == null && autoCreate){
-		    try {
-	            synchronized(_CacheManager){
-	            	ehcache = _CacheManager.get(regionName);
-	            	if(ehcache == null){
-			            net.sf.ehcache.Cache cache = manager.getCache(regionName);
-			            if (cache == null) {
-			                log.warn("Could not find configuration [" + regionName + "]; using defaults.");
-			                manager.addCache(regionName);
-			                cache = manager.getCache(regionName);
-			                log.debug("started EHCache region: " + regionName);
-			            }
-			            ehcache = new EhCache(cache, listener);
-			            _CacheManager.put(regionName, ehcache);
-	            	}
-	            }
-		    }
-	        catch (net.sf.ehcache.CacheException e) {
-	            throw new CacheException(e);
-	        }
+			synchronized(EhCacheProvider.class){
+				ehcache = _CacheManager.get(regionName);
+				if(ehcache == null){
+					net.sf.ehcache.Cache cache = manager.getCache(regionName);
+					if (cache == null) {
+						log.warn("Could not find configuration [" + regionName + "]; using defaults.");
+						manager.addCache(regionName);
+						cache = manager.getCache(regionName);
+						log.debug("started Ehcache region: " + regionName);
+					}
+					ehcache = new EhCache(cache, listener);
+					_CacheManager.put(regionName, ehcache);
+				}
+			}
     	}
         return ehcache;
     }
@@ -77,7 +70,7 @@ public class EhCacheProvider implements CacheProvider {
 	 *
 	 * @param props current configuration settings.
 	 */
-	public void start(Properties props) throws CacheException {
+	public void start(Properties props) {
 		if (manager != null) {
             log.warn("Attempt to restart an already started EhCacheProvider.");
             return;

@@ -69,9 +69,8 @@ public class RedisPubSubClusterPolicy extends BinaryJedisPubSub implements Clust
 
     public void onMessage(byte[] channel, byte[] message) {
         // 无效消息
-        if (message != null && message.length <= 0) {
+        if (message != null && message.length <= 0)
             return;
-        }
 
         try {
             Command cmd = Command.parse(message);

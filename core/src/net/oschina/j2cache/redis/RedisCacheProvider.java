@@ -40,10 +40,9 @@ public class RedisCacheProvider implements CacheProvider {
         this.props = props;
         //初始化 Redis 连接
         this.namespace = props.getProperty("namespace");
-        HashMap<String, String> props2 = new HashMap<>();
         try {
-            for (String pn : props.stringPropertyNames())
-                props2.put(pn, props.getProperty(pn));
+            HashMap<String, String> props2 = new HashMap<>();
+            props.forEach((k, v) -> props2.put((String)k, (String)v));
             BeanUtils.populate(poolConfig, props2);
         } catch (IllegalAccessException | InvocationTargetException e) {
             log.error("Unable to init redis client.", e);
@@ -61,12 +60,12 @@ public class RedisCacheProvider implements CacheProvider {
         try {
             redisClient.close();
         } catch (IOException e) {
-            log.warn("Unable to close redis cluster connection.", e);
+            log.warn("Unable to close redis connection.", e);
         }
     }
 
     @Override
-    public Cache buildCache(String regionName, boolean autoCreate, CacheExpiredListener listener) throws CacheException {
+    public Cache buildCache(String regionName, boolean autoCreate, CacheExpiredListener listener) {
         RedisCache cache = caches.get(regionName);
         if (cache == null) {
             synchronized(RedisCacheProvider.class) {

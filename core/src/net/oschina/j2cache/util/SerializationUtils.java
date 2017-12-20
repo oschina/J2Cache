@@ -47,9 +47,9 @@ public class SerializationUtils {
                 g_serializer = new KryoSerializer();
             } else if (ser.equals("kryo-pool")){
                 g_serializer = new KryoPoolSerializer();
-            }else if(ser.equals("fst-snappy")){
+            } else if(ser.equals("fst-snappy")){
                 g_serializer=new FstSnappySerializer();
-            }else {
+            } else {
                 try {
                     g_serializer = (Serializer) Class.forName(ser).newInstance();
                 } catch (Exception e) {
