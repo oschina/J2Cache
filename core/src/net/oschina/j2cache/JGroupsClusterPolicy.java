@@ -1,8 +1,8 @@
 package net.oschina.j2cache;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jgroups.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.net.URL;
@@ -15,7 +15,7 @@ import java.util.List;
 public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPolicy {
 
     private final static String CONFIG_XML = "/network.xml";
-    private final static Log log = LogFactory.getLog(JGroupsClusterPolicy.class);
+    private final static Logger log = LoggerFactory.getLogger(JGroupsClusterPolicy.class);
 
     private JChannel channel;
     private String name;

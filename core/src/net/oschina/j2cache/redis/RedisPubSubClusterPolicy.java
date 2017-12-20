@@ -2,12 +2,9 @@ package net.oschina.j2cache.redis;
 
 import net.oschina.j2cache.ClusterPolicy;
 import net.oschina.j2cache.Command;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.BinaryJedisPubSub;
-import redis.clients.jedis.JedisCluster;
 
 import java.io.Serializable;
 

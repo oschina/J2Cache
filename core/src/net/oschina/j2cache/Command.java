@@ -9,8 +9,8 @@ import java.util.Arrays;
 import java.util.Random;
 
 import net.oschina.j2cache.util.SerializationUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 命令消息封装
@@ -25,7 +25,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class Command {
 
-	private final static Log log = LogFactory.getLog(Command.class);
+	private final static Logger log = LoggerFactory.getLogger(Command.class);
 	
 	private final static int SRC_ID = genRandomSrc(); //命令源标识，随机生成
 

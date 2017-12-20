@@ -1,7 +1,6 @@
 package net.oschina.j2cache.redis;
 
 import net.oschina.j2cache.Cache;
-import net.oschina.j2cache.CacheException;
 import net.oschina.j2cache.util.SerializationUtils;
 
 import java.io.IOException;
@@ -17,7 +16,6 @@ import java.util.Set;
  */
 class RedisCache implements Cache {
 
-    // 记录region
     protected String namespace;
     protected String region;
     protected byte[] regionBytes;
@@ -56,7 +54,7 @@ class RedisCache implements Cache {
     }
 
     @Override
-    public Serializable get(Serializable key) throws IOException, CacheException {
+    public Serializable get(Serializable key) throws IOException {
         if (null == key)
             return null;
         byte[] bytes = client.get().hget(regionBytes, getKeyName(key));
@@ -64,7 +62,7 @@ class RedisCache implements Cache {
     }
 
     @Override
-    public void put(Serializable key, Serializable value) throws IOException, CacheException {
+    public void put(Serializable key, Serializable value) throws IOException {
         if (key == null)
             return;
         if (value == null)
@@ -74,7 +72,7 @@ class RedisCache implements Cache {
     }
 
     @Override
-    public void update(Serializable key, Serializable value) throws IOException, CacheException {
+    public void update(Serializable key, Serializable value) throws IOException {
         this.put(key, value);
     }
 
@@ -109,7 +107,7 @@ class RedisCache implements Cache {
     }
 
     @Override
-    public void clear() throws CacheException {
+    public void clear() {
         client.get().del(regionBytes);
     }
 
