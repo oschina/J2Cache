@@ -21,15 +21,18 @@ public class RedisClient implements Closeable {
     private JedisPool single;
     private JedisSentinelPool sentinel;
     private ShardedJedis sharded;
+    private String redisPassword;
 
     /**
      * 各种模式 Redis 客户端的封装
      * @param mode
      * @param hosts
+     * @parma password
      * @param cluster_name
      * @param poolConfig
      */
-    public RedisClient(String mode, String hosts, String cluster_name, JedisPoolConfig poolConfig) {
+    public RedisClient(String mode, String hosts, String password, String cluster_name, JedisPoolConfig poolConfig) {
+        this.redisPassword = (password != null && password.trim().length() > 0)? password.trim(): null;
         switch(mode){
             case "single":
                 for(String node : hosts.split(",")) {
@@ -55,6 +58,8 @@ public class RedisClient implements Closeable {
                     hps.add(new HostAndPort(host, port));
                 }
                 this.cluster = new JedisCluster(hps, poolConfig);
+                if(redisPassword != null)
+                    this.cluster.auth(redisPassword);
                 break;
             case "sharded":
                 List<JedisShardInfo> shards = new ArrayList<>();
@@ -65,6 +70,8 @@ public class RedisClient implements Closeable {
                     shards.add(new JedisShardInfo(host, port));
                 }
                 this.sharded = new ShardedJedis(shards);
+                if(redisPassword != null)
+                    this.sharded.getAllShards().forEach(node -> node.auth(redisPassword));
                 break;
             default:
                 throw new CacheException("Redis mode [" + mode + "] not defined.");
@@ -75,12 +82,23 @@ public class RedisClient implements Closeable {
      * 获取客户端接口
      */
     public BinaryJedisCommands get() {
-        if(single != null)
-            return single.getResource();
-        if(sentinel != null)
-            return sentinel.getResource();
+        if(single != null) {
+            Jedis jedis = single.getResource();
+            if(redisPassword != null)
+                jedis.auth(redisPassword);
+            return jedis;
+        }
+        else
+        if(sentinel != null) {
+            Jedis jedis = sentinel.getResource();
+            if(redisPassword != null)
+                jedis.auth(redisPassword);
+            return jedis;
+        }
+        else
         if(sharded != null)
             return sharded;
+        else
         if(cluster != null)
             return toBinaryJedisCommands(cluster);
         return null;

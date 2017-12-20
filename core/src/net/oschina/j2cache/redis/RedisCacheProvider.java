@@ -50,7 +50,8 @@ public class RedisCacheProvider implements CacheProvider {
         String hosts = props.getProperty("hosts");
         String mode = props.getProperty("mode");
         String cluster_name = props.getProperty("cluster_name");
-        this.redisClient = new RedisClient(mode, hosts, cluster_name, poolConfig);
+        String password = props.getProperty("password");
+        this.redisClient = new RedisClient(mode, hosts, password, cluster_name, poolConfig);
     }
 
     @Override
