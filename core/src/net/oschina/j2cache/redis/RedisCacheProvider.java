@@ -2,8 +2,8 @@ package net.oschina.j2cache.redis;
 
 import net.oschina.j2cache.*;
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import redis.clients.jedis.*;
 
 import java.io.IOException;
@@ -19,7 +19,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class RedisCacheProvider implements CacheProvider {
 
-    private final static Log log = LogFactory.getLog(RedisCacheProvider.class);
+    private final static Logger log = LoggerFactory.getLogger(RedisCacheProvider.class);
+
     private Properties props;
     private RedisClient redisClient;
     protected ConcurrentHashMap<String, RedisCache> caches = new ConcurrentHashMap<>();

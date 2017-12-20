@@ -4,6 +4,8 @@ import net.oschina.j2cache.ClusterPolicy;
 import net.oschina.j2cache.Command;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import redis.clients.jedis.BinaryJedisPubSub;
 import redis.clients.jedis.JedisCluster;
 
@@ -15,7 +17,7 @@ import java.io.Serializable;
  */
 public class RedisPubSubClusterPolicy extends BinaryJedisPubSub implements ClusterPolicy {
 
-    private final static Log log = LogFactory.getLog(RedisPubSubClusterPolicy.class);
+    private final static Logger log = LoggerFactory.getLogger(RedisPubSubClusterPolicy.class);
 
     private RedisClient redis;
     private String channel;
