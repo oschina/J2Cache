@@ -17,14 +17,14 @@ public interface ClusterPolicy {
 
     /**
      * 发送清除缓存的命令
-     * @param region
-     * @param key
+     * @param region 区域名称
+     * @param key   缓存键值
      */
     void sendEvictCmd(String region, Serializable key);
 
     /**
      * 发送清除整个缓存区域的命令
-     * @param region
+     * @param region 区域名称
      */
     void sendClearCmd(String region);
 
@@ -35,8 +35,9 @@ public interface ClusterPolicy {
 
     /**
      * 删除本地某个缓存条目
-     * @param region
-     * @param key
+     * @param region 区域名称
+     * @param key   缓存键值
+     * @throws IOException io exception
      */
     default void evict(String region, Serializable key) throws IOException {
         if (key instanceof List)
@@ -47,7 +48,8 @@ public interface ClusterPolicy {
 
     /**
      * 清除本地整个缓存区域
-     * @param region
+     * @param region 区域名称
+     * @throws IOException io exception
      */
     default void clear(String region) throws IOException {
         CacheProviderHolder.clear(CacheProviderHolder.LEVEL_1, region);

@@ -14,14 +14,14 @@ public interface CacheChannel extends Closeable {
 
 	/**
 	 * 发送清除整个缓存区域的通知
-	 * @param region
+	 * @param region 区域名称
 	 */
     void sendClearCmd(String region);
 
 	/**
 	 * 发送清除缓存对象的通知
-	 * @param region
-	 * @param key
+	 * @param region 区域名称
+	 * @param key	缓存键值
 	 */
 	void sendEvictCmd(String region, Serializable key);
 
@@ -30,6 +30,7 @@ public interface CacheChannel extends Closeable {
 	 * @param region: Cache Region name
 	 * @param key: Cache key
 	 * @return cache object
+	 * @throws IOException io exception
 	 */
 	default CacheObject get(String region, Serializable key) throws IOException {
 		CacheObject obj = new CacheObject();
@@ -52,10 +53,10 @@ public interface CacheChannel extends Closeable {
 
 	/**
 	 * 获取缓存中的原生对象
-	 * @param region
-	 * @param key
-	 * @return
-	 * @throws IOException
+	 * @param region 缓存区域
+	 * @param key	缓存键值
+	 * @return	返回原生对象
+	 * @throws IOException io exception
 	 */
 	default Serializable getRawObject(String region, Serializable key) throws IOException {
 		CacheObject cache = get(region, key);
@@ -67,6 +68,7 @@ public interface CacheChannel extends Closeable {
 	 * @param region: Cache Region name
 	 * @param key: Cache key
 	 * @param value: Cache value
+	 * @throws IOException io exception
 	 */
 	default void set(String region, Serializable key, Serializable value) throws IOException {
         if(region!=null && key != null){
@@ -93,6 +95,7 @@ public interface CacheChannel extends Closeable {
 	 * 删除缓存
 	 * @param region:  Cache Region name
 	 * @param key: Cache key
+	 * @throws IOException io exception
 	 */
 	default void evict(String region, Serializable key) throws IOException {
         CacheProviderHolder.evict(CacheProviderHolder.LEVEL_1, region, key); //删除一级缓存
@@ -104,6 +107,7 @@ public interface CacheChannel extends Closeable {
 	 * 批量删除缓存
 	 * @param region: Cache region name
 	 * @param keys: Cache key
+	 * @throws IOException io exception
 	 */
 	default void evicts(String region, List<Serializable> keys) throws IOException {
         CacheProviderHolder.evicts(CacheProviderHolder.LEVEL_1, region, keys);
@@ -114,6 +118,7 @@ public interface CacheChannel extends Closeable {
 	/**
 	 * Clear the cache
 	 * @param region: Cache region name
+	 * @throws IOException io exception
 	 */
 	default void clear(String region) throws IOException {
         CacheProviderHolder.clear(CacheProviderHolder.LEVEL_1, region);
@@ -125,6 +130,7 @@ public interface CacheChannel extends Closeable {
 	 * Get cache region keys
 	 * @param region: Cache region name
 	 * @return key list
+	 * @throws IOException io exception
 	 */
 	default Set<Serializable> keys(String region) throws IOException {
         return CacheProviderHolder.keys(CacheProviderHolder.LEVEL_1, region);

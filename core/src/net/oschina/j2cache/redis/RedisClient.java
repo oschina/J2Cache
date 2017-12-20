@@ -25,11 +25,11 @@ public class RedisClient implements Closeable {
 
     /**
      * 各种模式 Redis 客户端的封装
-     * @param mode
-     * @param hosts
-     * @parma password
-     * @param cluster_name
-     * @param poolConfig
+     * @param mode Redis 服务器运行模式
+     * @param hosts Redis 主机连接信息
+     * @param password  Redis 密码（如果有的话）
+     * @param cluster_name  集群名称
+     * @param poolConfig    连接池配置
      */
     public RedisClient(String mode, String hosts, String password, String cluster_name, JedisPoolConfig poolConfig) {
         this.redisPassword = (password != null && password.trim().length() > 0)? password.trim(): null;
@@ -80,6 +80,7 @@ public class RedisClient implements Closeable {
 
     /**
      * 获取客户端接口
+     * @return 返回基本的 Jedis 二进制命令接口
      */
     public BinaryJedisCommands get() {
         if(single != null) {
@@ -106,8 +107,8 @@ public class RedisClient implements Closeable {
 
     /**
      * 订阅
-     * @param jedisPubSub
-     * @param channels
+     * @param jedisPubSub 接受订阅消息的实例
+     * @param channels 订阅的频道名称
      */
     public void subscribe(BinaryJedisPubSub jedisPubSub, String... channels) {
         byte[][] bytes = new byte[channels.length][];
@@ -142,7 +143,7 @@ public class RedisClient implements Closeable {
 
     /**
      * 为了变态的 jedis 接口设计，搞了五百多行垃圾代码
-     * @param cluster
+     * @param cluster Jedis 集群实例
      * @return
      */
     private BinaryJedisCommands toBinaryJedisCommands(JedisCluster cluster) {
