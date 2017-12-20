@@ -2,7 +2,6 @@ package net.oschina.j2cache.util;
 
 import java.io.IOException;
 
-import net.oschina.j2cache.CacheException;
 import org.xerial.snappy.Snappy;
 
 /**
