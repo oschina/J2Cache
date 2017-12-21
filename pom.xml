@@ -39,7 +39,6 @@
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <j2cache-version>2.0.0-dev</j2cache-version>
     </properties>
 
     <build>
