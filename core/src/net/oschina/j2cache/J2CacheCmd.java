@@ -10,7 +10,7 @@ import java.io.InputStreamReader;
  * 缓存测试入口
  * @author Winter Lau
  */
-public class CacheTester {
+public class J2CacheCmd {
 
 	public static void main(String[] args) {
 		

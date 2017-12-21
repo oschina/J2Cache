@@ -117,7 +117,7 @@
                 </executions>
                 <configuration>
                     <executable>java</executable>
-                    <mainClass>net.oschina.j2cache.CacheTester</mainClass>
+                    <mainClass>net.oschina.j2cache.J2CacheCmd</mainClass>
                 </configuration>
             </plugin>
         </plugins>
