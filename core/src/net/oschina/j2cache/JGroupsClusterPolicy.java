@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.net.URL;
-import java.util.List;
 
 /**
  * 使用 JGroups 组播进行集群内节点通讯
@@ -117,13 +116,9 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
 
     @Override
     public void viewAccepted(View view) {
-        StringBuffer sb = new StringBuffer("Group Members Changed, LIST: ");
-        List<Address> addrs = view.getMembers();
-        for(int i=0; i<addrs.size(); i++){
-            if(i > 0)
-                sb.append(',');
-            sb.append(addrs.get(i).toString());
-        }
-        log.info(sb.toString());
+        log.info(String.format("Group Members Changed, LIST: %s",
+                String.join(",", view.getMembers().stream().map(a -> a.toString()).toArray(String[]::new)))
+        );
     }
+
 }
