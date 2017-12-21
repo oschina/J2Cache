@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * J2Cache 的缓存入口
@@ -28,18 +30,22 @@ public class J2Cache {
 			initFromConfig();
 			/* 初始化缓存接口 */
 			channel = new CacheChannel(){
+				//为了避免发送广播的堵塞或者延迟导致的应用响应速度慢，因此采用线程方式发送
+				ExecutorService threadPool = Executors.newCachedThreadPool();
+
 				@Override
 				public void sendClearCmd(String region) {
-					policy.sendClearCmd(region);
+					threadPool.execute(()->policy.sendClearCmd(region));
 				}
 
 				@Override
 				public void sendEvictCmd(String region, Serializable key) {
-					policy.sendEvictCmd(region, key);
+					threadPool.execute(()->policy.sendEvictCmd(region, key));
 				}
 
 				@Override
 				public void close() {
+					threadPool.shutdownNow();
 					policy.disconnect();
 					CacheProviderHolder.shutdown();
 				}
