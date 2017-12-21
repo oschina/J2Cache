@@ -111,21 +111,14 @@ class EhCache implements Cache, CacheEventListener {
 	}
 
 	@Override
-	public void dispose() {}
-
-	@Override
-	public void notifyElementEvicted(Ehcache cache, Element elem) {
-		if(listener != null){
-			listener.notifyElementExpired(cache.getName(), (Serializable)elem.getObjectKey());
-		}
-	}
-
-	@Override
 	public void notifyElementExpired(Ehcache cache, Element elem) {
 		if(listener != null){
 			listener.notifyElementExpired(cache.getName(), (Serializable)elem.getObjectKey());
 		}
 	}
+
+	@Override
+	public void notifyElementEvicted(Ehcache cache, Element elem) {}
 
 	@Override
 	public void notifyElementPut(Ehcache cache, Element elem) {}
@@ -138,5 +131,8 @@ class EhCache implements Cache, CacheEventListener {
 
 	@Override
 	public void notifyRemoveAll(Ehcache cache) {}
+
+	@Override
+	public void dispose() {}
 
 }

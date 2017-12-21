@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import net.oschina.j2cache.ehcache.EhCacheProvider3;
 import net.oschina.j2cache.redis.RedisClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,14 +61,16 @@ class CacheProviderHolder {
 		return ((RedisCacheProvider)l2_provider).getClient();
 	}
 
-	private final static CacheProvider getProviderInstance(String value) throws Exception {
-		if("ehcache".equalsIgnoreCase(value))
+	private final static CacheProvider getProviderInstance(String cacheIdent) throws Exception {
+		if("ehcache".equalsIgnoreCase(cacheIdent))
 			return new EhCacheProvider();
-		if("redis".equalsIgnoreCase(value))
+		if("ehcache3".equalsIgnoreCase(cacheIdent))
+			return new EhCacheProvider3();
+		if("redis".equalsIgnoreCase(cacheIdent))
 			return new RedisCacheProvider();
-		if("none".equalsIgnoreCase(value))
+		if("none".equalsIgnoreCase(cacheIdent))
 			return new NullCacheProvider();
-		return (CacheProvider)Class.forName(value).newInstance();
+		return (CacheProvider)Class.forName(cacheIdent).newInstance();
 	}
 	
 	private final static Properties getProviderProperties(Properties props, CacheProvider provider) {
