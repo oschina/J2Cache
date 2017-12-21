@@ -21,7 +21,7 @@ public class J2Cache {
 	private final static String CONFIG_FILE = "/j2cache.properties";
 
 	private static CacheChannel channel;
-	private static ClusterPolicy policy;
+	private static ClusterPolicy policy; //不同的广播策略
 
 	private static String serializer;
 
@@ -55,19 +55,20 @@ public class J2Cache {
 		}
 	}
 
+	/**
+	 * 返回缓存操作接口
+	 * @return CacheChannel
+	 */
 	public static CacheChannel getChannel(){
 		return channel;
 	}
 
+	/**
+	 * 返回配置中定义的序列化方式
+	 * @return 序列化方式的名称(fst,kyro,java)
+	 */
 	public static String getSerializer() {
 		return serializer;
-	}
-
-	public static void main(String[] args) throws IOException {
-		try(CacheChannel channel = J2Cache.getChannel()){
-			//channel.set("Users",1, "Winter Lau");
-			System.out.println(channel.getRawObject("Users", 1));
-		}
 	}
 
 	/**
@@ -97,7 +98,6 @@ public class J2Cache {
 			}
 			else
 				throw new CacheException("Cache Channel not defined. name = " + cache_broadcast);
-
 		}
 	}
 

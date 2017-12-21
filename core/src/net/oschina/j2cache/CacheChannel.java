@@ -10,20 +10,20 @@ import java.util.Set;
  * Cache Channel
  * @author winterlau
  */
-public interface CacheChannel extends Closeable {
+public abstract class CacheChannel implements Closeable {
 
 	/**
 	 * 发送清除整个缓存区域的通知
 	 * @param region 区域名称
 	 */
-    void sendClearCmd(String region);
+	protected abstract void sendClearCmd(String region);
 
 	/**
 	 * 发送清除缓存对象的通知
 	 * @param region 区域名称
 	 * @param key	缓存键值
 	 */
-	void sendEvictCmd(String region, Serializable key);
+	protected abstract void sendEvictCmd(String region, Serializable key);
 
     /**
 	 * 获取缓存中的数据
@@ -32,7 +32,7 @@ public interface CacheChannel extends Closeable {
 	 * @return cache object
 	 * @throws IOException io exception
 	 */
-	default CacheObject get(String region, Serializable key) throws IOException {
+	public CacheObject get(String region, Serializable key) throws IOException {
 		CacheObject obj = new CacheObject();
 		obj.setRegion(region);
 		obj.setKey(key);
@@ -58,7 +58,7 @@ public interface CacheChannel extends Closeable {
 	 * @return	返回原生对象
 	 * @throws IOException io exception
 	 */
-	default Serializable getRawObject(String region, Serializable key) throws IOException {
+	public Serializable getRawObject(String region, Serializable key) throws IOException {
 		CacheObject cache = get(region, key);
 		return (cache != null)?cache.getValue():null;
 	}
@@ -70,7 +70,7 @@ public interface CacheChannel extends Closeable {
 	 * @param value: Cache value
 	 * @throws IOException io exception
 	 */
-	default void set(String region, Serializable key, Serializable value) throws IOException {
+	public void set(String region, Serializable key, Serializable value) throws IOException {
         if(region!=null && key != null){
             if(value == null)
                 evict(region, key);
@@ -97,7 +97,7 @@ public interface CacheChannel extends Closeable {
 	 * @param key: Cache key
 	 * @throws IOException io exception
 	 */
-	default void evict(String region, Serializable key) throws IOException {
+	public void evict(String region, Serializable key) throws IOException {
         CacheProviderHolder.evict(CacheProviderHolder.LEVEL_1, region, key); //删除一级缓存
         CacheProviderHolder.evict(CacheProviderHolder.LEVEL_2, region, key); //删除二级缓存
         sendEvictCmd(region, key); //发送广播
@@ -109,9 +109,10 @@ public interface CacheChannel extends Closeable {
 	 * @param keys: Cache key
 	 * @throws IOException io exception
 	 */
-	default void evicts(String region, List<Serializable> keys) throws IOException {
+	public void evicts(String region, List<Serializable> keys) throws IOException {
         CacheProviderHolder.evicts(CacheProviderHolder.LEVEL_1, region, keys);
         CacheProviderHolder.evicts(CacheProviderHolder.LEVEL_2, region, keys);
+        //FIXME 效率低下
         keys.forEach(key -> sendEvictCmd(region, key));
     }
 
@@ -120,7 +121,7 @@ public interface CacheChannel extends Closeable {
 	 * @param region: Cache region name
 	 * @throws IOException io exception
 	 */
-	default void clear(String region) throws IOException {
+	public void clear(String region) throws IOException {
         CacheProviderHolder.clear(CacheProviderHolder.LEVEL_1, region);
         CacheProviderHolder.clear(CacheProviderHolder.LEVEL_2, region);
         sendClearCmd(region);
@@ -132,12 +133,12 @@ public interface CacheChannel extends Closeable {
 	 * @return key list
 	 * @throws IOException io exception
 	 */
-	default Set<Serializable> keys(String region) throws IOException {
+	public Set<Serializable> keys(String region) throws IOException {
         return CacheProviderHolder.keys(CacheProviderHolder.LEVEL_1, region);
     }
 
 	/**
 	 * 关闭到通道的连接
 	 */
-	void close();
+	public abstract void close();
 }

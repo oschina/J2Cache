@@ -35,7 +35,7 @@ public class SerializationUtils {
     }
 
     static {
-        String ser = J2Cache.getSerializer();
+        String ser = J2Cache.getSerializer(); //FIXME 依赖 J2Cache ，不爽
         if (ser == null || "".equals(ser.trim()))
             g_serializer = new JavaSerializer();
         else {
