@@ -43,7 +43,7 @@ public class RedisCacheProvider implements CacheProvider {
             props.forEach((k, v) -> props2.put((String)k, (String)v));
             BeanUtils.populate(poolConfig, props2);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            log.error("Unable to init redis client.", e);
+            log.error("Failed to init redis client.", e);
         }
         String hosts = props.getProperty("hosts");
         if(hosts == null || hosts.trim().length() == 0)

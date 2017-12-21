@@ -47,7 +47,7 @@ public class RedisPubSubClusterPolicy extends BinaryJedisPubSub implements Clust
         try {
             redis.publish(channel.getBytes(), cmd.toBuffers());
         } catch (Exception e) {
-            log.error("Unable to delete cache,region=" + region + ",key=" + key, e);
+            log.error("Failed to delete cache,region=" + region + ",key=" + key, e);
         }
     }
 
@@ -63,7 +63,7 @@ public class RedisPubSubClusterPolicy extends BinaryJedisPubSub implements Clust
         try {
             redis.publish(channel.getBytes(), cmd.toBuffers());
         } catch (Exception e) {
-            log.error("Unable to clear cache,region=" + region, e);
+            log.error("Failed to clear cache,region=" + region, e);
         }
     }
 
@@ -91,7 +91,7 @@ public class RedisPubSubClusterPolicy extends BinaryJedisPubSub implements Clust
                     log.warn("Unknown message type = " + cmd.getOperator());
             }
         } catch (Exception e) {
-            log.error("Unable to handle received msg", e);
+            log.error("Failed to handle received msg", e);
         }
     }
 

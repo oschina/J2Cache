@@ -51,7 +51,7 @@ public class J2Cache {
 				}
 			};
 		} catch (IOException e) {
-			throw new CacheException("Unable to load j2cache configuration " + CONFIG_FILE, e);
+			throw new CacheException("Failed to load j2cache configuration " + CONFIG_FILE, e);
 		}
 	}
 

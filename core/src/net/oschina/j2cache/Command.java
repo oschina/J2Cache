@@ -112,7 +112,7 @@ public class Command {
 				}
 			}
 		}catch(Exception e){
-			log.error("Unabled to parse received command.", e);
+			log.error("Failed to parse received command.", e);
 		}
 		return cmd;
 	}

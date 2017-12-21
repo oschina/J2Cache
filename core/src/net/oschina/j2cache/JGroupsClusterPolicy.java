@@ -77,7 +77,7 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
                     log.warn("Unknown message type = " + cmd.getOperator());
             }
         }catch(Exception e){
-            log.error("Unable to handle received msg" , e);
+            log.error("Failed to handle received msg" , e);
         }
     }
 
@@ -94,7 +94,7 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
             Message msg = new Message(null, null, cmd.toBuffers());
             channel.send(msg);
         } catch (Exception e) {
-            log.error("Unable to delete cache,region="+region+",key="+key, e);
+            log.error("Failed to delete cache,region="+region+",key="+key, e);
         }
     }
 
@@ -110,7 +110,7 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
             Message msg = new Message(null, null, cmd.toBuffers());
             channel.send(msg);
         } catch (Exception e) {
-            log.error("Unable to clear cache,region="+region, e);
+            log.error("Failed to clear cache,region="+region, e);
         }
     }
 
