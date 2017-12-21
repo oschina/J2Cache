@@ -85,6 +85,13 @@ public class J2Cache {
 			CacheProviderHolder.initCacheProvider(props, (region, key)->{
 				if(policy != null)
 					policy.sendEvictCmd(region, key);
+				//当一级缓存中的对象失效时，自动清除二级缓存中的数据
+				try {
+					CacheProviderHolder.evict(CacheProviderHolder.LEVEL_2, region, key);
+					log.debug(String.format("Level 1 cache object expired, evict level 2 cache object [%s,%s]", region, key));
+				} catch (IOException e){
+					log.error(String.format("Failed to evict level 2 cache object [%s:%s]",region,key), e);
+				}
 			});
 
 			String cache_broadcast = props.getProperty("j2cache.broadcast");
