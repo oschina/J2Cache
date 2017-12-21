@@ -5,7 +5,7 @@ J2Cache 是 OSChina 目前正在使用的两级缓存框架。第一级缓存使
 
 J2Cache 已经有 Python 语言版本了，详情请看 [https://gitee.com/ld/Py3Cache](https://gitee.com/ld/Py3Cache)
 
-目前 J2Cache 最新版本是 2.0-dev 。
+目前 J2Cache 最新版本是 2.0.0-beta 。
 
 J2Cache 从 1.3.0 版本开始支持 JGroups 和 Redis Subscribe 两种方式进行缓存时间的通知。在某些云平台上可能无法使用 JGroups 组播方式，可以采用 Redis 发布订阅的方式。详情请看 j2cache.properties 配置文件的说明。
 
@@ -55,7 +55,7 @@ J2Cache 运行时所需 jar 包请查看 core/pom.xml
 <dependency>
   <groupId>net.oschina.j2cache</groupId>  
   <artifactId>j2cache-core</artifactId>  
-  <version>1.2.0</version>  
+  <version>2.0.0-beta</version>  
 </dependency>
 ```
 ## 示例代码

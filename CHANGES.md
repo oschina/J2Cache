@@ -1,6 +1,6 @@
 # J2Cache 版本更新记录
 
-**J2Cache 2.0-dev**
+**J2Cache 2.0-beta**
 
 * 要求 Java 8 支持
 * 全 Maven 模块化，去掉老版本的 Ant 支持
