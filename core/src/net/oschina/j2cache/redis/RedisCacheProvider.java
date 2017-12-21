@@ -21,11 +21,10 @@ public class RedisCacheProvider implements CacheProvider {
 
     private final static Logger log = LoggerFactory.getLogger(RedisCacheProvider.class);
 
-    private Properties props;
     private RedisClient redisClient;
     protected ConcurrentHashMap<String, RedisCache> caches = new ConcurrentHashMap<>();
     private String namespace;
-    private JedisPoolConfig poolConfig = new JedisPoolConfig();
+    private JedisPoolConfig poolConfig = new JedisPoolConfig();//Redis 连接池配置
 
     public String name() {
         return "redis";
@@ -37,7 +36,6 @@ public class RedisCacheProvider implements CacheProvider {
 
     @Override
     public void start(Properties props) {
-        this.props = props;
         //初始化 Redis 连接
         this.namespace = props.getProperty("namespace");
         try {
@@ -48,8 +46,14 @@ public class RedisCacheProvider implements CacheProvider {
             log.error("Unable to init redis client.", e);
         }
         String hosts = props.getProperty("hosts");
+        if(hosts == null || hosts.trim().length() == 0)
+            hosts = "127.0.0.1:6379";
         String mode = props.getProperty("mode");
+        if(mode == null || mode.trim().length() == 0)
+            mode = "single";
         String cluster_name = props.getProperty("cluster_name");
+        if(cluster_name == null || cluster_name.trim().length() == 0)
+            cluster_name = "j2cache";
         String password = props.getProperty("password");
         this.redisClient = new RedisClient(mode, hosts, password, cluster_name, poolConfig);
     }
@@ -60,7 +64,7 @@ public class RedisCacheProvider implements CacheProvider {
         try {
             redisClient.close();
         } catch (IOException e) {
-            log.warn("Unable to close redis connection.", e);
+            log.warn("Failed to close redis connection.", e);
         }
     }
 
