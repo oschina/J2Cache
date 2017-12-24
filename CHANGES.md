@@ -1,5 +1,11 @@
 # J2Cache 版本更新记录
 
+**J2Cache 2.0-release**
+
+* 增加对 Ehcache 3.x 的支持 `j2cache.L1.provider_class = ehcache3`
+* 合并 1.x 中的 hibernate3 和 hibernate4 支持模块
+* J2Cache 命令行工具改名 J2CacheCmd
+
 **J2Cache 2.0-beta**
 
 * 要求 Java 8 支持
@@ -7,7 +13,7 @@
 * 重构内部的各个接口，更加清晰直观，减少依赖关系
 * 支持多种 Redis 单机和集群模式，并启用 Redis 连接池
 * 支持带密码认证的 Redis 服务
-* 支持 Ehcache 3.x (j2cache.L1.provider_class = ehcache3)
+* 支持 Ehcache 3.x (`j2cache.L1.provider_class = ehcache3`)
 * 启用线程方式发送缓存失效的广播通知，避免网络问题导致的堵塞
 * [重要] 尽管接口变化不大，但是 J2Cache 2.0 的接口跟 1.x 不兼容
 * 对 Hibernate 以及其他框架的支持将在后期通过模块的方式引入项目中
