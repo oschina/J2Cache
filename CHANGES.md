@@ -1,12 +1,12 @@
 # J2Cache 版本更新记录
 
-**J2Cache 2.0-release**
+**J2Cache 2.0-release (2017-12-24)**
 
 * 增加对 Ehcache 3.x 的支持 `j2cache.L1.provider_class = ehcache3`
 * 合并 1.x 中的 hibernate3 和 hibernate4 支持模块
 * J2Cache 命令行工具改名 J2CacheCmd
 
-**J2Cache 2.0-beta**
+**J2Cache 2.0-beta (2017-12-22)**
 
 * 要求 Java 8 支持
 * 全 Maven 模块化，去掉老版本的 Ant 支持
