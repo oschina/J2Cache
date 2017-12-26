@@ -60,4 +60,4 @@ J2Cache 运行时所需 jar 包请查看 core/pom.xml
 ```
 ## 示例代码
 
-请看 core/src/net/oschina/j2cache/CacheTester.java
+请看 core/src/net/oschina/j2cache/J2CacheCmd.java
