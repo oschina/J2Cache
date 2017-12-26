@@ -10,7 +10,8 @@ import net.sf.ehcache.CacheException;
 
 /**
  * 标准的 Java 序列化
- * @author winterlau
+ *
+ * @author Winter Lau(javayou@gmail.com)
  */
 public class JavaSerializer implements Serializer {
 

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.oschina.j2cache;
 
 import java.io.IOException;
@@ -21,7 +18,7 @@ import org.slf4j.LoggerFactory;
  * 第N+1、N+2 为 key 长度，长度2 [K_LEN]
  * 第N+3、M为 key值，长度为 [K_LEN]
  * 
- * @author winterlau
+ * @author Winter Lau(javayou@gmail.com)
  */
 public class Command {
 

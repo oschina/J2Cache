@@ -6,14 +6,15 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Implementors define a caching algorithm. All implementors
- * <b>must</b> be threadsafe.
- * @author Winter Lau
+ * Cache Data Operation Interface
+ *
+ * @author Winter Lau(javayou@gmail.com)
  */
 public interface Cache {
 
 	/**
 	 * Get an item from the cache, nontransactionally
+	 * 
 	 * @param key cache key
 	 * @return the cached object or null
 	 * @throws IOException io exception
@@ -23,6 +24,7 @@ public interface Cache {
 	/**
 	 * Add an item to the cache, nontransactionally, with
 	 * failfast semantics
+	 *
 	 * @param key cache key
 	 * @param value cache value
 	 * @throws IOException io exception
@@ -31,6 +33,7 @@ public interface Cache {
 
 	/**
 	 * Add an item to the cache
+	 *
 	 * @param key cache key
 	 * @param value cache value
 	 * @throws IOException io exception
@@ -39,20 +42,23 @@ public interface Cache {
 
 	/**
 	 * Return all keys
+	 *
 	 * @return 返回键的集合
 	 * @throws IOException io exception
 	 */
 	Set<Serializable> keys() throws IOException ;
 	
 	/**
-	 * @param key Cache key
 	 * Remove an item from the cache
+	 *
+	 * @param key Cache key
 	 * @throws IOException io exception
 	 */
 	void evict(Serializable key) throws IOException;
 
 	/**
 	 * Batch remove cache objects
+	 *
 	 * @param keys the cache keys to be evicted
 	 * @throws IOException io exception
 	 */
@@ -60,6 +66,7 @@ public interface Cache {
 	
 	/**
 	 * Clear the cache
+	 *
 	 * @throws IOException io exception
 	 */
 	void clear() throws IOException;

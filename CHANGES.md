@@ -1,5 +1,12 @@
 # J2Cache 版本更新记录
 
+**J2Cache 2.0.1 (2017-12-26)**
+* 修复了 database 参数无效的问题
+* 统一了几种 Redis 模式下的密码认证处理
+* 修复了 sharded 模式无法使用 database 和 password 参数的问题
+* 给子模块定义版本号，统一父模块的版本号
+* 补充和完善 Javadoc 文档
+
 **J2Cache 2.0-release (2017-12-24)**
 
 * 增加对 Ehcache 3.x 的支持 `j2cache.L1.provider_class = ehcache3`

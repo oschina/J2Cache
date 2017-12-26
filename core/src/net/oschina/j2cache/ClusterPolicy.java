@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * 缓存集群策略接口
- * @author winterlau
+ * @author Winter Lau(javayou@gmail.com)
  */
 public interface ClusterPolicy {
 

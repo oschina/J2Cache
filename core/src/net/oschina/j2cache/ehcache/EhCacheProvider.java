@@ -12,9 +12,9 @@ import net.oschina.j2cache.CacheProvider;
 import net.sf.ehcache.CacheManager;
 
 /**
- * EhCache Provider
+ * EhCache 2.x 缓存管理器的封装，用来管理多个缓存区域
  *
- * @author liudong
+ * @author Winter Lau (javayou@gmail.com)
  * @author wendal
  */
 public class EhCacheProvider implements CacheProvider {

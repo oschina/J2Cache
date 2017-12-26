@@ -10,7 +10,8 @@ import java.io.IOException;
 
 /**
  * 使用 Kryo 实现序列化
- * @author winterlau
+ *
+ * @author Winter Lau(javayou@gmail.com)
  */
 public class KryoSerializer implements Serializer {
 

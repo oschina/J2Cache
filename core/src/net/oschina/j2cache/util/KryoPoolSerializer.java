@@ -8,6 +8,8 @@ import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
+ * 带池的 Kryo 序列化器
+ *
  * Created by chenlei on 14-9-28.
  */
 public class KryoPoolSerializer implements Serializer{

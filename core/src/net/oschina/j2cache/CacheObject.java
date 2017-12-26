@@ -3,8 +3,8 @@ package net.oschina.j2cache;
 import java.io.Serializable;
 
 /**
- * 所获取的缓存对象
- * @author winterlau
+ * Cached object description
+ * @author Winter Lau(javayou@gmail.com)
  */
 public class CacheObject {
 

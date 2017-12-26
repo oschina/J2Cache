@@ -18,8 +18,9 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Ehcache 3.x 版本支持
- * @author winterlau
+ * EhCache 2.x 缓存管理器的封装，用来管理多个缓存区域
+ *
+ * @author Winter Lau(javayou@gmail.com)
  */
 public class EhCacheProvider3 implements CacheProvider {
 

@@ -4,7 +4,7 @@ import java.util.Properties;
 
 /**
  * Support for pluggable caches.
- * @author winterlau
+ * @author Winter Lau(javayou@gmail.com)
  */
 public interface CacheProvider {
 

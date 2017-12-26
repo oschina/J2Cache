@@ -17,8 +17,8 @@ import net.oschina.j2cache.redis.RedisCacheProvider;
 import redis.clients.jedis.JedisCluster;
 
 /**
- * 缓存管理器
- * @author Winter Lau
+ * 两级的缓存管理器
+ * @author Winter Lau(javayou@gmail.com)
  */
 class CacheProviderHolder {
 

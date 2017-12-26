@@ -10,7 +10,8 @@ import org.nustaq.serialization.FSTObjectOutput;
 
 /**
  * 使用 FST 实现序列化
- * @author winterlau
+ *
+ * @author Winter Lau(javayou@gmail.com)
  */
 public class FSTSerializer implements Serializer {
 

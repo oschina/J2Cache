@@ -9,7 +9,7 @@ import java.net.URL;
 
 /**
  * 使用 JGroups 组播进行集群内节点通讯
- * @author winterlau
+ * @author Winter Lau(javayou@gmail.com)
  */
 public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPolicy {
 

@@ -6,7 +6,7 @@ import redis.clients.jedis.JedisCluster;
 
 /**
  * 集群策略工厂
- * @author winterlau
+ * @author Winter Lau(javayou@gmail.com)
  */
 public class ClusterPolicyFactory {
 

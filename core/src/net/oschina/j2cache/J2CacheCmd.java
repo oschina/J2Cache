@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.oschina.j2cache;
 
 import java.io.BufferedReader;
@@ -8,7 +5,7 @@ import java.io.InputStreamReader;
 
 /**
  * 缓存测试入口
- * @author Winter Lau
+ * @author Winter Lau(javayou@gmail.com)
  */
 public class J2CacheCmd {
 

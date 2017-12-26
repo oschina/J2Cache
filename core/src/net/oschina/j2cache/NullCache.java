@@ -7,7 +7,7 @@ import java.util.Set;
 
 /**
  * 空的缓存Provider
- * @author winterlau
+ * @author Winter Lau(javayou@gmail.com)
  */
 public class NullCache implements Cache {
 	@Override

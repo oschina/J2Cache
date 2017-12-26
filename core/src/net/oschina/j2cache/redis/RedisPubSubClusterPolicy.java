@@ -10,7 +10,8 @@ import java.io.Serializable;
 
 /**
  * 使用 Redis 的订阅和发布进行集群中的节点通知
- * @author winterlau
+ *
+ * @author Winter Lau(javayou@gmail.com)
  */
 public class RedisPubSubClusterPolicy extends BinaryJedisPubSub implements ClusterPolicy {
 

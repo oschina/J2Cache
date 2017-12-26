@@ -13,9 +13,12 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 
 /**
- * EHCache
+ * <p>EHCache 2.x 的缓存封装</p>
+ * <p>该封装类实现了缓存操作以及对缓存数据失效的侦听</p>
+ *
+ * @author Winter Lau(javayou@gmail.com)
  */
-class EhCache implements Cache, CacheEventListener {
+public class EhCache implements Cache, CacheEventListener {
 	
 	private net.sf.ehcache.Cache cache;
 	private CacheExpiredListener listener;
@@ -106,8 +109,8 @@ class EhCache implements Cache, CacheEventListener {
 		cache.removeAll();
 	}
 
-	public Object clone() throws CloneNotSupportedException { 
-		throw new CloneNotSupportedException(); 
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
 	}
 
 	@Override

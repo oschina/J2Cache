@@ -10,17 +10,26 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Redis 缓存基于Hashs实现
+ * Redis 缓存操作封装，基于 Hashs 实现多个 Region 的缓存（
+ *
+ * TODO: 日后的版本需要支持多种模式
  *
  * @author wendal
+ * @author Winter Lau(javayou@gmail.com)
  */
-class RedisCache implements Cache {
+public class RedisCache implements Cache {
 
-    protected String namespace;
-    protected String region;
-    protected byte[] regionBytes;
-    protected RedisClient client;
+    private String namespace;
+    private String region;
+    private byte[] regionBytes;
+    private RedisClient client;
 
+    /**
+     * 缓存构造
+     * @param namespace 命名空间，用于在多个实例中避免 key 的重叠
+     * @param region 缓存区域的名称
+     * @param client 缓存客户端接口
+     */
     public RedisCache(String namespace, String region, RedisClient client) {
         if (region == null || region.isEmpty())
             region = "_"; // 缺省region

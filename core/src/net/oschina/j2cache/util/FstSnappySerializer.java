@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.xerial.snappy.Snappy;
 
 /**
- * FSTSerializer增加snappy
+ * 在 @FSTSerializer 的基础上增加 snappy ，也就是压缩
  */
 public class FstSnappySerializer implements Serializer {
 

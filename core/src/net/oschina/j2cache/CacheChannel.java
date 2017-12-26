@@ -7,26 +7,34 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Cache Channel
- * @author winterlau
+ * Cache Channel, the J2Cache methods explored to developers
+ *
+ * @author Winter Lau(javayou@gmail.com)
  */
 public abstract class CacheChannel implements Closeable {
 
 	/**
-	 * 发送清除整个缓存区域的通知
-	 * @param region 区域名称
+	 * <p>Just for Inner Use.</p>
+	 *
+	 * <p>To clear the whole region when received this event .</p>
+	 *
+	 * @param region
 	 */
 	protected abstract void sendClearCmd(String region);
 
 	/**
-	 * 发送清除缓存对象的通知
-	 * @param region 区域名称
-	 * @param key	缓存键值
+	 * <p>Just for Inner Use.</p>
+	 *
+	 * <p>To remove cached data when received this event .</p>
+	 *
+	 * @param region Cache region name
+	 * @param key	Cache data key
 	 */
 	protected abstract void sendEvictCmd(String region, Serializable key);
 
     /**
-	 * 获取缓存中的数据
+	 * Get CacheObject from J2Cache
+	 *
 	 * @param region: Cache Region name
 	 * @param key: Cache key
 	 * @return cache object
@@ -52,10 +60,11 @@ public abstract class CacheChannel implements Closeable {
 	}
 
 	/**
-	 * 获取缓存中的原生对象
-	 * @param region 缓存区域
-	 * @param key	缓存键值
-	 * @return	返回原生对象
+	 * Get User Original Object from J2Cache
+	 *
+	 * @param region: Cache Region name
+	 * @param key: Cache key
+	 * @return	User object
 	 * @throws IOException io exception
 	 */
 	public Serializable getRawObject(String region, Serializable key) throws IOException {
@@ -64,7 +73,8 @@ public abstract class CacheChannel implements Closeable {
 	}
 	
 	/**
-	 * 写入缓存
+	 * Write data to J2Cache
+	 *
 	 * @param region: Cache Region name
 	 * @param key: Cache key
 	 * @param value: Cache value
@@ -92,7 +102,8 @@ public abstract class CacheChannel implements Closeable {
     }
 
 	/**
-	 * 删除缓存
+	 * Remove cached data in J2Cache
+	 *
 	 * @param region:  Cache Region name
 	 * @param key: Cache key
 	 * @throws IOException io exception
@@ -104,7 +115,8 @@ public abstract class CacheChannel implements Closeable {
     }
 
 	/**
-	 * 批量删除缓存
+	 * Remote some cached data in J2Cache
+	 *
 	 * @param region: Cache region name
 	 * @param keys: Cache key
 	 * @throws IOException io exception
@@ -118,6 +130,7 @@ public abstract class CacheChannel implements Closeable {
 
 	/**
 	 * Clear the cache
+	 *
 	 * @param region: Cache region name
 	 * @throws IOException io exception
 	 */
@@ -129,6 +142,7 @@ public abstract class CacheChannel implements Closeable {
 	
 	/**
 	 * Get cache region keys
+	 *
 	 * @param region: Cache region name
 	 * @return key list
 	 * @throws IOException io exception
@@ -138,7 +152,7 @@ public abstract class CacheChannel implements Closeable {
     }
 
 	/**
-	 * 关闭到通道的连接
+	 * Close J2Cache
 	 */
 	public abstract void close();
 }

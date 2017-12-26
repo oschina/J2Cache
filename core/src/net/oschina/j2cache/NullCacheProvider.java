@@ -3,7 +3,7 @@ package net.oschina.j2cache;
 import java.util.Properties;
 
 /**
- * @author winterlau
+ * @author Winter Lau(javayou@gmail.com)
  */
 public class NullCacheProvider implements CacheProvider {
 

@@ -15,9 +15,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * 封装各种模式的 Redis 客户端成统一接口
- * Jedis 接口设计真操蛋
- * @author winterlau
+ * <p>封装各种模式的 Redis 客户端成统一接口</p>
+ *
+ * <p>Jedis 接口设计真操蛋</p>
+ *
+ * @author Winter Lau (javayou@gmail.com)
  */
 public class RedisClient implements Closeable {
 

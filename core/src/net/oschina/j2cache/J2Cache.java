@@ -12,7 +12,7 @@ import java.util.concurrent.Executors;
 
 /**
  * J2Cache 的缓存入口
- * @author winterlau
+ * @author Winter Lau(javayou@gmail.com)
  */
 public class J2Cache {
 

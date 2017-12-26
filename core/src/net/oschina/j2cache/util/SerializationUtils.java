@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * 对象序列化工具包
  *
- * @author winterlau
+ * @author Winter Lau(javayou@gmail.com)
  */
 public class SerializationUtils {
 
