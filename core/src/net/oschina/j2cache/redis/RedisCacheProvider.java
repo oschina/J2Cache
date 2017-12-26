@@ -22,9 +22,8 @@ public class RedisCacheProvider implements CacheProvider {
     private final static Logger log = LoggerFactory.getLogger(RedisCacheProvider.class);
 
     private RedisClient redisClient;
-    protected ConcurrentHashMap<String, RedisCache> caches = new ConcurrentHashMap<>();
     private String namespace;
-    private JedisPoolConfig poolConfig = new JedisPoolConfig();//Redis 连接池配置
+    protected ConcurrentHashMap<String, RedisCache> caches = new ConcurrentHashMap<>();
 
     public String name() {
         return "redis";
@@ -39,23 +38,27 @@ public class RedisCacheProvider implements CacheProvider {
         //初始化 Redis 连接
         this.namespace = props.getProperty("namespace");
         try {
+            JedisPoolConfig poolConfig = new JedisPoolConfig();//Redis 连接池配置
             HashMap<String, String> props2 = new HashMap<>();
             props.forEach((k, v) -> props2.put((String)k, (String)v));
             BeanUtils.populate(poolConfig, props2);
+
+            String hosts = props.getProperty("hosts");
+            String mode = props.getProperty("mode");
+            String cluster_name = props.getProperty("cluster_name");
+            String password = props.getProperty("password");
+            int database = Integer.parseInt(props.getProperty("database"));
+            this.redisClient = new RedisClient.Builder()
+                    .mode(mode)
+                    .hosts(hosts)
+                    .password(password)
+                    .cluster(cluster_name)
+                    .database(database)
+                    .poolConfig(poolConfig).newClient();
+
         } catch (IllegalAccessException | InvocationTargetException e) {
             log.error("Failed to init redis client.", e);
         }
-        String hosts = props.getProperty("hosts");
-        if(hosts == null || hosts.trim().length() == 0)
-            hosts = "127.0.0.1:6379";
-        String mode = props.getProperty("mode");
-        if(mode == null || mode.trim().length() == 0)
-            mode = "single";
-        String cluster_name = props.getProperty("cluster_name");
-        if(cluster_name == null || cluster_name.trim().length() == 0)
-            cluster_name = "j2cache";
-        String password = props.getProperty("password");
-        this.redisClient = new RedisClient(mode, hosts, password, cluster_name, poolConfig);
     }
 
     @Override

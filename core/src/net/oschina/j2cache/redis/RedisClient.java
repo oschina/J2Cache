@@ -2,13 +2,17 @@ package net.oschina.j2cache.redis;
 
 import net.oschina.j2cache.CacheException;
 import redis.clients.jedis.*;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 import redis.clients.jedis.params.geo.GeoRadiusParam;
 import redis.clients.jedis.params.sortedset.ZAddParams;
 import redis.clients.jedis.params.sortedset.ZIncrByParams;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 封装各种模式的 Redis 客户端成统一接口
@@ -17,11 +21,69 @@ import java.util.*;
  */
 public class RedisClient implements Closeable {
 
+    private final static int CONNECT_TIMEOUT = 5000;    //Redis连接超时时间
+    private final static int SO_TIMEOUT = 5000;
+    private final static int MAX_ATTEMPTS = 3;
+
     private JedisCluster cluster;
     private JedisPool single;
     private JedisSentinelPool sentinel;
     private ShardedJedis sharded;
     private String redisPassword;
+
+
+    /**
+     * RedisClient 构造器
+     */
+    public static class Builder {
+        private String mode;
+        private String hosts;
+        private String password;
+        private String cluster;
+        private int database;
+        private JedisPoolConfig poolConfig;
+
+        public Builder(){}
+
+        public Builder mode(String mode){
+            if(mode == null || mode.trim().length() == 0)
+                this.mode = "single";
+            else
+                this.mode = mode;
+            return this;
+        }
+        public Builder hosts(String hosts){
+            if(hosts == null || hosts.trim().length() == 0)
+                this.hosts = "127.0.0.1:6379";
+            else
+                this.hosts = hosts;
+            return this;
+        }
+        public Builder password(String password){
+            if(password != null && password.trim().length() > 0)
+                this.password = password;
+            return this;
+        }
+        public Builder cluster(String cluster) {
+            if(cluster == null || cluster.trim().length() == 0)
+                this.cluster = "j2cache";
+            else
+                this.cluster = cluster;
+            return this;
+        }
+        public Builder database(int database){
+            this.database = database;
+            return this;
+        }
+        public Builder poolConfig(JedisPoolConfig poolConfig){
+            this.poolConfig = poolConfig;
+            return this;
+        }
+        public RedisClient newClient() {
+            return new RedisClient(mode, hosts, password, cluster, database, poolConfig);
+        }
+    }
+
 
     /**
      * 各种模式 Redis 客户端的封装
@@ -29,9 +91,10 @@ public class RedisClient implements Closeable {
      * @param hosts Redis 主机连接信息
      * @param password  Redis 密码（如果有的话）
      * @param cluster_name  集群名称
+     * @param database 数据库
      * @param poolConfig    连接池配置
      */
-    public RedisClient(String mode, String hosts, String password, String cluster_name, JedisPoolConfig poolConfig) {
+    private RedisClient(String mode, String hosts, String password, String cluster_name, int database, JedisPoolConfig poolConfig) {
         this.redisPassword = (password != null && password.trim().length() > 0)? password.trim(): null;
         switch(mode){
             case "single":
@@ -39,7 +102,7 @@ public class RedisClient implements Closeable {
                     String[] infos = node.split(":");
                     String host = infos[0];
                     int port = (infos.length > 1)?Integer.parseInt(infos[1]):6379;
-                    this.single = new JedisPool(poolConfig, host, port);
+                    this.single = new JedisPool(poolConfig, host, port, CONNECT_TIMEOUT, password, database);
                     break;
                 }
                 break;
@@ -47,7 +110,7 @@ public class RedisClient implements Closeable {
                 Set<String> nodes = new HashSet<>();
                 for(String node : hosts.split(","))
                     nodes.add(node);
-                this.sentinel = new JedisSentinelPool(cluster_name, nodes, poolConfig);
+                this.sentinel = new JedisSentinelPool(cluster_name, nodes, poolConfig, CONNECT_TIMEOUT, password, database);
                 break;
             case "cluster":
                 Set<HostAndPort> hps = new HashSet<>();
@@ -57,21 +120,17 @@ public class RedisClient implements Closeable {
                     int port = (infos.length > 1)?Integer.parseInt(infos[1]):6379;
                     hps.add(new HostAndPort(host, port));
                 }
-                this.cluster = new JedisCluster(hps, poolConfig);
-                if(redisPassword != null)
-                    this.cluster.auth(redisPassword);
+                this.cluster = new JedisCluster(hps, CONNECT_TIMEOUT, SO_TIMEOUT, MAX_ATTEMPTS, password, poolConfig);
                 break;
             case "sharded":
                 List<JedisShardInfo> shards = new ArrayList<>();
-                for(String node : hosts.split(",")){
-                    String[] infos = node.split(":");
-                    String host = infos[0];
-                    int port = (infos.length > 1)?Integer.parseInt(infos[1]):6379;
-                    shards.add(new JedisShardInfo(host, port));
+                try {
+                    for(String node : hosts.split(","))
+                        shards.add(new JedisShardInfo(new URI(node)));
+                } catch (URISyntaxException e) {
+                    throw new JedisConnectionException(e);
                 }
                 this.sharded = new ShardedJedis(shards);
-                if(redisPassword != null)
-                    this.sharded.getAllShards().forEach(node -> node.auth(redisPassword));
                 break;
             default:
                 throw new CacheException("Redis mode [" + mode + "] not defined.");
@@ -83,19 +142,11 @@ public class RedisClient implements Closeable {
      * @return 返回基本的 Jedis 二进制命令接口
      */
     public BinaryJedisCommands get() {
-        if(single != null) {
-            Jedis jedis = single.getResource();
-            if(redisPassword != null)
-                jedis.auth(redisPassword);
-            return jedis;
-        }
+        if(single != null)
+            return single.getResource();
         else
-        if(sentinel != null) {
-            Jedis jedis = sentinel.getResource();
-            if(redisPassword != null)
-                jedis.auth(redisPassword);
-            return jedis;
-        }
+        if(sentinel != null)
+            return sentinel.getResource();
         else
         if(sharded != null)
             return sharded;
