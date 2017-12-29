@@ -61,3 +61,9 @@ J2Cache 运行时所需 jar 包请查看 core/pom.xml
 ## 示例代码
 
 请看 core/src/net/oschina/j2cache/J2CacheCmd.java
+
+## 哪些项目在用 J2Cache ？
+
+* www.oschina.net
+* https://gitee.com/fuhai/jboot
+* 更多项目收集中，如果你的项目用了，请告诉我
