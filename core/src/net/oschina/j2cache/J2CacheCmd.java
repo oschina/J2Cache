@@ -120,6 +120,13 @@ public class J2CacheCmd {
 	private static void printHelp() {
 		System.out.println("Usage: [cmd] region key [value]");
 		System.out.println("cmd: get/mget/set/mset/evict/keys/quit/exit/help");
+		System.out.println("Examples:");
+		System.out.println("\tset region key value");
+		System.out.println("\tget region key");
+		System.out.println("\tmget region key1 key2 key3");
+		System.out.println("\tmset region key1:value1 key2:value2 key3:value3");
+		System.out.println("\tkeys region");
+		System.out.println("\texit");
 	}
 
 }
