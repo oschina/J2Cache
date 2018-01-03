@@ -19,7 +19,6 @@ import net.oschina.j2cache.Cache;
 import net.oschina.j2cache.CacheExpiredListener;
 import org.ehcache.event.*;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -47,12 +46,12 @@ public class EhCache3 implements Cache , CacheEventListener {
     }
 
     @Override
-    public Serializable get(String key) throws IOException {
+    public Serializable get(String key) {
         return this.cache.get(key);
     }
 
     @Override
-    public void put(String key, Serializable value) throws IOException {
+    public void put(String key, Serializable value) {
         this.cache.put(key, value);
     }
 
