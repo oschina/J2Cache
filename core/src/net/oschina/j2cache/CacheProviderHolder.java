@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
+import net.oschina.j2cache.caffeine.CaffeineProvider;
 import net.oschina.j2cache.ehcache.EhCacheProvider3;
 import net.oschina.j2cache.redis.RedisClient;
 import org.slf4j.Logger;
@@ -77,6 +78,8 @@ class CacheProviderHolder {
 			return new EhCacheProvider();
 		if("ehcache3".equalsIgnoreCase(cacheIdent))
 			return new EhCacheProvider3();
+		if("caffeine".equalsIgnoreCase(cacheIdent))
+			return new CaffeineProvider();
 		if("redis".equalsIgnoreCase(cacheIdent))
 			return new RedisCacheProvider();
 		if("none".equalsIgnoreCase(cacheIdent))
