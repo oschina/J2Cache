@@ -15,11 +15,7 @@
  */
 package net.oschina.j2cache.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 
 import net.sf.ehcache.CacheException;
 
@@ -36,7 +32,7 @@ public class JavaSerializer implements Serializer {
 	}
 	
 	@Override
-	public byte[] serialize(Object obj) throws IOException {
+	public byte[] serialize(Serializable obj) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try (ObjectOutputStream oos = new ObjectOutputStream(baos)){
 			oos.writeObject(obj);
@@ -45,12 +41,12 @@ public class JavaSerializer implements Serializer {
 	}
 
 	@Override
-	public Object deserialize(byte[] bits) throws IOException {
+	public Serializable deserialize(byte[] bits) throws IOException {
 		if(bits == null || bits.length == 0)
 			return null;
 		ByteArrayInputStream bais = new ByteArrayInputStream(bits);
 		try (ObjectInputStream ois = new ObjectInputStream(bais)){
-			return ois.readObject();
+			return (Serializable)ois.readObject();
 		} catch (ClassNotFoundException e) {
 			throw new CacheException(e);
 		}

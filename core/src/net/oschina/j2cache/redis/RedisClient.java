@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * <p>封装各种模式的 Redis 客户端成统一接口</p>
@@ -177,19 +176,15 @@ public class RedisClient implements Closeable {
      * @param jedisPubSub 接受订阅消息的实例
      * @param channels 订阅的频道名称
      */
-    public void subscribe(BinaryJedisPubSub jedisPubSub, String... channels) {
-        byte[][] bytes = new byte[channels.length][];
-        for(int i=0; i<channels.length; i++)
-            bytes[i] = channels[i].getBytes();
-
+    public void subscribe(BinaryJedisPubSub jedisPubSub, byte[]... channels) {
         if(cluster != null)
-            cluster.subscribe(jedisPubSub, bytes);
+            cluster.subscribe(jedisPubSub, channels);
         else if(single != null)
-            single.getResource().subscribe(jedisPubSub, bytes);
+            single.getResource().subscribe(jedisPubSub, channels);
         else if(sentinel != null)
-            sentinel.getResource().subscribe(jedisPubSub, bytes);
+            sentinel.getResource().subscribe(jedisPubSub, channels);
         if(sharded != null)
-            sharded.getAllShards().forEach(node -> node.subscribe(jedisPubSub, bytes));
+            sharded.getAllShards().forEach(node -> node.subscribe(jedisPubSub, channels));
     }
 
     /**
@@ -198,6 +193,10 @@ public class RedisClient implements Closeable {
      * @param bytes 消息数据
      */
     public void publish(byte[] channel, byte[] bytes) {
+
+        System.out.println(new String(channel));
+        System.out.println(new String(bytes));
+
         if (cluster != null)
             cluster.publish(channel, bytes);
         else if (single != null)

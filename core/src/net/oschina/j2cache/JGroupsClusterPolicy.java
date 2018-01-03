@@ -19,7 +19,6 @@ import org.jgroups.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
 import java.net.URL;
 
 /**
@@ -50,6 +49,7 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
             channel.setReceiver(this);
             channel.connect(name);
 
+            this.sendMessage(Command.join());
             log.info("Connected to jgroups channel:" + name + ", time " + (System.currentTimeMillis()-ct) + " ms.");
 
         }catch(Exception e){
@@ -59,34 +59,38 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
 
     @Override
     public void disconnect() {
+        this.sendMessage(Command.quit());
         channel.close();
     }
 
     @Override
     public void receive(Message msg) {
-        //无效消息
-        byte[] buffers = msg.getBuffer();
-        if(buffers.length < 1){
-            log.warn("Message is empty.");
-            return;
-        }
 
         //不处理发送给自己的消息
         if(msg.getSrc().equals(channel.getAddress()))
             return ;
 
-        try{
-            Command cmd = Command.parse(buffers);
+        //无效消息
+        String msgJson = (String)msg.getObject();
 
-            if(cmd == null)
+        try{
+            Command cmd = Command.parse(msgJson);
+
+            if(cmd == null || cmd.isLocal())
                 return;
 
             switch(cmd.getOperator()){
-                case Command.OPT_DELETE_KEY:
-                    this.evict(cmd.getRegion(), cmd.getKey());
+                case Command.OPT_JOIN:
+                    log.info("Node-"+cmd.getSrc()+" joined to " + name);
+                    break;
+                case Command.OPT_EVICT_KEY:
+                    this.evict(cmd.getRegion(),cmd.getKeys());
                     break;
                 case Command.OPT_CLEAR_KEY:
                     this.clear(cmd.getRegion());
+                    break;
+                case Command.OPT_QUIT:
+                    log.info("Node-"+cmd.getSrc()+" quit to " + name);
                     break;
                 default:
                     log.warn("Unknown message type = " + cmd.getOperator());
@@ -100,17 +104,11 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
      * 发送清除缓存的广播命令
      *
      * @param region : Cache region name
-     * @param key    : cache key
+     * @param keys    : cache key
      */
     @Override
-    public void sendEvictCmd(String region, Serializable key) {
-        Command cmd = new Command(Command.OPT_DELETE_KEY, region, key);
-        try {
-            Message msg = new Message(null, null, cmd.toBuffers());
-            channel.send(msg);
-        } catch (Exception e) {
-            log.error("Failed to delete cache,region="+region+",key="+key, e);
-        }
+    public void sendEvictCmd(String region, String...keys) {
+        sendMessage(new Command(Command.OPT_EVICT_KEY, region, keys));
     }
 
     /**
@@ -120,13 +118,7 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
      */
     @Override
     public void sendClearCmd(String region) {
-        Command cmd = new Command(Command.OPT_CLEAR_KEY, region, "");
-        try {
-            Message msg = new Message(null, null, cmd.toBuffers());
-            channel.send(msg);
-        } catch (Exception e) {
-            log.error("Failed to clear cache,region="+region, e);
-        }
+        sendMessage(new Command(Command.OPT_CLEAR_KEY, region, ""));
     }
 
     @Override
@@ -134,6 +126,15 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
         log.info(String.format("Group Members Changed, LIST: %s",
                 String.join(",", view.getMembers().stream().map(a -> a.toString()).toArray(String[]::new)))
         );
+    }
+
+    private void sendMessage(Command cmd) {
+        try {
+            Message msg = new Message(null, null, cmd.json());
+            channel.send(msg);
+        } catch (Exception e) {
+            log.error("Failed to send message to jgroups -> " + cmd.json(), e);
+        }
     }
 
 }

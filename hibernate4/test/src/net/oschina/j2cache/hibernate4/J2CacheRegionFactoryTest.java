@@ -77,7 +77,7 @@ public class J2CacheRegionFactoryTest {
 
         //直接从缓存中读取数据
 
-        Map<String,Object> narticle = getCacheValue("net.oschina.j2cache.hibernate4.bean.Article",article.getId(),Article.class.getName());
+        Map<String,Object> narticle = getCacheValue("net.oschina.j2cache.hibernate4.bean.Article",article.getId());
         LOG.debug("直接从缓存中读取数据:" + narticle);
 
         //验证结果
@@ -91,7 +91,7 @@ public class J2CacheRegionFactoryTest {
         articleService.save(saveartice);
 
         //缓存数据会删除
-        narticle = getCacheValue("net.oschina.j2cache.hibernate4.bean.Article",article.getId(),Article.class.getName());
+        narticle = getCacheValue("net.oschina.j2cache.hibernate4.bean.Article",article.getId());
         LOG.debug("修改后直接从缓存中读取数据:" + narticle);
         //发现还是原来的值，因为hibernate的缓存是存在于三个位置的，第一个为查询sql及条件作为的key。第二个为缓存单个对象的过期时间。第三个才是缓存的对象
 
@@ -99,7 +99,7 @@ public class J2CacheRegionFactoryTest {
         article = this.articleService.findUnique(Restrictions.like("title", "测试缓存1", MatchMode.START));
         LOG.debug("再次查询,缓存查询结果:" + article);//会重新缓存结果
 
-        narticle = getCacheValue("net.oschina.j2cache.hibernate4.bean.Article",article.getId(),Article.class.getName());
+        narticle = getCacheValue("net.oschina.j2cache.hibernate4.bean.Article",article.getId());
         LOG.debug("再次直接从缓存中读取数据:" + narticle);
 
         //验证结果
@@ -140,14 +140,11 @@ public class J2CacheRegionFactoryTest {
 
     }
 
-    private Map getCacheValue(String region,String key,String entityName){
-        CacheKey cacheKey = new CacheKey(key, StringType.INSTANCE,entityName,null,null);
+    private Map getCacheValue(String region,String key){
         try {
-            Object item = J2Cache.getChannel().get(region, cacheKey).getValue();
-            if(item == null){
-                return null;
-            }
-            return (Map) BeanUtils.getPropertyDescriptor(item.getClass(),"value").getReadMethod().invoke(item);
+            Object item = J2Cache.getChannel().get(region, key).getValue();
+            if(item != null)
+                return (Map) BeanUtils.getPropertyDescriptor(item.getClass(),"value").getReadMethod().invoke(item);
         } catch (IllegalAccessException | InvocationTargetException | IOException e) {
             LOG.error(e.getMessage(), e);
         }

@@ -16,6 +16,7 @@
 package net.oschina.j2cache.util;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 import org.xerial.snappy.Snappy;
 
@@ -41,12 +42,12 @@ public class FstSnappySerializer implements Serializer {
 	}
 	
 	@Override
-	public byte[] serialize(Object obj) throws IOException {
+	public byte[] serialize(Serializable obj) throws IOException {
 		return Snappy.compress(inner.serialize(obj));
 	}
 
 	@Override
-	public Object deserialize(byte[] bytes) throws IOException {
+	public Serializable deserialize(byte[] bytes) throws IOException {
 		if (bytes == null || bytes.length == 0)
 			return null;
 		return inner.deserialize(Snappy.uncompress(bytes));

@@ -15,8 +15,6 @@
  */
 package net.oschina.j2cache;
 
-import java.io.Serializable;
-
 /**
  * When cached data expired in ehcache, this listener will be invoked.
  *
@@ -24,6 +22,6 @@ import java.io.Serializable;
  */
 public interface CacheExpiredListener {
 
-	void notifyElementExpired(String region, Serializable key) ;
+	void notifyElementExpired(String region, String key) ;
 
 }

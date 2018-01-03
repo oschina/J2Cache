@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,7 +41,7 @@ public class SerializationUtils {
         obj.addAll(Arrays.asList("OSChina.NET", "RunJS.cn", "Team@OSC", "Git@OSC", "Sonar@OSC", "PaaS@OSC"));
 
         g_serializer = new KryoPoolSerializer();
-        byte[] bits = serialize(obj);
+        byte[] bits = serialize((Serializable)obj);
         for (byte b : bits) {
             System.out.print(Byte.toString(b) + " ");
         }
@@ -75,13 +76,13 @@ public class SerializationUtils {
         log.info("Using Serializer -> [" + g_serializer.name() + ":" + g_serializer.getClass().getName() + ']');
     }
 
-    public static byte[] serialize(Object obj) throws IOException {
+    public static byte[] serialize(Serializable obj) throws IOException {
         if(obj == null)
             return null;
         return g_serializer.serialize(obj);
     }
 
-    public static Object deserialize(byte[] bytes) throws IOException {
+    public static Serializable deserialize(byte[] bytes) throws IOException {
         if(bytes == null)
             return null;
         return g_serializer.deserialize(bytes);

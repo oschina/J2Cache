@@ -17,8 +17,8 @@ package net.oschina.j2cache;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.List;
-import java.util.Set;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * Cache Data Operation Interface
@@ -34,7 +34,23 @@ public interface Cache {
 	 * @return the cached object or null
 	 * @throws IOException io exception
 	 */
-	Serializable get(Serializable key) throws IOException;
+	Serializable get(String key) throws IOException;
+
+	/**
+	 * 批量获取缓存对象
+	 * @param keys cache keys
+	 * @return return key-value objects
+	 * @throws IOException io exception
+	 */
+	Map<String, Serializable> getAll(Collection<String> keys) throws IOException;
+
+	/**
+	 * 判断缓存是否存在
+	 * @param key cache key
+	 * @return true if key exists
+	 * @throws IOException io exception
+	 */
+	boolean exists(String key) throws IOException;
 	
 	/**
 	 * Add an item to the cache, nontransactionally, with
@@ -44,7 +60,23 @@ public interface Cache {
 	 * @param value cache value
 	 * @throws IOException io exception
 	 */
-	void put(Serializable key, Serializable value) throws IOException;
+	void put(String key, Serializable value) throws IOException;
+
+	/**
+	 * Put an element in the cache if no element is currently mapped to the elements key.
+	 * @param key cache key
+	 * @param value cache object
+	 * @return return old element exists in cache
+	 * @throws IOException io exception
+	 */
+	Serializable putIfAbsent(String key, Serializable value) throws IOException ;
+
+	/**
+	 * 批量插入数据
+	 * @param elements objects to be put in cache
+	 * @throws IOException io exception
+	 */
+	void putAll(Map<String, Serializable> elements) throws IOException;
 
 	/**
 	 * Add an item to the cache
@@ -53,7 +85,7 @@ public interface Cache {
 	 * @param value cache value
 	 * @throws IOException io exception
 	 */
-	void update(Serializable key, Serializable value) throws IOException;
+	void update(String key, Serializable value) throws IOException;
 
 	/**
 	 * Return all keys
@@ -61,24 +93,16 @@ public interface Cache {
 	 * @return 返回键的集合
 	 * @throws IOException io exception
 	 */
-	Set<Serializable> keys() throws IOException ;
+	Collection<String> keys() throws IOException ;
 	
 	/**
 	 * Remove an item from the cache
 	 *
-	 * @param key Cache key
+	 * @param keys Cache key
 	 * @throws IOException io exception
 	 */
-	void evict(Serializable key) throws IOException;
+	void evict(String...keys) throws IOException;
 
-	/**
-	 * Batch remove cache objects
-	 *
-	 * @param keys the cache keys to be evicted
-	 * @throws IOException io exception
-	 */
-	void evicts(List<Serializable> keys) throws IOException;
-	
 	/**
 	 * Clear the cache
 	 *

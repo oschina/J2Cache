@@ -39,7 +39,7 @@ public class EhCacheProvider implements CacheProvider {
 	public static String KEY_EHCACHE_CONFIG_XML = "configXml";
 
 	private CacheManager manager;
-	private ConcurrentHashMap<String, EhCache> _CacheManager ;
+	private ConcurrentHashMap<String, EhCache> caches;
 
 	@Override
 	public String name() {
@@ -60,10 +60,10 @@ public class EhCacheProvider implements CacheProvider {
      */
     @Override
     public EhCache buildCache(String regionName, boolean autoCreate, CacheExpiredListener listener) {
-    	EhCache ehcache = _CacheManager.get(regionName);
+    	EhCache ehcache = caches.get(regionName);
     	if(ehcache == null && autoCreate){
 			synchronized(EhCacheProvider.class){
-				ehcache = _CacheManager.get(regionName);
+				ehcache = caches.get(regionName);
 				if(ehcache == null){
 					net.sf.ehcache.Cache cache = manager.getCache(regionName);
 					if (cache == null) {
@@ -73,7 +73,7 @@ public class EhCacheProvider implements CacheProvider {
 						log.debug("started Ehcache region: " + regionName);
 					}
 					ehcache = new EhCache(cache, listener);
-					_CacheManager.put(regionName, ehcache);
+					caches.put(regionName, ehcache);
 				}
 			}
     	}
@@ -105,7 +105,7 @@ public class EhCacheProvider implements CacheProvider {
 				manager = CacheManager.getInstance();
 			}
 		}
-        _CacheManager = new ConcurrentHashMap<>();
+        caches = new ConcurrentHashMap<>();
 	}
 
 	/**
@@ -114,7 +114,7 @@ public class EhCacheProvider implements CacheProvider {
 	public void stop() {
 		if (manager != null) {
             manager.shutdown();
-            _CacheManager.clear();
+            caches.clear();
             manager = null;
         }
 	}

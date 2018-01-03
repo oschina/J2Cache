@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,8 +53,8 @@ public class J2Cache {
 				}
 
 				@Override
-				public void sendEvictCmd(String region, Serializable key) {
-					threadPool.execute(()->policy.sendEvictCmd(region, key));
+				public void sendEvictCmd(String region, String...keys) {
+					threadPool.execute(()->policy.sendEvictCmd(region, keys));
 				}
 
 				@Override
@@ -120,6 +119,8 @@ public class J2Cache {
 			}
 			else
 				throw new CacheException("Cache Channel not defined. name = " + cache_broadcast);
+
+			log.info("Using cluster policy : " + policy.getClass().getName());
 		}
 	}
 

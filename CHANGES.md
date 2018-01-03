@@ -1,5 +1,12 @@
 # J2Cache 版本更新记录
 
+**J2Cache 2.1 (xxxx-xx-xx)**
+* 为了避免在实际应用中的混淆，缓存的key统一为字符串（如果你不能确定，请谨慎升级到2.1）
+* 增加更多的缓存操作方法(getAll,setAll)
+* 增加新节点加入和退出集群的日志信息
+* 增加了 Spring Boot Starter 模块（感谢 @zhangsaizz 的贡献）
+
+
 **J2Cache 2.0.1 (2017-12-26)**
 * 修复了 database 参数无效的问题
 * 统一了几种 Redis 模式下的密码认证处理

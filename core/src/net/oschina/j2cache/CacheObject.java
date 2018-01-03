@@ -24,19 +24,31 @@ import java.io.Serializable;
 public class CacheObject {
 
 	private String region;
-	private Serializable key;
+	private String key;
 	private Serializable value;
 	private byte level;
+
+	public CacheObject(String region, String key, byte level) {
+		this(region, key, level, null);
+	}
+
+	public CacheObject(String region, String key, byte level, Serializable value) {
+		this.region =  region;
+		this.key = key;
+		this.level = level;
+		this.value = value;
+	}
+
 	public String getRegion() {
 		return region;
 	}
 	public void setRegion(String region) {
 		this.region = region;
 	}
-	public Serializable getKey() {
+	public String getKey() {
 		return key;
 	}
-	public void setKey(Serializable key) {
+	public void setKey(String key) {
 		this.key = key;
 	}
 	public Serializable getValue() {

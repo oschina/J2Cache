@@ -45,7 +45,7 @@ J2Cache 运行时所需 jar 包请查看 core/pom.xml
 
 1. 安装 Redis  
 2. 修改 core/resource/j2cache.properties  配置使用已安装的 Redis 服务器
-3. 执行 mvn package 进行项目编译  
+3. 执行 mvn package -DskipTest=true 进行项目编译  
 4. 运行多个 runtest.sh 
 5. 直接在 runtest 输入多个命令进行测试
 
@@ -55,16 +55,30 @@ J2Cache 运行时所需 jar 包请查看 core/pom.xml
 <dependency>
   <groupId>net.oschina.j2cache</groupId>  
   <artifactId>j2cache-core</artifactId>  
-  <version>2.0.1</version>  
+  <version>2.1.0</version>  
 </dependency>
 ```
 ## 示例代码
 
 请看 core/src/net/oschina/j2cache/J2CacheCmd.java
 
+## 常见问题
+
+1. J2Cache 的使用场景是什么？  
+首先你的应用是允许在集群环境，使用 J2Cache 可以有效降低节点间的数据传输量
+2. 为什么不能在程序中设置缓存的有效期  
+在程序中定义缓存数据的有效期会导致缓存不可控，一旦数据出问题无从查起，因此 J2Cache 的所有缓存的有效期都必须在 ehcache 的配置中预设好再使用
+
 ## 哪些项目在用 J2Cache ？
 
 * www.oschina.net
 * https://gitee.com/jfinal/jfinal
 * https://gitee.com/fuhai/jboot
+* https://gitee.com/tywo45/t-io
 * 更多项目收集中，如果你的项目用了，请告诉我
+
+## TODO ##
+
+* 增加使用 API 对 J2Cache 进行初始化配置
+* 继续完善缓存 API，例如支持直接可设置缓存数据的有效时间
+* 增加对其他一级缓存框架的支持，如 Guava Cache

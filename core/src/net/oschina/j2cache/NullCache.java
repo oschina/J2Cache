@@ -15,48 +15,63 @@
  */
 package net.oschina.j2cache;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.util.List;
-import java.util.Set;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * 空的缓存Provider
  * @author Winter Lau(javayou@gmail.com)
  */
 public class NullCache implements Cache {
+
 	@Override
-	public Serializable get(Serializable key) throws IOException, CacheException {
+	public Serializable get(String key) {
 		return null;
 	}
 
 	@Override
-	public void put(Serializable key, Serializable value) throws IOException, CacheException {
+	public void put(String key, Serializable value) {
 
 	}
 
 	@Override
-	public void update(Serializable key, Serializable value) throws IOException, CacheException {
+	public void update(String key, Serializable value) {
 
 	}
 
 	@Override
-	public Set<Serializable> keys() throws IOException, CacheException {
+	public Collection<String> keys() {
 		return null;
 	}
 
 	@Override
-	public void evict(Serializable key) throws IOException, CacheException {
+	public Map getAll(Collection<String> keys) {
+		return null;
+	}
+
+	@Override
+	public boolean exists(String key) {
+		return false;
+	}
+
+	@Override
+	public Serializable putIfAbsent(String key, Serializable value) {
+		return null;
+	}
+
+	@Override
+	public void putAll(Map<String, Serializable> elements)  {
 
 	}
 
 	@Override
-	public void evicts(List<Serializable> keys) throws IOException, CacheException {
+	public void evict(String...keys) {
 
 	}
 
 	@Override
-	public void clear() throws IOException, CacheException {
+	public void clear() {
 
 	}
 }

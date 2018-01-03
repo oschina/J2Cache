@@ -15,10 +15,9 @@
  */
 package net.oschina.j2cache.ehcache;
 
+import java.io.IOException;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import net.oschina.j2cache.Cache;
 import net.oschina.j2cache.CacheException;
@@ -51,10 +50,8 @@ public class EhCache implements Cache, CacheEventListener {
 	}
 
 	@Override
-	public Set<Serializable> keys() {
-		Set<Serializable> keys = new HashSet<>();
-		keys.addAll(this.cache.getKeys());
-		return keys;
+	public Collection<String> keys() {
+		return this.cache.getKeys();
 	}
 
 	/**
@@ -64,7 +61,7 @@ public class EhCache implements Cache, CacheEventListener {
 	 * @return The value placed into the cache with an earlier put, or null if not found or expired
 	 */
 	@Override
-	public Serializable get(Serializable key) {
+	public Serializable get(String key) {
 		if ( key == null )
 			return null;
 		Element elem = cache.get( key );
@@ -78,7 +75,7 @@ public class EhCache implements Cache, CacheEventListener {
 	 * @param value a value
 	 */
 	@Override
-	public void update(Serializable key, Serializable value) {
+	public void update(String key, Serializable value) {
 		put(key, value);
 	}
 
@@ -89,7 +86,7 @@ public class EhCache implements Cache, CacheEventListener {
 	 * @param value a value
 	 */
 	@Override
-	public void put(Serializable key, Serializable value) {
+	public void put(String key, Serializable value) {
 		cache.put(new Element(key, value));
 	}
 
@@ -97,23 +94,38 @@ public class EhCache implements Cache, CacheEventListener {
 	 * Removes the element which matches the key
 	 * If no element matches, nothing is removed and no Exception is thrown.
 	 *
-	 * @param key the key of the element to remove
+	 * @param keys the key of the element to remove
 	 */
 	@Override
-	public void evict(Serializable key) {
+	public void evict(String...keys) {
 		try {
-			cache.remove( key );
+			cache.removeAll(Arrays.asList(keys));
 		} catch (IllegalStateException | net.sf.ehcache.CacheException e) {
 			throw new CacheException( e );
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.oschina.j2cache.Cache#batchRemove(java.util.List)
-	 */
 	@Override
-	public void evicts(List<Serializable> keys) {
-		cache.removeAll(keys);
+	public Map getAll(Collection<String> keys) {
+		return cache.getAll(keys);
+	}
+
+	@Override
+	public boolean exists(String key) {
+		return cache.isKeyInCache(key);
+	}
+
+	@Override
+	public Serializable putIfAbsent(String key, Serializable value) throws IOException {
+		Element elem = cache.putIfAbsent(new Element(key, value));
+		return (elem!=null)?(Serializable)elem.getObjectValue():null;
+	}
+
+	@Override
+	public void putAll(Map<String, Serializable> elements) throws IOException {
+		List<Element> elems = new ArrayList<>();
+		elements.forEach((k,v) -> elems.add(new Element(k,v)));
+		cache.putAll(elems);
 	}
 
 	/**
@@ -131,7 +143,7 @@ public class EhCache implements Cache, CacheEventListener {
 	@Override
 	public void notifyElementExpired(Ehcache cache, Element elem) {
 		if(listener != null){
-			listener.notifyElementExpired(cache.getName(), (Serializable)elem.getObjectKey());
+			listener.notifyElementExpired(cache.getName(), (String)elem.getObjectKey());
 		}
 	}
 

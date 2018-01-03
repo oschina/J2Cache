@@ -17,7 +17,6 @@ package net.oschina.j2cache;
 
 import net.oschina.j2cache.redis.RedisClient;
 import net.oschina.j2cache.redis.RedisPubSubClusterPolicy;
-import redis.clients.jedis.JedisCluster;
 
 /**
  * 集群策略工厂

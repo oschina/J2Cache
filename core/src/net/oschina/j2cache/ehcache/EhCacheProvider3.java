@@ -42,7 +42,7 @@ public class EhCacheProvider3 implements CacheProvider {
     private final static Logger log = LoggerFactory.getLogger(EhCacheProvider3.class);
 
     private CacheManager cacheManager;
-    private ConcurrentHashMap<String, EhCache3> _CacheManager = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, EhCache3> caches = new ConcurrentHashMap<>();
 
     @Override
     public String name() {
@@ -51,10 +51,10 @@ public class EhCacheProvider3 implements CacheProvider {
 
     @Override
     public EhCache3 buildCache(String regionName, boolean autoCreate, CacheExpiredListener listener) {
-        EhCache3 ehcache = _CacheManager.get(regionName);
+        EhCache3 ehcache = caches.get(regionName);
         if(ehcache == null && autoCreate){
             synchronized(EhCacheProvider.class){
-                ehcache = _CacheManager.get(regionName);
+                ehcache = caches.get(regionName);
                 if(ehcache == null){
                     org.ehcache.Cache cache = cacheManager.getCache(regionName, Serializable.class, Serializable.class);
                     if (cache == null) {
@@ -65,7 +65,7 @@ public class EhCacheProvider3 implements CacheProvider {
                         log.debug(String.format("Started Ehcache region [%s] with heap size: %d", regionName, heapSize));
                     }
                     ehcache = new EhCache3(regionName, cache, listener);
-                    _CacheManager.put(regionName, ehcache);
+                    caches.put(regionName, ehcache);
                 }
             }
         }
@@ -87,7 +87,7 @@ public class EhCacheProvider3 implements CacheProvider {
     public void stop() {
         if (cacheManager != null) {
             cacheManager.close();
-            _CacheManager.clear();
+            caches.clear();
             cacheManager = null;
         }
     }

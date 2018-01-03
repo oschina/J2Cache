@@ -17,6 +17,11 @@ package net.oschina.j2cache;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 缓存测试入口
@@ -46,10 +51,31 @@ public class J2CacheCmd {
 	            	System.out.printf("[%s,%s,L%d]=>%s\n", obj.getRegion(), obj.getKey(), obj.getLevel(), obj.getValue());
 	            }
 	            else
+				if("mget".equalsIgnoreCase(cmds[0])){
+	            	String[] keys = new String[cmds.length - 2];
+	            	System.arraycopy(cmds, 2, keys, 0, cmds.length - 2);
+					Map<String, CacheObject> values = cache.getAll(cmds[1], Arrays.asList(keys));
+					if(values != null && values.size() > 0)
+						values.forEach((key,obj) -> System.out.printf("[%s,%s,L%d]=>%s\n", obj.getRegion(), obj.getKey(), obj.getLevel(), obj.getValue()));
+					else
+						System.out.println("none!");
+				}
+	            else
 	            if("set".equalsIgnoreCase(cmds[0])){
 	            	cache.set(cmds[1], cmds[2],cmds[3]);
 	            	System.out.printf("[%s,%s]<=%s\n",cmds[1], cmds[2], cmds[3]);
 	            }
+				else
+				if("mset".equalsIgnoreCase(cmds[0])){
+	            	String region = cmds[1];
+	            	Map<String, Serializable> objs = new HashMap<>();
+	            	for(int i=2;i<cmds.length;i++) {
+	            		String[] obj = cmds[i].split(":");
+	            		objs.put(obj[0], obj[1]);
+					}
+					cache.setAll(cmds[1], objs);
+	            	objs.forEach((k,v)->System.out.printf("[%s,%s]<=%s\n",region, k, v));
+				}
 	            else
 	            if("evict".equalsIgnoreCase(cmds[0])){
 	            	cache.evict(cmds[1], cmds[2]);
@@ -60,6 +86,14 @@ public class J2CacheCmd {
 	            	cache.clear(cmds[1]);
 	            	System.out.printf("Cache [%s] clear.\n" , cmds[1]);
 	            }
+				else
+				if("keys".equalsIgnoreCase(cmds[0])){
+					Collection<String> keys = cache.keys(cmds[1]);
+					if(keys != null)
+						System.out.printf("[%s:keys] => (%s)\n" , cmds[1], String.join(",", keys));
+					else
+						System.out.println("none!");
+				}
 	            else
 	            if("help".equalsIgnoreCase(cmds[0])){
 	            	printHelp();
@@ -85,7 +119,7 @@ public class J2CacheCmd {
 	
 	private static void printHelp() {
 		System.out.println("Usage: [cmd] region key [value]");
-		System.out.println("cmd: get/set/evict/quit/exit/help");
+		System.out.println("cmd: get/mget/set/mset/evict/keys/quit/exit/help");
 	}
 
 }

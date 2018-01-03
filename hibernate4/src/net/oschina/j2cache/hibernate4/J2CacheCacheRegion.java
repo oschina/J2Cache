@@ -49,7 +49,7 @@ public class J2CacheCacheRegion implements CacheRegion {
     @Override
     public CacheObject get(Object key) {
         try {
-            return this.cacheChannel.get(this.region, (Serializable) key);
+            return this.cacheChannel.get(this.region, (String) key);
         } catch (IOException e){
             throw new HibernateException(e);
         }
@@ -58,7 +58,7 @@ public class J2CacheCacheRegion implements CacheRegion {
     @Override
     public void put(Object key, Object value) {
         try {
-            this.cacheChannel.set(this.region, (Serializable) key, (Serializable) value);
+            this.cacheChannel.set(this.region, (String) key, (Serializable) value);
         } catch (IOException e){
             throw new HibernateException(e);
         }
@@ -67,7 +67,7 @@ public class J2CacheCacheRegion implements CacheRegion {
     @Override
     public void evict(Object key) {
         try {
-            this.cacheChannel.evict(this.region, (Serializable)key);
+            this.cacheChannel.evict(this.region, (String)key);
         } catch (IOException e){
             throw new HibernateException(e);
         }

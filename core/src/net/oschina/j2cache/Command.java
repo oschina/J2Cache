@@ -15,14 +15,10 @@
  */
 package net.oschina.j2cache;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Random;
 
-import net.oschina.j2cache.util.SerializationUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.annotation.JSONField;
 
 /**
  * 命令消息封装
@@ -37,17 +33,17 @@ import org.slf4j.LoggerFactory;
  */
 public class Command {
 
-	private final static Logger log = LoggerFactory.getLogger(Command.class);
-	
-	private final static int SRC_ID = genRandomSrc(); //命令源标识，随机生成
+	private final static int SRC_ID = genRandomSrc(); //命令源标识，随机生成，每个节点都有唯一标识
 
-	public final static byte OPT_DELETE_KEY = 0x01; 	//删除缓存
-	public final static byte OPT_CLEAR_KEY = 0x02; 		//清除缓存
+	public final static byte OPT_JOIN 	   = 0x01;	//加入集群
+	public final static byte OPT_EVICT_KEY = 0x02; 	//删除缓存
+	public final static byte OPT_CLEAR_KEY = 0x03; 	//清除缓存
+	public final static byte OPT_QUIT 	   = 0x04;	//退出集群
 	
-	private int src;
-	private byte operator;
+	private int src = SRC_ID;
+	private int operator;
 	private String region;
-	private Serializable key;
+	private String[] keys;
 	
 	private static int genRandomSrc() {
 		long ct = System.currentTimeMillis();
@@ -55,108 +51,50 @@ public class Command {
 		return (int)(rnd_seed.nextInt(10000) * 1000 + ct % 1000);
 	}
 
-	public static void main(String[] args) {
-		for(int i=0;i<5;i++){
-			Command cmd = new Command(OPT_DELETE_KEY, "users", "ld"+i);
-			byte[] bufs = cmd.toBuffers();
-			System.out.print(cmd.getSrc() + ":");
-			for(byte b : bufs){
-				System.out.printf("[%s]",Integer.toHexString(b));			
-			}
-			System.out.println();
-			Command cmd2 = Command.parse(bufs);
-			System.out.printf("%d -> %d:%s:%s(%s)\n", cmd2.getSrc(), cmd2.getOperator(), cmd2.getRegion(), cmd2.getKey(), cmd2.isLocalCommand());
-		}
-	}
+	public Command(){}//just for json deserialize
 
-	public Command(byte o, String r, Serializable k){
+	public Command(byte o, String r, String...keys){
 		this.operator = o;
 		this.region = r;
-		this.key = k;
-		this.src = SRC_ID;
+		this.keys = keys;
 	}
-	
-	public byte[] toBuffers(){
-		byte[] keyBuffers;
-		try {
-			keyBuffers = SerializationUtils.serialize(key);
-		} catch (IOException e) {
-			e.printStackTrace();
+
+	public static Command join() {
+		return new Command(OPT_JOIN, null);
+	}
+
+	public static Command quit() {
+		return new Command(OPT_QUIT, null);
+	}
+
+	public String json() {
+		return JSON.toJSONString(this);
+	}
+
+	public byte[] jsonBytes() {
+		return json().getBytes();
+	}
+
+	public static Command parse(String json) {
+		return JSON.parseObject(json, Command.class);
+	}
+
+	public static Command parse(byte[] bytes) {
+		if(bytes == null || bytes.length == 0)
 			return null;
-		}
-		int r_len = region.getBytes().length;
-		int k_len = keyBuffers.length;
+		return parse(new String(bytes));
+	}
 
-		byte[] buffers = new byte[11 + r_len + k_len];
-		int idx = 0;
-		System.arraycopy(int2bytes(this.src), 0, buffers, idx, 4);
-		idx += 4;
-		buffers[idx] = operator;
-		idx += 1;
-		System.arraycopy(int2bytes(r_len), 0, buffers, idx, 2);
-		idx += 2;
-		System.arraycopy(region.getBytes(), 0, buffers, idx, r_len);
-		idx += r_len;
-		System.arraycopy(int2bytes(k_len), 0, buffers, idx, 4);
-		idx += 4;
-		System.arraycopy(keyBuffers, 0, buffers, idx, k_len);
-		return buffers;
-	}
-	
-	public static Command parse(byte[] buffers) {
-		Command cmd = null;
-		try{
-			int idx = 4;
-			byte opt = buffers[idx++];
-			int r_len = bytes2int(new byte[]{buffers[idx++], buffers[idx++], 0, 0});
-			if(r_len > 0){
-				String region = new String(buffers, idx, r_len);
-				idx += r_len;
-				int k_len = bytes2int(Arrays.copyOfRange(buffers, idx, idx + 4));
-				idx += 4;
-				if(k_len > 0){
-					//String key = new String(buffers, idx, k_len);
-					byte[] keyBuffers = new byte[k_len];
-					System.arraycopy(buffers, idx, keyBuffers, 0, k_len);
-					Serializable key = (Serializable)SerializationUtils.deserialize(keyBuffers);
-					cmd = new Command(opt, region, key);
-					cmd.src = bytes2int(buffers);
-				}
-			}
-		}catch(Exception e){
-			log.error("Failed to parse received command.", e);
-		}
-		return cmd;
-	}
-	
-	private static byte[] int2bytes(int i) {
-        byte[] b = new byte[4];
-
-        b[0] = (byte) (0xff&i);
-        b[1] = (byte) ((0xff00&i) >> 8);
-        b[2] = (byte) ((0xff0000&i) >> 16);
-        b[3] = (byte) ((0xff000000&i) >> 24);
-        
-        return b;
-	}
-	
-	private static int bytes2int(byte[] bytes) {
-		int num = bytes[0] & 0xFF;
-		num |= ((bytes[1] << 8) & 0xFF00);
-		num |= ((bytes[2] << 16) & 0xFF0000);
-		num |= ((bytes[3] << 24) & 0xFF000000);
-		return num;
-	}
-	
-	public boolean isLocalCommand() {
+	@JSONField(serialize = false)
+	public boolean isLocal() {
 		return this.src == SRC_ID;
 	}
 	
-	public byte getOperator() {
+	public int getOperator() {
 		return operator;
 	}
 
-	public void setOperator(byte operator) {
+	public void setOperator(int operator) {
 		this.operator = operator;
 	}
 
@@ -168,15 +106,20 @@ public class Command {
 		this.region = region;
 	}
 
-	public Serializable getKey() {
-		return key;
+	public String[] getKeys() {
+		return keys;
 	}
 
-	public void setKey(Serializable key) {
-		this.key = key;
+	public void setKeys(String[] keys) {
+		this.keys = keys;
 	}
 
 	public int getSrc() {
 		return src;
 	}
+
+	public void setSrc(int src) {
+		this.src = src;
+	}
+
 }

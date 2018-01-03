@@ -21,8 +21,7 @@ import org.ehcache.event.*;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -34,10 +33,10 @@ import java.util.stream.Collectors;
 public class EhCache3 implements Cache , CacheEventListener {
 
     private String name;
-    private org.ehcache.Cache<Serializable, Serializable> cache;
+    private org.ehcache.Cache<String, Serializable> cache;
     private CacheExpiredListener listener;
 
-    public EhCache3(String name, org.ehcache.Cache<Serializable, Serializable> cache, CacheExpiredListener listener) {
+    public EhCache3(String name, org.ehcache.Cache<String, Serializable> cache, CacheExpiredListener listener) {
         this.name = name;
         this.cache = cache;
         this.cache.getRuntimeConfiguration().registerCacheEventListener(this,
@@ -48,44 +47,59 @@ public class EhCache3 implements Cache , CacheEventListener {
     }
 
     @Override
-    public Serializable get(Serializable key) throws IOException {
+    public Serializable get(String key) throws IOException {
         return this.cache.get(key);
     }
 
     @Override
-    public void put(Serializable key, Serializable value) throws IOException {
+    public void put(String key, Serializable value) throws IOException {
         this.cache.put(key, value);
     }
 
     @Override
-    public void update(Serializable key, Serializable value) throws IOException {
+    public Map getAll(Collection<String> keys) {
+        return cache.getAll(keys.stream().collect(Collectors.toSet()));
+    }
+
+    @Override
+    public boolean exists(String key) {
+        return cache.containsKey(key);
+    }
+
+    @Override
+    public Serializable putIfAbsent(String key, Serializable value) {
+        return cache.putIfAbsent(key, value);
+    }
+
+    @Override
+    public void putAll(Map<String, Serializable> elements) {
+        cache.putAll(elements);
+    }
+
+    @Override
+    public void update(String key, Serializable value) {
         this.cache.put(key, value);
     }
 
     @Override
-    public Set<Serializable> keys() throws IOException {
+    public Collection<String> keys() {
         return null;
     }
 
     @Override
-    public void evict(Serializable key) throws IOException {
-        this.cache.remove(key);
+    public void evict(String...keys) {
+        this.cache.removeAll(Arrays.asList(keys).stream().collect(Collectors.toSet()));
     }
 
     @Override
-    public void evicts(List<Serializable> keys) throws IOException {
-        this.cache.removeAll(keys.stream().collect(Collectors.toSet()));
-    }
-
-    @Override
-    public void clear() throws IOException {
+    public void clear() {
         this.cache.clear();
     }
 
     @Override
     public void onEvent(CacheEvent cacheEvent) {
         if(cacheEvent.getType() == EventType.EXPIRED){
-            this.listener.notifyElementExpired(name, (Serializable)cacheEvent.getKey());
+            this.listener.notifyElementExpired(name, (String)cacheEvent.getKey());
         }
     }
 }

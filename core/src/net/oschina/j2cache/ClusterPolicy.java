@@ -16,8 +16,6 @@
 package net.oschina.j2cache;
 
 import java.io.IOException;
-import java.io.Serializable;
-import java.util.List;
 
 /**
  * 缓存集群策略接口
@@ -33,9 +31,9 @@ public interface ClusterPolicy {
     /**
      * 发送清除缓存的命令
      * @param region 区域名称
-     * @param key   缓存键值
+     * @param keys   缓存键值
      */
-    void sendEvictCmd(String region, Serializable key);
+    void sendEvictCmd(String region, String...keys);
 
     /**
      * 发送清除整个缓存区域的命令
@@ -51,14 +49,11 @@ public interface ClusterPolicy {
     /**
      * 删除本地某个缓存条目
      * @param region 区域名称
-     * @param key   缓存键值
+     * @param keys   缓存键值
      * @throws IOException io exception
      */
-    default void evict(String region, Serializable key) throws IOException {
-        if (key instanceof List)
-            CacheProviderHolder.evicts(CacheProviderHolder.LEVEL_1, region, (List) key);
-        else
-            CacheProviderHolder.evict(CacheProviderHolder.LEVEL_1, region, key);
+    default void evict(String region, String... keys) throws IOException {
+        CacheProviderHolder.evict(CacheProviderHolder.LEVEL_1, region, keys);
     }
 
     /**

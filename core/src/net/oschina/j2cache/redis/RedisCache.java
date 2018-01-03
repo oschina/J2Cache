@@ -17,12 +17,13 @@ package net.oschina.j2cache.redis;
 
 import net.oschina.j2cache.Cache;
 import net.oschina.j2cache.util.SerializationUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import redis.clients.jedis.BinaryJedisCommands;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Redis 缓存操作封装，基于 Hashs 实现多个 Region 的缓存（
@@ -33,6 +34,8 @@ import java.util.Set;
  * @author Winter Lau(javayou@gmail.com)
  */
 public class RedisCache implements Cache {
+
+    private final static Logger log = LoggerFactory.getLogger(RedisCache.class);
 
     private String namespace;
     private String region;
@@ -78,15 +81,15 @@ public class RedisCache implements Cache {
     }
 
     @Override
-    public Serializable get(Serializable key) throws IOException {
+    public Serializable get(String key) throws IOException {
         if (null == key)
             return null;
         byte[] bytes = client.get().hget(regionBytes, getKeyName(key));
-        return (Serializable)SerializationUtils.deserialize(bytes);
+        return SerializationUtils.deserialize(bytes);
     }
 
     @Override
-    public void put(Serializable key, Serializable value) throws IOException {
+    public void put(String key, Serializable value) throws IOException {
         if (key == null)
             return;
         if (value == null)
@@ -96,35 +99,66 @@ public class RedisCache implements Cache {
     }
 
     @Override
-    public void update(Serializable key, Serializable value) throws IOException {
+    public Map getAll(Collection<String> keys) throws IOException {
+        BinaryJedisCommands cmd = client.get();
+        Map<Serializable, Serializable> values = new HashMap<>();
+        for(Serializable key : keys) {
+            byte[] bytes = client.get().hget(regionBytes, getKeyName(key));
+            values.put(key, SerializationUtils.deserialize(bytes));
+        }
+        return values;
+    }
+
+    @Override
+    public boolean exists(String key) {
+        return client.get().hexists(regionBytes, getKeyName(key));
+    }
+
+    @Override
+    public Serializable putIfAbsent(String key, Serializable value) throws IOException {
+        byte[] keyBytes = getKeyName(key);
+        BinaryJedisCommands cmd = client.get();
+        if(!cmd.hexists(regionBytes, keyBytes)) {
+            cmd.hset(regionBytes, keyBytes, SerializationUtils.serialize(value));
+            return null;
+        }
+        return SerializationUtils.deserialize(cmd.hget(regionBytes, keyBytes));
+    }
+
+    @Override
+    public void putAll(Map<String, Serializable> elements) throws IOException {
+        BinaryJedisCommands cmd = client.get();
+        elements.forEach((k,v) -> {
+            try {
+                cmd.hset(regionBytes, getKeyName(k), SerializationUtils.serialize(v));
+            } catch (IOException e) {
+                log.error("Failed putAll", e);
+            }
+        });
+    }
+
+    @Override
+    public void update(String key, Serializable value) throws IOException {
         this.put(key, value);
     }
 
     @Override
-    public void evict(Serializable key) {
-        if (key == null)
+    public void evict(String...keys) {
+        if (keys == null || keys.length == 0)
             return;
-        client.get().hdel(regionBytes, getKeyName(key));
-    }
-
-    @Override
-    public void evicts(List<Serializable> keys) {
-        if (keys == null || keys.size() == 0)
-            return;
-        int size = keys.size();
-        byte[][] o_keys = new byte[size][];
-        for (int i = 0; i < size; i++) {
-            o_keys[i] = getKeyName(keys.get(i));
+        byte[][] o_keys = new byte[keys.length][];
+        for (int i = 0; i < keys.length; i++) {
+            o_keys[i] = getKeyName(keys[i]);
         }
         client.get().hdel(regionBytes, o_keys);
     }
 
     @Override
-    public Set<Serializable> keys() {
-        Set<Serializable> keys = new HashSet<>();
+    public Collection<String> keys() {
+        List<String> keys = new ArrayList<>();
         client.get().hkeys(regionBytes).forEach(keyBytes -> {
             try {
-                keys.add((Serializable)SerializationUtils.deserialize(keyBytes));
+                keys.add((String)SerializationUtils.deserialize(keyBytes));
             }catch(IOException e){}
         });
         return keys;

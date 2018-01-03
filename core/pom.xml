@@ -3,13 +3,13 @@
     <parent>
         <groupId>net.oschina.j2cache</groupId>
         <artifactId>j2cache</artifactId>
-        <version>2.0.1</version>
+        <version>2.1.0</version>
     </parent>
     
     <modelVersion>4.0.0</modelVersion>
     <artifactId>j2cache-core</artifactId>
     <packaging>jar</packaging>
-    <version>2.0.1</version>
+    <version>2.1.0</version>
 
     <build>
         <sourceDirectory>src</sourceDirectory>
@@ -151,6 +151,23 @@
             <version>1.9.3</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.44</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.25</version>
+        </dependency>
     </dependencies>
 
     <description> J2Cache - core </description>

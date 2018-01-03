@@ -17,7 +17,6 @@ package net.oschina.j2cache.hibernate3;
 
 import net.oschina.j2cache.CacheChannel;
 import net.oschina.j2cache.CacheObject;
-import org.hibernate.HibernateException;
 import org.hibernate.cache.Cache;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.Timestamper;
@@ -63,7 +62,7 @@ public class J2HibernateCache implements Cache {
     @Override
     public Object get(Object key) throws CacheException {
         try {
-            CacheObject cobj = cache.get(region, (Serializable)key);
+            CacheObject cobj = cache.get(region, (String)key);
             if (log.isDebugEnabled())
                 log.debug("get value for j2cache which key:" + key + ",value:" + cobj.getValue());
             return cobj.getValue();
@@ -119,7 +118,7 @@ public class J2HibernateCache implements Cache {
             if (log.isDebugEnabled()) {
                 log.debug("set put the key to j2cache which key:" + key);
             }
-            cache.set(region, (Serializable)key, (Serializable)value);
+            cache.set(region, (String)key, (Serializable)value);
         } catch (IOException e) {
             throw new CacheException(e);
         }
@@ -133,7 +132,7 @@ public class J2HibernateCache implements Cache {
     @Override
     public void remove(Object key) throws CacheException {
         try {
-            cache.evict(region, (Serializable) key);
+            cache.evict(region, (String) key);
         } catch (IOException e) {
             throw new CacheException(e);
         }
