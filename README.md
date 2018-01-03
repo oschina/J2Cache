@@ -1,13 +1,13 @@
-# J2Cache —— 基于 Ehcache 和 Redis 实现的两级 Java 缓存框架
+# J2Cache —— 基于内存和 Redis 实现的两级 Java 缓存框架
 
 
-J2Cache 是 OSChina 目前正在使用的两级缓存框架。第一级缓存使用 Ehcache，第二级缓存使用 Redis 。由于大量的缓存读取会导致 L2 的网络成为整个系统的瓶颈，因此 L1 的目标是降低对 L2 的读取次数。该缓存框架主要用于集群环境中。单机也可使用，用于避免应用重启导致的 Ehcache 缓存数据丢失。
+J2Cache 是 OSChina 目前正在使用的两级缓存框架。第一级缓存使用内存(同时支持 Ehcache 2.x、Ehcache 3.x 和 Caffeine)，第二级缓存使用 Redis 。
+由于大量的缓存读取会导致 L2 的网络成为整个系统的瓶颈，因此 L1 的目标是降低对 L2 的读取次数。
+该缓存框架主要用于集群环境中。单机也可使用，用于避免应用重启导致的缓存冷启动后对后端业务的冲击。
 
 J2Cache 已经有 Python 语言版本了，详情请看 [https://gitee.com/ld/Py3Cache](https://gitee.com/ld/Py3Cache)
 
-目前 J2Cache 最新版本是 2.0.0-beta 。
-
-J2Cache 从 1.3.0 版本开始支持 JGroups 和 Redis Subscribe 两种方式进行缓存时间的通知。在某些云平台上可能无法使用 JGroups 组播方式，可以采用 Redis 发布订阅的方式。详情请看 j2cache.properties 配置文件的说明。
+J2Cache 从 1.3.0 版本开始支持 JGroups 和 Redis Subscribe 两种方式进行缓存事件的通知。在某些云平台上可能无法使用 JGroups 组播方式，可以采用 Redis 发布订阅的方式。详情请看 j2cache.properties 配置文件的说明。
 
 视频介绍：http://v.youku.com/v_show/id_XNzAzMTY5MjUy.html  
 该项目提供付费咨询服务，详情请看：https://zb.oschina.net/market/opus/12_277
@@ -44,10 +44,10 @@ J2Cache 运行时所需 jar 包请查看 core/pom.xml
 ## 测试方法
 
 1. 安装 Redis  
-2. 修改 core/resource/j2cache.properties  配置使用已安装的 Redis 服务器
-3. 执行 mvn package -DskipTest=true 进行项目编译  
-4. 运行多个 runtest.sh 
-5. 直接在 runtest 输入多个命令进行测试
+2. 修改 `core/resource/j2cache.properties` 配置使用已安装的 Redis 服务器
+3. 在命令行中执行 `mvn package -DskipTest=true` 进行项目编译  
+4. 打开多个命令行窗口，同时运行 `runtest.sh` 
+5. 在 > 提示符后输入 help 查看命令，并进行测试
 
 ## Maven 支持 
 
@@ -60,7 +60,7 @@ J2Cache 运行时所需 jar 包请查看 core/pom.xml
 ```
 ## 示例代码
 
-请看 core/src/net/oschina/j2cache/J2CacheCmd.java
+请看 [J2CacheCmd.java](https://gitee.com/ld/J2Cache/blob/master/core/src/net/oschina/j2cache/J2CacheCmd.java)
 
 ## 常见问题
 
