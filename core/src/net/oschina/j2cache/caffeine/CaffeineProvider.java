@@ -16,6 +16,7 @@
 package net.oschina.j2cache.caffeine;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.RemovalCause;
 import net.oschina.j2cache.Cache;
 import net.oschina.j2cache.CacheException;
 import net.oschina.j2cache.CacheExpiredListener;
@@ -65,7 +66,11 @@ public class CaffeineProvider implements CacheProvider {
                     com.github.benmanes.caffeine.cache.Cache<String, Serializable> loadingCache = Caffeine.newBuilder()
                             .maximumSize(config.size)
                             .expireAfterWrite(config.expire, TimeUnit.SECONDS)
-                            .removalListener((k,v, cause) -> listener.notifyElementExpired(regionName, (String)k))
+                            .removalListener((k,v, cause) -> {
+                                //程序删除的缓存不做通知处理，因为上层已经做了处理
+                                if(cause != RemovalCause.EXPLICIT && cause != RemovalCause.REPLACED)
+                                    listener.notifyElementExpired(regionName, (String)k);
+                            })
                             .build();
                     cache = new CaffeineCache(loadingCache);
                     caches.put(regionName, cache);
