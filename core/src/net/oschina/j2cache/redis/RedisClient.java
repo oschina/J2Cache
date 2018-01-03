@@ -193,10 +193,6 @@ public class RedisClient implements Closeable {
      * @param bytes 消息数据
      */
     public void publish(byte[] channel, byte[] bytes) {
-
-        System.out.println(new String(channel));
-        System.out.println(new String(bytes));
-
         if (cluster != null)
             cluster.publish(channel, bytes);
         else if (single != null)
