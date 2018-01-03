@@ -48,7 +48,6 @@ public class RedisClient implements Closeable {
     private ShardedJedis sharded;
     private String redisPassword;
 
-
     /**
      * RedisClient 构造器
      */
@@ -193,8 +192,20 @@ public class RedisClient implements Closeable {
             sharded.getAllShards().forEach(node -> node.subscribe(jedisPubSub, bytes));
     }
 
+    /**
+     * 发布订阅消息
+     * @param channel 订阅频道
+     * @param bytes 消息数据
+     */
     public void publish(byte[] channel, byte[] bytes) {
-
+        if (cluster != null)
+            cluster.publish(channel, bytes);
+        else if (single != null)
+            single.getResource().publish(channel, bytes);
+        else if (sentinel != null)
+            sentinel.getResource().publish(channel, bytes);
+        else if (sharded != null)
+            sharded.getAllShards().forEach(node -> node.publish(channel, bytes));
     }
 
     @Override
