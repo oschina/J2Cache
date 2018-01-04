@@ -76,11 +76,6 @@ public class EhCache3 implements Cache , CacheEventListener {
     }
 
     @Override
-    public void update(String key, Serializable value) {
-        this.cache.put(key, value);
-    }
-
-    @Override
     public Collection<String> keys() {
         return null;
     }
