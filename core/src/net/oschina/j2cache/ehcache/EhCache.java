@@ -75,17 +75,6 @@ public class EhCache implements Cache, CacheEventListener {
 	 * @param value a value
 	 */
 	@Override
-	public void update(String key, Serializable value) {
-		put(key, value);
-	}
-
-	/**
-	 * Puts an object into the cache.
-	 *
-	 * @param key   a key
-	 * @param value a value
-	 */
-	@Override
 	public void put(String key, Serializable value) {
 		cache.put(new Element(key, value));
 	}

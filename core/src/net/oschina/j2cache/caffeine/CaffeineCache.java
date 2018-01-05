@@ -69,11 +69,6 @@ public class CaffeineCache implements Cache {
     }
 
     @Override
-    public void update(String key, Serializable value) {
-        putIfAbsent(key, value);
-    }
-
-    @Override
     public Collection<String> keys() {
         return cache.asMap().keySet();
     }

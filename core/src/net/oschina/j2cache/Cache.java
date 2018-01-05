@@ -79,15 +79,6 @@ public interface Cache {
 	void putAll(Map<String, Serializable> elements) throws IOException;
 
 	/**
-	 * Add an item to the cache
-	 *
-	 * @param key cache key
-	 * @param value cache value
-	 * @throws IOException io exception
-	 */
-	void update(String key, Serializable value) throws IOException;
-
-	/**
 	 * Return all keys
 	 *
 	 * @return 返回键的集合

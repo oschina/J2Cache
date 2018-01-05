@@ -138,11 +138,6 @@ public class RedisCache implements Cache {
     }
 
     @Override
-    public void update(String key, Serializable value) throws IOException {
-        this.put(key, value);
-    }
-
-    @Override
     public void evict(String...keys) {
         if (keys == null || keys.length == 0)
             return;
