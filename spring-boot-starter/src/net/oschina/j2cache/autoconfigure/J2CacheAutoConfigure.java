@@ -1,7 +1,7 @@
 package net.oschina.j2cache.autoconfigure;
 
 import net.oschina.j2cache.J2Cache;
-import net.oschina.j2cache.cache.support.until.SpringUtil;
+import net.oschina.j2cache.cache.support.util.SpringUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

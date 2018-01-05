@@ -1,4 +1,4 @@
-package net.oschina.j2cache.cache.support.until;
+package net.oschina.j2cache.cache.support.util;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;

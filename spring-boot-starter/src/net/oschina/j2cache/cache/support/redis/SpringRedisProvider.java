@@ -12,7 +12,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import net.oschina.j2cache.Cache;
 import net.oschina.j2cache.CacheExpiredListener;
 import net.oschina.j2cache.CacheProvider;
-import net.oschina.j2cache.cache.support.until.SpringUtil;
+import net.oschina.j2cache.cache.support.util.SpringUtil;
 
 /**
  * 
