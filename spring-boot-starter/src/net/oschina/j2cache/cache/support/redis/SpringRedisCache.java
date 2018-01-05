@@ -112,11 +112,6 @@ public class SpringRedisCache implements Cache {
 	}
 
 	@Override
-	public void update(String key, Serializable value) throws IOException {
-		redisTemplate.opsForHash().put(region, getKeyName(key), value);
-	}
-
-	@Override
 	public void evict(String... keys) throws IOException {
 		redisTemplate.opsForHash().delete(region, keys);
 	}
