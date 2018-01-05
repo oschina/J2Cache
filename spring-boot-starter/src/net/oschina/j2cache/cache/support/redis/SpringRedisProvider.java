@@ -14,6 +14,11 @@ import net.oschina.j2cache.CacheExpiredListener;
 import net.oschina.j2cache.CacheProvider;
 import net.oschina.j2cache.cache.support.until.SpringUtil;
 
+/**
+ * 
+ * @author zhangsaizz
+ *
+ */
 public class SpringRedisProvider implements CacheProvider{
 	
 	private final static Logger log = LoggerFactory.getLogger(SpringRedisProvider.class);
@@ -25,9 +30,9 @@ public class SpringRedisProvider implements CacheProvider{
     
     protected ConcurrentHashMap<String, SpringRedisCache> caches = new ConcurrentHashMap<>();
     
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	public SpringRedisProvider() {
-    	this.redisTemplate = SpringUtil.getBean(RedisTemplate.class);
+    	this.redisTemplate = SpringUtil.getBean("redisTemplate", RedisTemplate.class);
     }
     
 	

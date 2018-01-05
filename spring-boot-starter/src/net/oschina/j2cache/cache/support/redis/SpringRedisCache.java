@@ -13,6 +13,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import net.oschina.j2cache.Cache;
 
+/**
+ * 
+ * @author zhangsaizz
+ *
+ */
 public class SpringRedisCache implements Cache {
 
 	private String namespace;
@@ -52,7 +57,11 @@ public class SpringRedisCache implements Cache {
 
 	@Override
 	public Serializable get(String key) throws IOException {
-		return (Serializable) redisTemplate.opsForHash().get(region, getKeyName(key));
+		Object value = redisTemplate.opsForHash().get(region, getKeyName(key));
+		if (value == null) {
+			return null;
+		}
+		return (Serializable) value;
 	}
 
 	@Override
@@ -60,9 +69,9 @@ public class SpringRedisCache implements Cache {
 		Map<String, Serializable> map = new HashMap<>(keys.size());
 		for (String k : keys) {
 			Object value = redisTemplate.opsForHash().get(region, getKeyName(k));
-			if(value != null) {
+			if (value != null) {
 				map.put(k, (Serializable) value);
-			}else {
+			} else {
 				map.put(k, null);
 			}
 		}
@@ -81,10 +90,14 @@ public class SpringRedisCache implements Cache {
 
 	@Override
 	public Serializable putIfAbsent(String key, Serializable value) throws IOException {
-		if(!redisTemplate.opsForHash().putIfAbsent(region, getKeyName(key), value)) {
+		if (!redisTemplate.opsForHash().putIfAbsent(region, getKeyName(key), value)) {
 			return null;
-		}else {
-			return (Serializable) redisTemplate.opsForHash().get(region, getKeyName(key));
+		} else {
+			Object o = redisTemplate.opsForHash().get(region, getKeyName(key));
+			if (o == null) {
+				return null;
+			}
+			return (Serializable) o;
 		}
 
 	}
@@ -92,20 +105,20 @@ public class SpringRedisCache implements Cache {
 	@Override
 	public void putAll(Map<String, Serializable> elements) throws IOException {
 		Map<String, Serializable> map = new HashMap<>(elements.size());
-        elements.forEach((k,v) -> {
-        	map.put(getKeyName(k), v);
-        });
+		elements.forEach((k, v) -> {
+			map.put(getKeyName(k), v);
+		});
 		redisTemplate.opsForHash().putAll(region, map);
 	}
 
 	@Override
 	public void update(String key, Serializable value) throws IOException {
-		redisTemplate.opsForHash().put(region, getKeyName(key), value);	
+		redisTemplate.opsForHash().put(region, getKeyName(key), value);
 	}
 
 	@Override
 	public void evict(String... keys) throws IOException {
-		redisTemplate.opsForHash().delete(region, keys);		
+		redisTemplate.opsForHash().delete(region, keys);
 	}
 
 	@Override
