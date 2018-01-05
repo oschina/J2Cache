@@ -1,6 +1,8 @@
 package net.oschina.j2cache.autoconfigure;
 
 import net.oschina.j2cache.J2Cache;
+import net.oschina.j2cache.cache.support.until.SpringUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -27,5 +29,10 @@ public class J2CacheAutoConfigure {
         return new J2CacheIniter(j2CacheConfig);
     }
 
+    
+    @Bean
+    public SpringUtil springUtil() {
+    	return new SpringUtil();
+    }
 
 }
