@@ -80,6 +80,6 @@ public class CaffeineCache implements Cache {
 
     @Override
     public void clear() {
-        cache.cleanUp();
+        cache.invalidateAll();
     }
 }
