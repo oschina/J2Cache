@@ -11,8 +11,6 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.transaction.AbstractTransactionSupportingCacheManager;
 import org.springframework.util.CollectionUtils;
 
-import net.oschina.j2cache.CacheException;
-import net.oschina.j2cache.J2Cache;
 
 /**
  * {@link CacheManager} implementation for J2Cache.
