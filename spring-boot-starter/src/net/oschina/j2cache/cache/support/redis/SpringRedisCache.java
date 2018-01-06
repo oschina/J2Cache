@@ -1,6 +1,5 @@
 package net.oschina.j2cache.cache.support.redis;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,12 +50,12 @@ public class SpringRedisCache implements Cache {
 	}
 
 	@Override
-	public void clear() throws IOException {
+	public void clear() {
 		redisTemplate.opsForHash().delete(region);
 	}
 
 	@Override
-	public Serializable get(String key) throws IOException {
+	public Serializable get(String key) {
 		Object value = redisTemplate.opsForHash().get(region, getKeyName(key));
 		if (value == null) {
 			return null;
@@ -65,7 +64,7 @@ public class SpringRedisCache implements Cache {
 	}
 
 	@Override
-	public Map<String, Serializable> getAll(Collection<String> keys) throws IOException {
+	public Map<String, Serializable> getAll(Collection<String> keys) {
 		Map<String, Serializable> map = new HashMap<>(keys.size());
 		for (String k : keys) {
 			Object value = redisTemplate.opsForHash().get(region, getKeyName(k));
@@ -79,17 +78,17 @@ public class SpringRedisCache implements Cache {
 	}
 
 	@Override
-	public boolean exists(String key) throws IOException {
+	public boolean exists(String key) {
 		return redisTemplate.opsForHash().hasKey(region, getKeyName(key));
 	}
 
 	@Override
-	public void put(String key, Serializable value) throws IOException {
+	public void put(String key, Serializable value) {
 		redisTemplate.opsForHash().put(region, getKeyName(key), value);
 	}
 
 	@Override
-	public Serializable putIfAbsent(String key, Serializable value) throws IOException {
+	public Serializable putIfAbsent(String key, Serializable value) {
 		if (!redisTemplate.opsForHash().putIfAbsent(region, getKeyName(key), value)) {
 			return null;
 		} else {
@@ -103,7 +102,7 @@ public class SpringRedisCache implements Cache {
 	}
 
 	@Override
-	public void putAll(Map<String, Serializable> elements) throws IOException {
+	public void putAll(Map<String, Serializable> elements) {
 		Map<String, Serializable> map = new HashMap<>(elements.size());
 		elements.forEach((k, v) -> {
 			map.put(getKeyName(k), v);
@@ -112,12 +111,12 @@ public class SpringRedisCache implements Cache {
 	}
 
 	@Override
-	public void evict(String... keys) throws IOException {
+	public void evict(String... keys) {
 		redisTemplate.opsForHash().delete(region, keys);
 	}
 
 	@Override
-	public Collection<String> keys() throws IOException {
+	public Collection<String> keys() {
 		Set<Object> list = redisTemplate.opsForHash().keys(region);
 		List<String> keys = new ArrayList<>(list.size());
 		for (Object object : list) {

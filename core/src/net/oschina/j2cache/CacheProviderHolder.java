@@ -100,7 +100,13 @@ class CacheProviderHolder {
 	}
 	
 	private final static Cache getCache(int level, String cache_name, boolean autoCreate) {
-		return ((level==1)?l1_provider:l2_provider).buildCache(cache_name, autoCreate, listener);
+		return ((level==1)?l1_provider:l2_provider).buildCache(cache_name, listener);
+	}
+
+	private final static Cache getCache(int level, String cache_name, long timeToLiveInSeconds) {
+		if(timeToLiveInSeconds <= 0)
+			return getCache(level, cache_name, true);
+		return ((level==1)?l1_provider:l2_provider).buildCache(cache_name, timeToLiveInSeconds, listener);
 	}
 	
 	public final static void shutdown() {
@@ -152,17 +158,18 @@ class CacheProviderHolder {
 	/**
 	 * 写入缓存
 	 * @param level Cache Level: L1 and L2
-	 * @param name Cache region name
+	 * @param region Cache region name
 	 * @param key Cache key
 	 * @param value Cache value
 	 */
-	public final static void set(int level, String name, String key, Serializable value) throws IOException {
-		//System.out.println("SET => " + name+":"+key+"="+value);
-		if(name!=null && key != null && value!=null) {
-            Cache cache = getCache(level, name, true);
-            if (cache != null)
-                cache.put(key,value);
-        }
+	public final static void set(int level, String region, String key, Serializable value) throws IOException {
+		Cache cache = getCache(level, region, true);
+		cache.put(key, value);
+	}
+
+	public final static void set(int level, String region, String key, Serializable value, long timeToLiveInSeconds) throws IOException {
+		Cache cache = getCache(level, region, timeToLiveInSeconds);
+		cache.put(key, value);
 	}
 
 	/**
@@ -179,6 +186,12 @@ class CacheProviderHolder {
 		return cache.putIfAbsent(key, value);
 	}
 
+
+	public final static Serializable setIfAbsent(int level, String region, String key, Serializable value, long timeToLiveInSeconds) throws IOException {
+		Cache cache = getCache(level, region, timeToLiveInSeconds);
+		return cache.putIfAbsent(key, value);
+	}
+
 	/**
 	 * 批量插入数据
 	 * @param level
@@ -187,6 +200,11 @@ class CacheProviderHolder {
 	 */
 	public final static void setAll(int level, String region, Map<String, Serializable> elements) throws IOException {
 		Cache cache = getCache(level, region, true);
+		cache.putAll(elements);
+	}
+
+	public final static void setAll(int level, String region, Map<String, Serializable> elements, long timeToLiveInSeconds) throws IOException {
+		Cache cache = getCache(level, region, timeToLiveInSeconds);
 		cache.putAll(elements);
 	}
 

@@ -38,7 +38,8 @@ public class RedisCacheProvider implements CacheProvider {
 
     private RedisClient redisClient;
     private String namespace;
-    protected ConcurrentHashMap<String, RedisCache> caches = new ConcurrentHashMap<>();
+    private String storage;
+    protected ConcurrentHashMap<String, Cache> caches = new ConcurrentHashMap<>();
 
     public String name() {
         return "redis";
@@ -52,6 +53,7 @@ public class RedisCacheProvider implements CacheProvider {
     public void start(Properties props) {
         //初始化 Redis 连接
         this.namespace = props.getProperty("namespace");
+        this.storage = props.getProperty("storage");
         try {
             JedisPoolConfig poolConfig = new JedisPoolConfig();//Redis 连接池配置
             HashMap<String, String> props2 = new HashMap<>();
@@ -71,6 +73,8 @@ public class RedisCacheProvider implements CacheProvider {
                     .database(database)
                     .poolConfig(poolConfig).newClient();
 
+            log.info(String.format("Redis client starts with mode(%s), storage(%s), namespace(%s)", mode, storage, namespace));
+
         } catch (IllegalAccessException | InvocationTargetException e) {
             log.error("Failed to init redis client.", e);
         }
@@ -87,17 +91,24 @@ public class RedisCacheProvider implements CacheProvider {
     }
 
     @Override
-    public Cache buildCache(String regionName, boolean autoCreate, CacheExpiredListener listener) {
-        RedisCache cache = caches.get(regionName);
+    public Cache buildCache(String region, CacheExpiredListener listener) {
+        Cache cache = caches.get(region);
         if (cache == null) {
             synchronized(RedisCacheProvider.class) {
                 if(cache == null) {
-                    cache = new RedisCache(this.namespace, regionName, redisClient);
-                    caches.put(regionName, cache);
+                    if("hash".equalsIgnoreCase(this.storage))
+                        cache = new RedisHashCache(this.namespace, region, redisClient);
+                    else
+                        cache = new RedisCache(this.namespace, region, redisClient);
+                    caches.put(region, cache);
                 }
             }
         }
         return cache;
     }
 
+    @Override
+    public Cache buildCache(String region, long timeToLiveInSeconds, CacheExpiredListener listener) {
+        return buildCache(region, listener);
+    }
 }

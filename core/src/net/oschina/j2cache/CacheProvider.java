@@ -33,11 +33,19 @@ public interface CacheProvider {
 	 * Configure the cache
 	 *
 	 * @param regionName the name of the cache region
-	 * @param autoCreate autoCreate settings
 	 * @param listener listener for expired elements
 	 * @return return cache instance
 	 */
-	Cache buildCache(String regionName, boolean autoCreate, CacheExpiredListener listener);
+	Cache buildCache(String regionName, CacheExpiredListener listener);
+
+	/**
+	 * Configure the cache with timeToLiveInMills
+	 * @param region cache region name
+	 * @param timeToLiveInSeconds time to live in second
+	 * @param listener listener for expired elements
+	 * @return return cache instance
+	 */
+	Cache buildCache(String region, long timeToLiveInSeconds, CacheExpiredListener listener);
 
 	/**
 	 * Callback to perform any necessary initialization of the underlying cache implementation

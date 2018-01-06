@@ -49,35 +49,81 @@ public class CaffeineProvider implements CacheProvider {
     }
 
     @Override
-    public Cache buildCache(String regionName, boolean autoCreate, CacheExpiredListener listener) {
-        CaffeineCache cache = caches.get(regionName);
-        if(cache == null && autoCreate){
+    public Cache buildCache(String region, CacheExpiredListener listener) {
+        CaffeineCache cache = caches.get(region);
+        if(cache == null){
             synchronized (CaffeineProvider.class) {
-                cache = caches.get(regionName);
+                cache = caches.get(region);
                 if(cache == null) {
-                    CacheConfig config = cacheConfigs.get(regionName);
+                    CacheConfig config = cacheConfigs.get(region);
                     if(config == null) {
-                        log.info(String.format("Caffeine cache [%s] not defined, using default.", regionName));
                         config = cacheConfigs.get(DEFAULT_REGION);
-                        cacheConfigs.put(regionName, config);
+                        if(config == null)
+                            throw new CacheException(String.format("Undefined caffeine cache region name = %s", region));
+
+                        log.info(String.format("Caffeine cache [%s] not defined, using default.", region));
                     }
-                    if(config == null)
-                        throw new CacheException(String.format("Undefined caffeine cache region name = %s", regionName));
-                    com.github.benmanes.caffeine.cache.Cache<String, Serializable> loadingCache = Caffeine.newBuilder()
-                            .maximumSize(config.size)
-                            .expireAfterWrite(config.expire, TimeUnit.SECONDS)
-                            .removalListener((k,v, cause) -> {
-                                //程序删除的缓存不做通知处理，因为上层已经做了处理
-                                if(cause != RemovalCause.EXPLICIT && cause != RemovalCause.REPLACED)
-                                    listener.notifyElementExpired(regionName, (String)k);
-                            })
-                            .build();
-                    cache = new CaffeineCache(loadingCache);
-                    caches.put(regionName, cache);
+
+                    cache = buildCache(region, config.size, config.expire, listener);
+                    caches.put(region, cache);
                 }
             }
         }
         return cache;
+    }
+
+    @Override
+    public Cache buildCache(String region, long timeToLiveInSeconds, CacheExpiredListener listener) {
+        CacheConfig config = cacheConfigs.get(region);
+
+        if(config != null) { //已有配置，不再创建新的
+            if(config.expire == timeToLiveInSeconds)
+                return buildCache(region, listener);
+            else
+                throw new IllegalArgumentException(String.format("Region [%s] TTL %d not match with %d", region, config.expire, timeToLiveInSeconds));
+        }
+
+        CaffeineCache cache = caches.get(region);
+        if(cache != null) {
+            if(cache.getExpire() != timeToLiveInSeconds)
+                throw new IllegalArgumentException(String.format("Region [%s] TTL %d not match with %d", region, cache.getExpire(), timeToLiveInSeconds));
+        }
+        else{
+            synchronized (CaffeineProvider.class) {
+                cache = caches.get(region);
+                if(cache == null) {
+                    config = cacheConfigs.get(DEFAULT_REGION);
+                    if(config == null)
+                        throw new CacheException(String.format("Undefined caffeine cache region name = %s", region));
+
+                    cache = buildCache(region, config.size, timeToLiveInSeconds, listener);
+                    caches.put(region, cache);
+                    log.info(String.format("Started caffeine region [%s] with TTL: %d", region, timeToLiveInSeconds));
+                }
+            }
+        }
+        return cache;
+    }
+
+    /**
+     * 返回对 Caffeine cache 的 封装
+     * @param region region name
+     * @param size   max cache object size in memory
+     * @param expire cache object expire time in millisecond
+     * @param listener  j2cache cache listener
+     * @return CaffeineCache
+     */
+    private CaffeineCache buildCache(String region, long size, long expire, CacheExpiredListener listener) {
+        com.github.benmanes.caffeine.cache.Cache<String, Serializable> loadingCache = Caffeine.newBuilder()
+                .maximumSize(size)
+                .expireAfterWrite(expire, TimeUnit.SECONDS)
+                .removalListener((k,v, cause) -> {
+                    //程序删除的缓存不做通知处理，因为上层已经做了处理
+                    if(cause != RemovalCause.EXPLICIT && cause != RemovalCause.REPLACED)
+                        listener.notifyElementExpired(region, (String)k);
+                })
+                .build();
+        return new CaffeineCache(loadingCache, size, expire);
     }
 
     /**
@@ -115,13 +161,18 @@ public class CaffeineProvider implements CacheProvider {
      */
     private static class CacheConfig {
 
-        private long size;
-        private long expire;
+        private long size = 0L;
+        private long expire = 0L;
 
         public static CacheConfig parse(String cfg) {
             CacheConfig cacheConfig = null;
             String[] cfgs = cfg.split(",");
-            if(cfgs.length == 2){
+            if(cfgs.length == 1) {
+                cacheConfig = new CacheConfig();
+                String sSize = cfgs[0].trim();
+                cacheConfig.size = Long.parseLong(sSize);
+            }
+            else if(cfgs.length == 2) {
                 cacheConfig = new CacheConfig();
                 String sSize = cfgs[0].trim();
                 String sExpire = cfgs[1].trim();
@@ -133,9 +184,9 @@ public class CaffeineProvider implements CacheProvider {
                         break;
                     case 'm'://minutes
                         cacheConfig.expire *= 60;
-                    case 'h':
+                    case 'h'://hours
                         cacheConfig.expire *= 3600;
-                    case 'd':
+                    case 'd'://days
                         cacheConfig.expire *= 86400;
                 }
             }

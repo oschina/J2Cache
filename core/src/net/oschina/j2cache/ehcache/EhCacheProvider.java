@@ -19,6 +19,8 @@ import java.net.URL;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.oschina.j2cache.Cache;
+import net.sf.ehcache.config.CacheConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,20 +50,15 @@ public class EhCacheProvider implements CacheProvider {
 
     /**
      * Builds a Cache.
-     * Even though this method provides properties, they are not used.
-     * Properties for EHCache are specified in the ehcache.xml file.
-     * Configuration will be read from ehcache.xml for a cache declaration
-     * where the regionName attribute matches the regionName parameter in this builder.
      *
      * @param regionName the regionName of the cache. Must match a cache configured in ehcache.xml
-     * @param autoCreate auto create cache region ?
      * @param listener cache listener
      * @return a newly built cache will be built and initialised
      */
     @Override
-    public EhCache buildCache(String regionName, boolean autoCreate, CacheExpiredListener listener) {
+    public EhCache buildCache(String regionName, CacheExpiredListener listener) {
     	EhCache ehcache = caches.get(regionName);
-    	if(ehcache == null && autoCreate){
+    	if(ehcache == null){
 			synchronized(EhCacheProvider.class){
 				ehcache = caches.get(regionName);
 				if(ehcache == null){
@@ -70,8 +67,9 @@ public class EhCacheProvider implements CacheProvider {
 						log.warn("Could not find configuration [" + regionName + "]; using defaults.");
 						manager.addCache(regionName);
 						cache = manager.getCache(regionName);
-						log.debug("started Ehcache region: " + regionName);
+						log.info("started Ehcache region: " + regionName);
 					}
+
 					ehcache = new EhCache(cache, listener);
 					caches.put(regionName, ehcache);
 				}
@@ -79,6 +77,36 @@ public class EhCacheProvider implements CacheProvider {
     	}
         return ehcache;
     }
+
+	@Override
+	public EhCache buildCache(String region, long timeToLiveInSeconds, CacheExpiredListener listener) {
+		EhCache ehcache = caches.get(region);
+		if(ehcache != null) {
+			if(ehcache.getTimeToLiveSeconds() != timeToLiveInSeconds)
+				throw new IllegalArgumentException(String.format("Region [%s] TTL %d not match with %d", region, ehcache.getTimeToLiveSeconds(), timeToLiveInSeconds));
+		}
+		else {
+			synchronized (EhCacheProvider.class) {
+				ehcache = caches.get(region);
+				if(ehcache == null) {
+					//配置缓存
+					CacheConfiguration cfg = manager.getConfiguration().getDefaultCacheConfiguration().clone();
+					cfg.setName(region);
+					cfg.setTimeToLiveSeconds(timeToLiveInSeconds);
+					cfg.setTimeToIdleSeconds(timeToLiveInSeconds);
+
+					net.sf.ehcache.Cache cache = new net.sf.ehcache.Cache(cfg);
+					manager.addCache(cache);
+
+					ehcache = new EhCache(cache, listener);
+					caches.put(region, ehcache);
+
+					log.info(String.format("Started Ehcache region [%s] with TTL: %d", region, timeToLiveInSeconds));
+				}
+			}
+		}
+		return ehcache;
+	}
 
 	/**
 	 * init ehcache config

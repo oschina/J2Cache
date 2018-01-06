@@ -49,6 +49,10 @@ public class EhCache implements Cache, CacheEventListener {
 		this.listener = listener;
 	}
 
+	public long getTimeToLiveSeconds() {
+		return cache.getCacheConfiguration().getTimeToLiveSeconds();
+	}
+
 	@Override
 	public Collection<String> keys() {
 		return this.cache.getKeys();

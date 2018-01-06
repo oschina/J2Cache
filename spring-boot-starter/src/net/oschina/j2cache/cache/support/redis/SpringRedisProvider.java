@@ -42,17 +42,22 @@ public class SpringRedisProvider implements CacheProvider{
 	}
 
 	@Override
-	public Cache buildCache(String regionName, boolean autoCreate, CacheExpiredListener listener) {
-        SpringRedisCache cache = caches.get(regionName);
+	public Cache buildCache(String region, CacheExpiredListener listener) {
+        SpringRedisCache cache = caches.get(region);
         if (cache == null) {
             synchronized(SpringRedisProvider.class) {
                 if(cache == null) {
-                    cache = new SpringRedisCache(this.namespace, regionName, redisTemplate);
-                    caches.put(regionName, cache);
+                    cache = new SpringRedisCache(this.namespace, region, redisTemplate);
+                    caches.put(region, cache);
                 }
             }
         }
         return cache;
+	}
+
+	@Override
+	public Cache buildCache(String region, long timeToLiveInSeconds, CacheExpiredListener listener) {
+		return buildCache(region, listener);
 	}
 
 	@Override

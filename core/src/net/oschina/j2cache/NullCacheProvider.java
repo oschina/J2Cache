@@ -33,8 +33,12 @@ public class NullCacheProvider implements CacheProvider {
 	 * @see net.oschina.j2cache.CacheProvider#buildCache(java.lang.String, boolean, net.oschina.j2cache.CacheExpiredListener)
 	 */
 	@Override
-	public Cache buildCache(String regionName, boolean autoCreate,
-			CacheExpiredListener listener) throws CacheException {
+	public Cache buildCache(String regionName, CacheExpiredListener listener) throws CacheException {
+		return cache;
+	}
+
+	@Override
+	public Cache buildCache(String region, long timeToLiveInSeconds, CacheExpiredListener listener) {
 		return cache;
 	}
 

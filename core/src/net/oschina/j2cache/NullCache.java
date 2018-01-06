@@ -36,11 +36,6 @@ public class NullCache implements Cache {
 	}
 
 	@Override
-	public void update(String key, Serializable value) {
-
-	}
-
-	@Override
 	public Collection<String> keys() {
 		return null;
 	}

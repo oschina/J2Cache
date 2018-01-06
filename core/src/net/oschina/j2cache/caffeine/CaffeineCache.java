@@ -30,9 +30,21 @@ import java.util.Map;
 public class CaffeineCache implements Cache {
 
     private com.github.benmanes.caffeine.cache.Cache<String, Serializable> cache;
+    private long size = 0L;
+    private long expire = 0L;
 
-    public CaffeineCache(com.github.benmanes.caffeine.cache.Cache<String, Serializable> cache) {
+    public CaffeineCache(com.github.benmanes.caffeine.cache.Cache<String, Serializable> cache, long size, long expire) {
         this.cache = cache;
+        this.size = size;
+        this.expire = expire;
+    }
+
+    public long getSize() {
+        return size;
+    }
+
+    public long getExpire() {
+        return expire;
     }
 
     @Override

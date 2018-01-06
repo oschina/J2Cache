@@ -133,25 +133,32 @@ public abstract class CacheChannel implements Closeable {
 	 * @throws IOException io exception
 	 */
 	public void set(String region, String key, Serializable value) throws IOException {
-        if(region!=null && key != null){
-            if(value == null)
-                evict(region, key);
-            else{
-                //分几种情况
-                //Object obj1 = CacheProviderHolder.get(LEVEL_1, region, key);
-                //Object obj2 = CacheProviderHolder.get(LEVEL_2, region, key);
-                //1. L1 和 L2 都没有
-                //2. L1 有 L2 没有（这种情况不存在，除非是写 L2 的时候失败
-                //3. L1 没有，L2 有
-                //4. L1 和 L2 都有
-                //有可能引起缓存不同步_sendEvictCmd(region, key);//清除原有的一级缓存的内容
-                CacheProviderHolder.set(CacheProviderHolder.LEVEL_1, region, key, value);
-                CacheProviderHolder.set(CacheProviderHolder.LEVEL_2, region, key, value);
-				this.sendEvictCmd(region, key);//清除原有的一级缓存的内容
-            }
-        }
-        //log.info("write data to cache region="+region+",key="+key+",value="+value);
+		if(value == null)
+			evict(region, key);
+		else{
+			CacheProviderHolder.set(CacheProviderHolder.LEVEL_1, region, key, value);
+			CacheProviderHolder.set(CacheProviderHolder.LEVEL_2, region, key, value);
+			this.sendEvictCmd(region, key);//清除原有的一级缓存的内容
+		}
     }
+
+	/**
+	 * Write data to j2cache with expired setting
+	 * @param region Cache Region name
+	 * @param key Cache Key
+	 * @param value Cache value
+	 * @param timeToLiveInSeconds cache expired in second
+ 	 * @throws IOException io exception
+	 */
+    public void set(String region, String key, Serializable value, long timeToLiveInSeconds) throws IOException {
+		if(value == null)
+			evict(region, key);
+		else{
+			CacheProviderHolder.set(CacheProviderHolder.LEVEL_1, region, key, value, timeToLiveInSeconds);
+			CacheProviderHolder.set(CacheProviderHolder.LEVEL_2, region, key, value, timeToLiveInSeconds);
+			this.sendEvictCmd(region, key);//清除原有的一级缓存的内容
+		}
+	}
 
 	/**
 	 * Put an element in the cache if no element is currently mapped to the elements key.
@@ -167,6 +174,20 @@ public abstract class CacheChannel implements Closeable {
 	}
 
 	/**
+	 * Put an element in the cache if no element is currently mapped to the elements key.
+	 * @param region Cache Region name
+	 * @param key Cache key
+	 * @param value Cache value
+	 * @param timeToLiveInSeconds cache expired in second
+	 * @throws IOException io exception
+	 */
+	public void setIfAbsent(String region, String key, Serializable value, long timeToLiveInSeconds) throws IOException {
+		CacheProviderHolder.setIfAbsent(CacheProviderHolder.LEVEL_1, region, key, value, timeToLiveInSeconds);
+		CacheProviderHolder.setIfAbsent(CacheProviderHolder.LEVEL_2, region, key, value, timeToLiveInSeconds);
+		this.sendEvictCmd(region, key);
+	}
+
+	/**
 	 * 批量插入数据
 	 * @param region Cache Region name
 	 * @param elements Cache Elements
@@ -175,6 +196,20 @@ public abstract class CacheChannel implements Closeable {
 	public void setAll(String region, Map<String, Serializable> elements) throws IOException {
 		CacheProviderHolder.setAll(CacheProviderHolder.LEVEL_1, region, elements);
 		CacheProviderHolder.setAll(CacheProviderHolder.LEVEL_2, region, elements);
+		//广播
+		this.sendEvictCmd(region, elements.keySet().stream().toArray(String[]::new));
+	}
+
+	/**
+	 * 带失效时间的批量缓存数据插入
+	 * @param region Cache Region name
+	 * @param elements Cache Elements
+	 * @param timeToLiveInSeconds cache expired in second
+	 * @throws IOException io exception
+	 */
+	public void setAll(String region, Map<String, Serializable> elements, long timeToLiveInSeconds) throws IOException {
+		CacheProviderHolder.setAll(CacheProviderHolder.LEVEL_1, region, elements, timeToLiveInSeconds);
+		CacheProviderHolder.setAll(CacheProviderHolder.LEVEL_2, region, elements, timeToLiveInSeconds);
 		//广播
 		this.sendEvictCmd(region, elements.keySet().stream().toArray(String[]::new));
 	}
@@ -220,4 +255,5 @@ public abstract class CacheChannel implements Closeable {
 	 * Close J2Cache
 	 */
 	public abstract void close();
+
 }

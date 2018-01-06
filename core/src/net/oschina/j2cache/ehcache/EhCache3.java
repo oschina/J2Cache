@@ -45,6 +45,10 @@ public class EhCache3 implements Cache , CacheEventListener {
         this.listener = listener;
     }
 
+    public long getTimeToLiveSeconds() {
+        return cache.getRuntimeConfiguration().getExpiry().getExpiryForCreation("1", null).getLength();
+    }
+
     @Override
     public Serializable get(String key) {
         return this.cache.get(key);

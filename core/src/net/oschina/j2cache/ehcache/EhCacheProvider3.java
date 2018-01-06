@@ -23,6 +23,8 @@ import org.ehcache.config.Configuration;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.CacheManagerBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
+import org.ehcache.expiry.Duration;
+import org.ehcache.expiry.Expirations;
 import org.ehcache.xml.XmlConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +33,7 @@ import java.io.Serializable;
 import java.net.URL;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * EhCache 2.x 缓存管理器的封装，用来管理多个缓存区域
@@ -41,8 +44,10 @@ public class EhCacheProvider3 implements CacheProvider {
 
     private final static Logger log = LoggerFactory.getLogger(EhCacheProvider3.class);
 
-    private CacheManager cacheManager;
+    private final static String DEFAULT_TPL = "default";
+    private CacheManager manager;
     private ConcurrentHashMap<String, EhCache3> caches = new ConcurrentHashMap<>();
+    private long defaultHeapSize = 1000;
 
     @Override
     public String name() {
@@ -50,22 +55,43 @@ public class EhCacheProvider3 implements CacheProvider {
     }
 
     @Override
-    public EhCache3 buildCache(String regionName, boolean autoCreate, CacheExpiredListener listener) {
-        EhCache3 ehcache = caches.get(regionName);
-        if(ehcache == null && autoCreate){
+    public EhCache3 buildCache(String region, CacheExpiredListener listener) {
+        EhCache3 ehcache = caches.get(region);
+        if(ehcache == null){
             synchronized(EhCacheProvider.class){
-                ehcache = caches.get(regionName);
+                ehcache = caches.get(region);
                 if(ehcache == null){
-                    org.ehcache.Cache cache = cacheManager.getCache(regionName, Serializable.class, Serializable.class);
+                    org.ehcache.Cache cache = manager.getCache(region, String.class, Serializable.class);
                     if (cache == null) {
-                        int heapSize = 1000;
-                        log.warn("Could not find configuration [" + regionName + "]; using defaults.");
-                        CacheConfiguration<Serializable, Serializable> cacheCfg = CacheConfigurationBuilder.newCacheConfigurationBuilder(Serializable.class, Serializable.class, ResourcePoolsBuilder.heap(heapSize)).build();
-                        cache = cacheManager.createCache(regionName, cacheCfg);
-                        log.debug(String.format("Started Ehcache region [%s] with heap size: %d", regionName, heapSize));
+                        CacheConfiguration defaultCacheConfig = manager.getRuntimeConfiguration().getCacheConfigurations().get(DEFAULT_TPL);
+                        CacheConfiguration<String, Serializable> cacheCfg = CacheConfigurationBuilder.newCacheConfigurationBuilder(defaultCacheConfig).build();
+                        cache = manager.createCache(region, cacheCfg);
+                        log.info("Could not find configuration [" + region + "]; using defaults.");
                     }
-                    ehcache = new EhCache3(regionName, cache, listener);
-                    caches.put(regionName, ehcache);
+                    ehcache = new EhCache3(region, cache, listener);
+                    caches.put(region, ehcache);
+                }
+            }
+        }
+        return ehcache;
+    }
+
+    @Override
+    public EhCache3 buildCache(String region, long timeToLiveInSeconds, CacheExpiredListener listener) {
+        EhCache3 ehcache = caches.get(region);
+        if(ehcache == null) {
+            synchronized (EhCacheProvider3.class) {
+                ehcache = caches.get(region);
+                if(ehcache == null) {
+                    //配置缓存
+                    CacheConfiguration<String, Serializable> conf = CacheConfigurationBuilder.newCacheConfigurationBuilder(
+                            String.class, Serializable.class, ResourcePoolsBuilder.heap(defaultHeapSize))
+                            .withExpiry(Expirations.timeToLiveExpiration(Duration.of(timeToLiveInSeconds, TimeUnit.SECONDS)))
+                            .build();
+                    org.ehcache.Cache cache = manager.createCache(region, conf);
+                    ehcache = new EhCache3(region, cache, listener);
+                    caches.put(region, ehcache);
+                    log.info(String.format("Started Ehcache region [%s] with TTL: %d", region, timeToLiveInSeconds));
                 }
             }
         }
@@ -74,21 +100,27 @@ public class EhCacheProvider3 implements CacheProvider {
 
     @Override
     public void start(Properties props) {
+        String sDefaultHeapSize = props.getProperty("defaultHeapSize");
+        try {
+            this.defaultHeapSize = Long.parseLong(sDefaultHeapSize);
+        }catch(Exception e) {
+            log.warn(String.format("Failed to read ehcache3.defaultHeapSize = %s , use default %d", sDefaultHeapSize, defaultHeapSize));
+        }
         String configXml = props.getProperty("configXml");
         if(configXml == null || configXml.trim().length() == 0)
             configXml = "/ehcache3.xml";
         URL myUrl = getClass().getResource(configXml);
         Configuration xmlConfig = new XmlConfiguration(myUrl);
-        cacheManager = CacheManagerBuilder.newCacheManager(xmlConfig);
-        cacheManager.init();
+        manager = CacheManagerBuilder.newCacheManager(xmlConfig);
+        manager.init();
     }
 
     @Override
     public void stop() {
-        if (cacheManager != null) {
-            cacheManager.close();
+        if (manager != null) {
+            manager.close();
             caches.clear();
-            cacheManager = null;
+            manager = null;
         }
     }
 }
