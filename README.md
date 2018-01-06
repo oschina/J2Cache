@@ -55,7 +55,7 @@ J2Cache 运行时所需 jar 包请查看 core/pom.xml
 <dependency>
   <groupId>net.oschina.j2cache</groupId>  
   <artifactId>j2cache-core</artifactId>  
-  <version>2.1.0</version>  
+  <version>2.2.0-beta</version>  
 </dependency>
 ```
 ## 示例代码
@@ -80,5 +80,3 @@ J2Cache 运行时所需 jar 包请查看 core/pom.xml
 ## TODO ##
 
 * 增加使用 API 对 J2Cache 进行初始化配置
-* 继续完善缓存 API，例如支持直接可设置缓存数据的有效时间
-* 增加对其他一级缓存框架的支持，如 Guava Cache

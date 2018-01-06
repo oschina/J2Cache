@@ -21,6 +21,7 @@ import java.util.*;
 
 import net.oschina.j2cache.caffeine.CaffeineProvider;
 import net.oschina.j2cache.ehcache.EhCacheProvider3;
+import net.oschina.j2cache.redis.RedisCache;
 import net.oschina.j2cache.redis.RedisClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +60,6 @@ class CacheProviderHolder {
 			CacheProviderHolder.l2_provider = getProviderInstance(props.getProperty("j2cache.L2.provider_class"));
 			CacheProviderHolder.l2_provider.start(getProviderProperties(props, CacheProviderHolder.l2_provider));
 			log.info("Using L2 CacheProvider : " + l2_provider.getClass().getName());
-
 		}catch(Exception e){
 			throw new CacheException("Failed to initialize cache manager", e);
 		}
@@ -99,19 +99,59 @@ class CacheProviderHolder {
 		return new_props;
 	}
 	
-	private final static Cache getCache(int level, String cache_name, boolean autoCreate) {
+	private final static Cache getCache(int level, String cache_name) {
 		return ((level==1)?l1_provider:l2_provider).buildCache(cache_name, listener);
 	}
 
 	private final static Cache getCache(int level, String cache_name, long timeToLiveInSeconds) {
 		if(timeToLiveInSeconds <= 0)
-			return getCache(level, cache_name, true);
+			return getCache(level, cache_name);
 		return ((level==1)?l1_provider:l2_provider).buildCache(cache_name, timeToLiveInSeconds, listener);
 	}
 	
 	public final static void shutdown() {
 		l1_provider.stop();
 		l2_provider.stop();
+	}
+
+	public final static Long incr(String region, String key, long l) {
+		return ((RedisCache)getCache(LEVEL_2, region)).incr(key, l);
+	}
+
+	public final static Long decr(String region, String key, long l) {
+		return ((RedisCache)getCache(LEVEL_2, region)).decr(key, l);
+	}
+
+	public final static byte[] getBytes(String region, String key) {
+		return ((RedisCache)getCache(LEVEL_2, region)).getBytes(key);
+	}
+
+	public final static String getString(String region, String key) {
+		return ((RedisCache)getCache(LEVEL_2, region)).getString(key);
+	}
+
+	public final static Long getLong(String region, String key) {
+		return ((RedisCache)getCache(LEVEL_2, region)).getLong(key);
+	}
+
+	public final static Serializable getObject(String region, String key) throws IOException {
+		return ((RedisCache)getCache(LEVEL_2, region)).getObject(key);
+	}
+
+	public final static Map<String, Long> getLong(String region, Collection<String> keys){
+		return ((RedisCache)getCache(LEVEL_2, region)).getLong(keys);
+	}
+
+	public final static Map<String, String> getString(String region, Collection<String> keys) {
+		return ((RedisCache)getCache(LEVEL_2, region)).getString(keys);
+	}
+
+	public final static Map<String, byte[]> getBytes(String region, Collection<String> keys) {
+		return ((RedisCache)getCache(LEVEL_2, region)).getBytes(keys);
+	}
+
+	public final static Map<String, Serializable> getObjects(String region, Collection<String> keys) throws IOException {
+		return ((RedisCache)getCache(LEVEL_2, region)).getObjects(keys);
 	}
 
 	/**
@@ -124,7 +164,7 @@ class CacheProviderHolder {
 	public final static Serializable get(int level, String name, String key) throws IOException {
 		//System.out.println("GET1 => " + name+":"+key);
 		if(name!=null && key != null) {
-            Cache cache = getCache(level, name, false);
+            Cache cache = getCache(level, name);
             if (cache != null)
                 return cache.get(key);
         }
@@ -139,7 +179,7 @@ class CacheProviderHolder {
 	 * @return
 	 */
 	public final static Map<String, Serializable> getAll(int level, String region, Set<String> keys) throws IOException {
-		Cache cache = getCache(level, region, false);
+		Cache cache = getCache(level, region);
 		return (cache!=null)?cache.getAll(keys):null;
 	}
 
@@ -151,7 +191,7 @@ class CacheProviderHolder {
 	 * @return
 	 */
 	public final static boolean exists(int level, String region, String key) throws IOException {
-		Cache cache = getCache(level, region, false);
+		Cache cache = getCache(level, region);
 		return (cache!=null)?cache.exists(key):false;
 	}
 
@@ -163,7 +203,7 @@ class CacheProviderHolder {
 	 * @param value Cache value
 	 */
 	public final static void set(int level, String region, String key, Serializable value) throws IOException {
-		Cache cache = getCache(level, region, true);
+		Cache cache = getCache(level, region);
 		cache.put(key, value);
 	}
 
@@ -182,7 +222,7 @@ class CacheProviderHolder {
 	 * @throws IOException
 	 */
 	public final static Serializable setIfAbsent(int level, String region, String key, Serializable value) throws IOException {
-		Cache cache = getCache(level, region, true);
+		Cache cache = getCache(level, region);
 		return cache.putIfAbsent(key, value);
 	}
 
@@ -199,7 +239,7 @@ class CacheProviderHolder {
 	 * @param elements
 	 */
 	public final static void setAll(int level, String region, Map<String, Serializable> elements) throws IOException {
-		Cache cache = getCache(level, region, true);
+		Cache cache = getCache(level, region);
 		cache.putAll(elements);
 	}
 
@@ -216,7 +256,7 @@ class CacheProviderHolder {
 	 */
 	public final static void evict(int level, String name, String...keys) throws IOException {
 		if(name!=null && keys != null && keys.length > 0) {
-			Cache cache = getCache(level, name, false);
+			Cache cache = getCache(level, name);
 			if (cache != null)
 				cache.evict(keys);
 		}
@@ -228,7 +268,7 @@ class CacheProviderHolder {
 	 * @param name cache region name
 	 */
 	public final static void clear(int level, String name) throws IOException {
-        Cache cache = getCache(level, name, false);
+        Cache cache = getCache(level, name);
         if(cache != null)
         	cache.clear();
 	}
@@ -240,7 +280,7 @@ class CacheProviderHolder {
 	 * @return Key List
 	 */
 	public final static Collection<String> keys(int level, String name) throws IOException {
-        Cache cache = getCache(level, name, false);
+        Cache cache = getCache(level, name);
 		return (cache!=null)?cache.keys():null;
 	}
 	

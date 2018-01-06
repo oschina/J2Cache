@@ -25,7 +25,7 @@ import java.util.*;
  *
  * @author Winter Lau(javayou@gmail.com)
  */
-public abstract class CacheChannel implements Closeable {
+public abstract class CacheChannel implements Closeable , AutoCloseable {
 
 	/**
 	 * <p>Just for Inner Use.</p>
@@ -46,19 +46,18 @@ public abstract class CacheChannel implements Closeable {
 	 */
 	protected abstract void sendEvictCmd(String region, String...keys);
 
-    /**
-	 * Get CacheObject from J2Cache
-	 *
-	 * @param region: Cache Region name
-	 * @param key: Cache key
-	 * @return cache object
-	 * @throws IOException io exception
+	/**
+	 * 读取缓存中的字节数组
+	 * @param region
+	 * @param key
+	 * @return
+	 * @throws IOException
 	 */
-	public CacheObject get(String region, String key) throws IOException {
-		CacheObject obj = new CacheObject(region, key, CacheProviderHolder.LEVEL_1);
-		obj.setValue(CacheProviderHolder.get(CacheProviderHolder.LEVEL_1, region, key));
+	public CacheObject getBytes(String region, String key) throws IOException {
+		CacheObject<byte[]> obj = new CacheObject<>(region, key, CacheProviderHolder.LEVEL_1);
+		obj.setValue((byte[])CacheProviderHolder.get(CacheProviderHolder.LEVEL_1, region, key));
 		if(obj.getValue() == null) {
-			obj.setValue(CacheProviderHolder.get(CacheProviderHolder.LEVEL_2, region, key));
+			obj.setValue(CacheProviderHolder.getBytes(region, key));
 			if(obj.getValue() != null){
 				obj.setLevel(CacheProviderHolder.LEVEL_2);
 				CacheProviderHolder.set(CacheProviderHolder.LEVEL_1, region, key, obj.getValue());
@@ -68,41 +67,210 @@ public abstract class CacheChannel implements Closeable {
 	}
 
 	/**
-	 * Get User Original Object from J2Cache
-	 *
-	 * @param region: Cache Region name
-	 * @param key: Cache key
-	 * @return	User object
-	 * @throws IOException io exception
+	 * 读取缓存中的字符串
+	 * @param region
+	 * @param key
+	 * @return
+	 * @throws IOException
 	 */
-	public Serializable getRawObject(String region, String key) throws IOException {
-		CacheObject cache = get(region, key);
-		return (cache != null)?cache.getValue():null;
+	public CacheObject getString(String region, String key) throws IOException {
+		CacheObject<String> obj = new CacheObject<>(region, key, CacheProviderHolder.LEVEL_1);
+		obj.setValue((String)CacheProviderHolder.get(CacheProviderHolder.LEVEL_1, region, key));
+		if(obj.getValue() == null) {
+			obj.setValue(CacheProviderHolder.getString(region, key));
+			if(obj.getValue() != null){
+				obj.setLevel(CacheProviderHolder.LEVEL_2);
+				CacheProviderHolder.set(CacheProviderHolder.LEVEL_1, region, key, obj.getValue());
+			}
+		}
+		return obj;
 	}
 
 	/**
-	 * 批量获取缓存对象
-	 * @param region Cache region name
-	 * @param keys cache keys
-	 * @return cache objects
-	 * @throws IOException io exception
+	 * 读取缓存中的整数
+	 * @param region
+	 * @param key
+	 * @return
+	 * @throws IOException
 	 */
-	public Map<String, CacheObject> getAll(String region, Collection<String> keys) throws IOException {
-		Map<String, CacheObject> values = new HashMap<>();
+	public CacheObject getInteger(String region, String key) throws IOException {
+		CacheObject longObj = getLong(region, key);
+		CacheObject<Integer> obj = new CacheObject(region, key, longObj.getLevel());
+		obj.setValue((longObj == null) ? null : ((Number)longObj.getValue()).intValue());
+		return obj;
+	}
+
+	/**
+	 * 读取缓存中的长整数
+	 * @param region
+	 * @param key
+	 * @return
+	 * @throws IOException
+	 */
+	public CacheObject getLong(String region, String key) throws IOException {
+		CacheObject<Long> obj = new CacheObject<>(region, key, CacheProviderHolder.LEVEL_1);
+		obj.setValue((Long)CacheProviderHolder.get(CacheProviderHolder.LEVEL_1, region, key));
+		if(obj.getValue() == null) {
+			obj.setValue(CacheProviderHolder.getLong(region, key));
+			if(obj.getValue() != null){
+				obj.setLevel(CacheProviderHolder.LEVEL_2);
+				CacheProviderHolder.set(CacheProviderHolder.LEVEL_1, region, key, obj.getValue());
+			}
+		}
+		return obj;
+	}
+
+	/**
+	 * 读取缓存中的对象
+	 * @param region
+	 * @param key
+	 * @return
+	 * @throws IOException
+	 */
+	public CacheObject getObject(String region, String key) throws IOException {
+		CacheObject<Serializable> obj = new CacheObject<>(region, key, CacheProviderHolder.LEVEL_1);
+		obj.setValue(CacheProviderHolder.get(CacheProviderHolder.LEVEL_1, region, key));
+		if(obj.getValue() == null) {
+			obj.setValue(CacheProviderHolder.getObject(region, key));
+			if(obj.getValue() != null){
+				obj.setLevel(CacheProviderHolder.LEVEL_2);
+				CacheProviderHolder.set(CacheProviderHolder.LEVEL_1, region, key, obj.getValue());
+			}
+		}
+		return obj;
+	}
+
+	/**
+	 * 批量读取缓存中的整数
+	 * @param region
+	 * @param keys
+	 * @return
+	 * @throws IOException
+	 */
+	public Map<String, CacheObject<Integer>> getInteger(String region, Collection<String> keys) throws IOException {
+		Map<String, CacheObject<Long>> longs = getLong(region, keys);
+		Map<String, CacheObject<Integer>> vals = new HashMap<>();
+		longs.forEach((key, val) -> {
+			CacheObject<Integer> obj = new CacheObject(region, key, val.getLevel());
+			obj.setValue((val == null) ? null : ((Number)val.getValue()).intValue());
+			vals.put(key, obj);
+		});
+		return vals;
+	}
+
+	/**
+	 * 批量读取缓存中的长整数
+	 * @param region
+	 * @param keys
+	 * @return
+	 * @throws IOException
+	 */
+	public Map<String, CacheObject<Long>> getLong(String region, Collection<String> keys) throws IOException {
+		Map<String, CacheObject<Long>> values = new HashMap<>();
 		List<String> keys_not_in_level_1 = new ArrayList<>();
 		for(String key : keys){
-			Serializable obj = CacheProviderHolder.get(CacheProviderHolder.LEVEL_1, region, key);
+			Long obj = (Long)CacheProviderHolder.get(CacheProviderHolder.LEVEL_1, region, key);
 			if(obj != null) {
-				CacheObject cacheObject = new CacheObject(region, key, CacheProviderHolder.LEVEL_1, obj);
+				CacheObject<Long> cacheObject = new CacheObject<>(region, key, CacheProviderHolder.LEVEL_1, obj);
 				values.put(key, cacheObject);
 			}
 			else
 				keys_not_in_level_1.add(key);
 		}
 		for(String key : keys_not_in_level_1) {
-			Serializable obj = CacheProviderHolder.get(CacheProviderHolder.LEVEL_2, region, key);
+			Long obj = CacheProviderHolder.getLong(region, key);
 			if(obj != null) {
-				CacheObject cacheObject = new CacheObject(region, key, CacheProviderHolder.LEVEL_2, obj);
+				CacheObject<Long> cacheObject = new CacheObject<>(region, key, CacheProviderHolder.LEVEL_2, obj);
+				values.put(key, cacheObject);
+				CacheProviderHolder.set(CacheProviderHolder.LEVEL_1, region, key, obj);
+			}
+		}
+		return values;
+	}
+
+	/**
+	 * 批量读取缓存中的字符串
+	 * @param region
+	 * @param keys
+	 * @return
+	 * @throws IOException
+	 */
+	public Map<String, CacheObject<String>> getString(String region, Collection<String> keys) throws IOException {
+		Map<String, CacheObject<String>> values = new HashMap<>();
+		List<String> keys_not_in_level_1 = new ArrayList<>();
+		for(String key : keys){
+			String obj = (String)CacheProviderHolder.get(CacheProviderHolder.LEVEL_1, region, key);
+			if(obj != null) {
+				CacheObject<String> cacheObject = new CacheObject<>(region, key, CacheProviderHolder.LEVEL_1, obj);
+				values.put(key, cacheObject);
+			}
+			else
+				keys_not_in_level_1.add(key);
+		}
+		for(String key : keys_not_in_level_1) {
+			String obj = CacheProviderHolder.getString(region, key);
+			if(obj != null) {
+				CacheObject<String> cacheObject = new CacheObject<>(region, key, CacheProviderHolder.LEVEL_2, obj);
+				values.put(key, cacheObject);
+				CacheProviderHolder.set(CacheProviderHolder.LEVEL_1, region, key, obj);
+			}
+		}
+		return values;
+	}
+
+	/**
+	 * 批量读取缓存中的字节数组
+	 * @param region
+	 * @param keys
+	 * @return
+	 * @throws IOException
+	 */
+	public Map<String, CacheObject<byte[]>> getBytes(String region, Collection<String> keys) throws IOException {
+		Map<String, CacheObject<byte[]>> values = new HashMap<>();
+		List<String> keys_not_in_level_1 = new ArrayList<>();
+		for(String key : keys){
+			byte[] obj = (byte[])CacheProviderHolder.get(CacheProviderHolder.LEVEL_1, region, key);
+			if(obj != null) {
+				CacheObject<byte[]> cacheObject = new CacheObject<>(region, key, CacheProviderHolder.LEVEL_1, obj);
+				values.put(key, cacheObject);
+			}
+			else
+				keys_not_in_level_1.add(key);
+		}
+		for(String key : keys_not_in_level_1) {
+			byte[] obj = CacheProviderHolder.getBytes(region, key);
+			if(obj != null) {
+				CacheObject<byte[]> cacheObject = new CacheObject<>(region, key, CacheProviderHolder.LEVEL_2, obj);
+				values.put(key, cacheObject);
+				CacheProviderHolder.set(CacheProviderHolder.LEVEL_1, region, key, obj);
+			}
+		}
+		return values;
+	}
+
+	/**
+	 * 批量读取缓存中的对象
+	 * @param region
+	 * @param keys
+	 * @return
+	 * @throws IOException
+	 */
+	public Map<String, CacheObject<Serializable>> getObjects(String region, Collection<String> keys) throws IOException {
+		Map<String, CacheObject<Serializable>> values = new HashMap<>();
+		List<String> keys_not_in_level_1 = new ArrayList<>();
+		for(String key : keys){
+			Serializable obj = CacheProviderHolder.get(CacheProviderHolder.LEVEL_1, region, key);
+			if(obj != null) {
+				CacheObject<Serializable> cacheObject = new CacheObject<>(region, key, CacheProviderHolder.LEVEL_1, obj);
+				values.put(key, cacheObject);
+			}
+			else
+				keys_not_in_level_1.add(key);
+		}
+		for(String key : keys_not_in_level_1) {
+			Serializable obj = CacheProviderHolder.getObject(region, key);
+			if(obj != null) {
+				CacheObject<Serializable> cacheObject = new CacheObject<>(region, key, CacheProviderHolder.LEVEL_2, obj);
 				values.put(key, cacheObject);
 				CacheProviderHolder.set(CacheProviderHolder.LEVEL_1, region, key, obj);
 			}
@@ -122,6 +290,36 @@ public abstract class CacheChannel implements Closeable {
 		if(!exists)
 			exists = CacheProviderHolder.exists(CacheProviderHolder.LEVEL_2, region, key);
 		return exists;
+	}
+
+	/**
+	 * 缓存数值增加 l
+	 * @param region Cache region name
+	 * @param key cache key
+	 * @param l increment value
+	 * @return new value
+	 * @throws IOException io exception
+	 */
+	public long incr(String region, String key, long l) throws IOException {
+		long newValue = CacheProviderHolder.incr(region, key, l);
+		CacheProviderHolder.set(CacheProviderHolder.LEVEL_1, region, key, newValue);
+		this.sendEvictCmd(region, key);//清除原有的一级缓存的内容，使之重新加载
+		return newValue;
+	}
+
+	/**
+	 * 缓存数值减去 l
+	 * @param region Cache region name
+	 * @param key cache key
+	 * @param l decrement value
+	 * @return new value
+	 * @throws IOException io exception
+	 */
+	public long decr(String region, String key, long l) throws IOException {
+		long newValue = CacheProviderHolder.decr(region, key, l);
+		CacheProviderHolder.set(CacheProviderHolder.LEVEL_1, region, key, newValue);
+		this.sendEvictCmd(region, key);//清除原有的一级缓存的内容，使之重新加载
+		return newValue;
 	}
 
 	/**

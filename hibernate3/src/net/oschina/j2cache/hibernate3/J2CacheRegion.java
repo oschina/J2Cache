@@ -104,7 +104,7 @@ public class J2CacheRegion implements GeneralDataRegion {
         try {
             Map<Object, Object> result = new HashMap<Object, Object>();
             for (Object key : cache.keys(this.regionName)) {
-                Object e = cache.get(this.regionName, (String)key);
+                Object e = cache.getObject(this.regionName, (String)key);
                 if (e != null) {
                     result.put(key, e);
                 }
@@ -136,7 +136,7 @@ public class J2CacheRegion implements GeneralDataRegion {
 	@Override
 	public Object get(Object key) throws CacheException {
 		try {
-			return cache.get(this.regionName, (String)key);
+			return cache.getObject(this.regionName, (String)key);
 		} catch (IOException e) {
 			throw new CacheException(e);
 		}

@@ -15,7 +15,6 @@
  */
 package net.oschina.j2cache.redis;
 
-import net.oschina.j2cache.Cache;
 import net.oschina.j2cache.util.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +29,7 @@ import java.util.*;
  * @author wendal
  * @author Winter Lau(javayou@gmail.com)
  */
-public class RedisHashCache implements Cache {
+public class RedisHashCache implements RedisCache {
 
     private final static Logger log = LoggerFactory.getLogger(RedisHashCache.class);
 
@@ -69,83 +68,123 @@ public class RedisHashCache implements Cache {
     }
 
     @Override
-    public Serializable get(String key) throws IOException {
-        byte[] bytes = client.get().hget(regionBytes, key.getBytes());
-        return SerializationUtils.deserialize(bytes);
+    public byte[] getBytes(String key) {
+        try {
+            return client.get().hget(regionBytes, key.getBytes());
+        } finally {
+            client.release();
+        }
     }
 
     @Override
     public void put(String key, Serializable value) throws IOException {
         if (value == null)
             evict(key);
-        else
-            client.get().hset(regionBytes, key.getBytes(), SerializationUtils.serialize(value));
-    }
-
-    @Override
-    public Map getAll(Collection<String> keys) throws IOException {
-        BinaryJedisCommands cmd = client.get();
-        Map<String, Serializable> values = new HashMap<>();
-        for(String key : keys) {
-            byte[] bytes = cmd.hget(regionBytes, key.getBytes());
-            values.put(key, SerializationUtils.deserialize(bytes));
+        else {
+            try {
+                client.get().hset(regionBytes, key.getBytes(), SerializationUtils.serialize(value));
+            } finally {
+                client.release();
+            }
         }
-        return values;
     }
 
     @Override
     public boolean exists(String key) {
-        return client.get().hexists(regionBytes, key.getBytes());
+        try {
+            return client.get().hexists(regionBytes, key.getBytes());
+        } finally {
+            client.release();
+        }
     }
 
     @Override
     public Serializable putIfAbsent(String key, Serializable value) throws IOException {
-        byte[] keyBytes = key.getBytes();
-        BinaryJedisCommands cmd = client.get();
-        if(!cmd.hexists(regionBytes, keyBytes)) {
-            cmd.hset(regionBytes, keyBytes, SerializationUtils.serialize(value));
-            return null;
+        try {
+            byte[] keyBytes = key.getBytes();
+            BinaryJedisCommands cmd = client.get();
+            if (!cmd.hexists(regionBytes, keyBytes)) {
+                cmd.hset(regionBytes, keyBytes, SerializationUtils.serialize(value));
+                return null;
+            }
+            return SerializationUtils.deserialize(cmd.hget(regionBytes, keyBytes));
+        } finally {
+            client.release();
         }
-        return SerializationUtils.deserialize(cmd.hget(regionBytes, keyBytes));
     }
 
     @Override
-    public void putAll(Map<String, Serializable> elements) throws IOException {
-        BinaryJedisCommands cmd = client.get();
-        elements.forEach((key,v) -> {
-            try {
-                cmd.hset(regionBytes, key.getBytes(), SerializationUtils.serialize(v));
-            } catch (IOException e) {
-                log.error("Failed putAll", e);
-            }
-        });
+    public void putAll(Map<String, Serializable> elements) {
+        try {
+            BinaryJedisCommands cmd = client.get();
+            elements.forEach((key, v) -> {
+                try {
+                    cmd.hset(regionBytes, key.getBytes(), SerializationUtils.serialize(v));
+                } catch (IOException e) {
+                    log.error("Failed putAll", e);
+                }
+            });
+        } finally {
+            client.release();
+        }
+    }
+
+    @Override
+    public Long incr(String key, long l) {
+        try {
+            return client.get().hincrBy(regionBytes, key.getBytes(), l);
+        } finally {
+            client.release();
+        }
+    }
+
+    @Override
+    public Long decr(String key, long l) {
+        try {
+            return client.get().hincrBy(regionBytes, key.getBytes(), -l);
+        } finally {
+            client.release();
+        }
     }
 
     @Override
     public void evict(String...keys) {
-        if (keys == null || keys.length == 0)
-            return;
-        byte[][] o_keys = new byte[keys.length][];
-        for (int i = 0; i < keys.length; i++) {
-            o_keys[i] = keys[i].getBytes();
+        try {
+            if (keys == null || keys.length == 0)
+                return;
+            byte[][] o_keys = new byte[keys.length][];
+            for (int i = 0; i < keys.length; i++) {
+                o_keys[i] = keys[i].getBytes();
+            }
+            client.get().hdel(regionBytes, o_keys);
+        } finally {
+            client.release();
         }
-        client.get().hdel(regionBytes, o_keys);
     }
 
     @Override
     public Collection<String> keys() {
-        List<String> keys = new ArrayList<>();
-        client.get().hkeys(regionBytes).forEach(keyBytes -> {
-            try {
-                keys.add((String)SerializationUtils.deserialize(keyBytes));
-            }catch(IOException e){}
-        });
-        return keys;
+        try {
+            List<String> keys = new ArrayList<>();
+            client.get().hkeys(regionBytes).forEach(keyBytes -> {
+                try {
+                    keys.add((String) SerializationUtils.deserialize(keyBytes));
+                } catch (IOException e) {
+                }
+            });
+            return keys;
+        } finally {
+            client.release();
+        }
     }
 
     @Override
     public void clear() {
-        client.get().del(regionBytes);
+        try {
+            client.get().del(regionBytes);
+        } finally {
+            client.release();
+        }
     }
 
 }

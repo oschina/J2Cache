@@ -73,7 +73,7 @@ public class RedisCacheProvider implements CacheProvider {
                     .database(database)
                     .poolConfig(poolConfig).newClient();
 
-            log.info(String.format("Redis client starts with mode(%s), storage(%s), namespace(%s)", mode, storage, namespace));
+            log.info(String.format("Redis client starts with mode(%s), db(%d), storage(%s), namespace(%s)", mode, database, storage, namespace));
 
         } catch (IllegalAccessException | InvocationTargetException e) {
             log.error("Failed to init redis client.", e);
@@ -99,7 +99,7 @@ public class RedisCacheProvider implements CacheProvider {
                     if("hash".equalsIgnoreCase(this.storage))
                         cache = new RedisHashCache(this.namespace, region, redisClient);
                     else
-                        cache = new RedisCache(this.namespace, region, redisClient);
+                        cache = new RedisGenericCache(this.namespace, region, redisClient);
                     caches.put(region, cache);
                 }
             }

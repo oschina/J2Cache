@@ -49,24 +49,24 @@ public class J2CacheCmd {
 
 	            String[] cmds = line.split(" ");
 	            if("get".equalsIgnoreCase(cmds[0])){
-	            	CacheObject obj = cache.get(cmds[1], cmds[2]);
+	            	CacheObject<String> obj = cache.getString(cmds[1], cmds[2]);
 	            	System.out.printf("[%s,%s,L%d]=>%s(TTL:%d)\n", obj.getRegion(), obj.getKey(), obj.getLevel(), obj.getValue(), TTL);
 	            }
 	            else
 				if("mget".equalsIgnoreCase(cmds[0])){
 	            	String[] keys = new String[cmds.length - 2];
 	            	System.arraycopy(cmds, 2, keys, 0, cmds.length - 2);
-					Map<String, CacheObject> values = cache.getAll(cmds[1], Arrays.asList(keys));
+					Map<String, CacheObject<String>> values = cache.getString(cmds[1], Arrays.asList(keys));
 					if(values != null && values.size() > 0)
 						values.forEach((key,obj) -> System.out.printf("[%s,%s,L%d]=>%s(TTL:%d)\n", obj.getRegion(), obj.getKey(), obj.getLevel(), obj.getValue(), TTL));
 					else
 						System.out.println("none!");
 				}
-	            else
-	            if("set".equalsIgnoreCase(cmds[0])){
-	            	cache.set(cmds[1], cmds[2],cmds[3], TTL);
-	            	System.out.printf("[%s,%s]<=%s(TTL:%d)\n",cmds[1], cmds[2], cmds[3], TTL);
-	            }
+				else
+				if("set".equalsIgnoreCase(cmds[0])){
+					cache.set(cmds[1], cmds[2], cmds[3], TTL);
+					System.out.printf("[%s,%s]<=%s(TTL:%d)\n",cmds[1], cmds[2], cmds[3], TTL);
+				}
 				else
 				if("mset".equalsIgnoreCase(cmds[0])){
 	            	String region = cmds[1];
@@ -77,6 +77,16 @@ public class J2CacheCmd {
 					}
 					cache.setAll(cmds[1], objs, TTL);
 	            	objs.forEach((k,v)->System.out.printf("[%s,%s]<=%s(TTL:%d)\n",region, k, v, TTL));
+				}
+				else
+				if("incr".equalsIgnoreCase(cmds[0])){
+					long newValue = cache.incr(cmds[1], cmds[2], Long.parseLong(cmds[3]));
+					System.out.printf("[%s,%s]<=%d(TTL:%d)\n",cmds[1], cmds[2], newValue, TTL);
+				}
+				else
+				if("decr".equalsIgnoreCase(cmds[0])){
+					long newValue = cache.decr(cmds[1], cmds[2], Long.parseLong(cmds[3]));
+					System.out.printf("[%s,%s]<=%d(TTL:%d)\n",cmds[1], cmds[2], newValue, TTL);
 				}
 	            else
 	            if("evict".equalsIgnoreCase(cmds[0])){
@@ -131,12 +141,14 @@ public class J2CacheCmd {
 	
 	private static void printHelp() {
 		System.out.println("Usage: [cmd] region key [value]");
-		System.out.println("cmd: get/mget/set/mset/evict/keys/clear/ttl/quit/exit/help");
+		System.out.println("cmd: get/mget/set/mset/incr/decr/evict/keys/clear/ttl/quit/exit/help");
 		System.out.println("Examples:");
 		System.out.println("\tset region key value");
 		System.out.println("\tget region key");
 		System.out.println("\tmget region key1 key2 key3");
 		System.out.println("\tmset region key1:value1 key2:value2 key3:value3");
+		System.out.println("\tincr region key value");
+		System.out.println("\tdecr region key value");
 		System.out.println("\tkeys region");
         System.out.println("\tttl [seconds]");
 		System.out.println("\texit");

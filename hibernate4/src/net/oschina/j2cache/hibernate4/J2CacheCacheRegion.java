@@ -49,7 +49,7 @@ public class J2CacheCacheRegion implements CacheRegion {
     @Override
     public CacheObject get(Object key) {
         try {
-            return this.cacheChannel.get(this.region, (String) key);
+            return this.cacheChannel.getObject(this.region, (String) key);
         } catch (IOException e){
             throw new HibernateException(e);
         }

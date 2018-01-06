@@ -71,8 +71,7 @@ public class J2CacheCache extends AbstractValueAdaptingCache {
 	@Override
 	public ValueWrapper putIfAbsent(Object key, Object value) {
 		try {
-			CacheObject cacheObject = cacheChannel.get(j2CacheName, String.valueOf(key));
-			if (cacheObject == null) {
+			if (!cacheChannel.exists(j2CacheName, String.valueOf(key))) {
 				cacheChannel.set(j2CacheName, String.valueOf(key), (Serializable) value);
 			}
 			return get(key);
@@ -103,7 +102,7 @@ public class J2CacheCache extends AbstractValueAdaptingCache {
 	@Override
 	protected Object lookup(Object key) {
 		try {
-			CacheObject cacheObject = cacheChannel.get(j2CacheName, String.valueOf(key));
+			CacheObject cacheObject = cacheChannel.getObject(j2CacheName, String.valueOf(key));
 			return getValueByCacheObject(cacheObject);
 		} catch (IOException e) {
 			logger.error("Failed lookup", e);

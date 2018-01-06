@@ -62,7 +62,7 @@ public class J2HibernateCache implements Cache {
     @Override
     public Object get(Object key) throws CacheException {
         try {
-            CacheObject cobj = cache.get(region, (String)key);
+            CacheObject cobj = cache.getObject(region, (String)key);
             if (log.isDebugEnabled())
                 log.debug("get value for j2cache which key:" + key + ",value:" + cobj.getValue());
             return cobj.getValue();

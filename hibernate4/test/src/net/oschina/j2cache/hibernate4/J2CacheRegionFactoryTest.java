@@ -142,7 +142,7 @@ public class J2CacheRegionFactoryTest {
 
     private Map getCacheValue(String region,String key){
         try {
-            Object item = J2Cache.getChannel().get(region, key).getValue();
+            Object item = J2Cache.getChannel().getObject(region, key).getValue();
             if(item != null)
                 return (Map) BeanUtils.getPropertyDescriptor(item.getClass(),"value").getReadMethod().invoke(item);
         } catch (IllegalAccessException | InvocationTargetException | IOException e) {

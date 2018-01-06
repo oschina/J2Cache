@@ -15,24 +15,22 @@
  */
 package net.oschina.j2cache;
 
-import java.io.Serializable;
-
 /**
  * Cached object description
  * @author Winter Lau(javayou@gmail.com)
  */
-public class CacheObject {
+public class CacheObject<T> {
 
 	private String region;
 	private String key;
-	private Serializable value;
+	private T value;
 	private byte level;
 
 	public CacheObject(String region, String key, byte level) {
 		this(region, key, level, null);
 	}
 
-	public CacheObject(String region, String key, byte level, Serializable value) {
+	public CacheObject(String region, String key, byte level, T value) {
 		this.region =  region;
 		this.key = key;
 		this.level = level;
@@ -51,10 +49,11 @@ public class CacheObject {
 	public void setKey(String key) {
 		this.key = key;
 	}
-	public Serializable getValue() {
+	public T getValue() {
 		return value;
 	}
-	public void setValue(Serializable value) {
+
+	public void setValue(T value) {
 		this.value = value;
 	}
 	public byte getLevel() {
@@ -63,5 +62,5 @@ public class CacheObject {
 	public void setLevel(byte level) {
 		this.level = level;
 	}
-	
+
 }

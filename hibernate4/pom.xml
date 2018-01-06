@@ -3,13 +3,13 @@
     <parent>
         <groupId>net.oschina.j2cache</groupId>
         <artifactId>j2cache</artifactId>
-        <version>2.1.0</version>
+        <version>2.2.0-beta</version>
     </parent>
     
     <modelVersion>4.0.0</modelVersion>
     <artifactId>j2cache-hibernate4</artifactId>
     <packaging>jar</packaging>
-    <version>2.1.0</version>
+    <version>2.2.0-beta</version>
 
     <build>
         <sourceDirectory>src</sourceDirectory>
@@ -20,7 +20,7 @@
         <dependency>
             <groupId>net.oschina.j2cache</groupId>
             <artifactId>j2cache-core</artifactId>
-            <version>2.1.0</version>
+            <version>2.2.0-beta</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
