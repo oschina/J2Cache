@@ -7,7 +7,7 @@
 ***新特性***
 
 * 原有的 get/getAll 方法替换成 getXxxx 方法（删除原有方法）
-* 增加对 affeine 的支持（一级缓存）
+* 增加对 Caffeine 的支持（一级缓存）
 * 支持设置缓存对象的有效期
 * 支持多种 Redis 普通存储模式和哈希存储模式(redis.storage = generic|hash)
 * 增加 incr 和 decr 方法
