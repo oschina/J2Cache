@@ -123,13 +123,10 @@ public class RedisGenericCache implements RedisCache {
     public void putAll(Map<String, Serializable> elements) {
         try {
             BinaryJedisCommands cmd = client.get();
-            elements.forEach((key, v) -> {
-                try {
-                    cmd.set(key(key), SerializationUtils.serialize(v));
-                } catch (IOException e) {
-                    log.error("Failed putAll", e);
-                }
-            });
+            for(String key : elements.keySet())
+                cmd.set(key(key), SerializationUtils.serialize(elements.get(key)));
+        } catch (IOException e) {
+            log.error("Failed putAll", e);
         } finally {
             client.release();
         }

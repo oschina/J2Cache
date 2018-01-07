@@ -23,6 +23,7 @@ import redis.clients.jedis.BinaryJedisCommands;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Redis 缓存操作封装，基于 Hashs 实现多个 Region 的缓存（
@@ -165,14 +166,8 @@ public class RedisHashCache implements RedisCache {
     @Override
     public Collection<String> keys() {
         try {
-            List<String> keys = new ArrayList<>();
-            client.get().hkeys(regionBytes).forEach(keyBytes -> {
-                try {
-                    keys.add((String) SerializationUtils.deserialize(keyBytes));
-                } catch (IOException e) {
-                }
-            });
-            return keys;
+            BinaryJedisCommands cmd = client.get();
+            return cmd.hkeys(regionBytes).stream().map(bs -> new String(bs)).collect(Collectors.toList());
         } finally {
             client.release();
         }
