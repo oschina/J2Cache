@@ -39,10 +39,11 @@ public class ClusterPolicyFactory {
     /**
      * 使用 JGroups 组播机制
      * @param name  组播识别码
+     * @param configPath 配置文件的名称
      * @return 返回 JGroups 集群策略的实例
      */
-    public final static ClusterPolicy jgroups(String name) {
-        JGroupsClusterPolicy policy = new JGroupsClusterPolicy(name);
+    public final static ClusterPolicy jgroups(String name, String configPath) {
+        JGroupsClusterPolicy policy = new JGroupsClusterPolicy(name, configPath);
         policy.connect();
         return policy;
     }

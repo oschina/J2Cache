@@ -27,14 +27,21 @@ import java.net.URL;
  */
 public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPolicy {
 
-    private final static String CONFIG_XML = "/network.xml";
     private final static Logger log = LoggerFactory.getLogger(JGroupsClusterPolicy.class);
+    private String configXml = "/network.xml";
 
     private JChannel channel;
     private String name;
 
-    public JGroupsClusterPolicy(String name) {
+    /**
+     * 构造函数
+     * @param name 组播频道名称
+     * @param configPath 配置文件路径
+     */
+    public JGroupsClusterPolicy(String name, String configPath) {
         this.name = name;
+        if(configPath != null && configPath.trim().length() > 0)
+            this.configXml = configPath;
     }
 
     @Override
@@ -42,9 +49,9 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
         try{
             long ct = System.currentTimeMillis();
 
-            URL xml = CacheChannel.class.getResource(CONFIG_XML);
+            URL xml = CacheChannel.class.getResource(configXml);
             if(xml == null)
-                xml = getClass().getClassLoader().getParent().getResource(CONFIG_XML);
+                xml = getClass().getClassLoader().getParent().getResource(configXml);
             channel = new JChannel(xml);
             channel.setReceiver(this);
             channel.connect(name);

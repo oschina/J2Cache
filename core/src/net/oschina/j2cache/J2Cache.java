@@ -115,7 +115,7 @@ public class J2Cache {
 			}
 			else if ("jgroups".equalsIgnoreCase(cache_broadcast)) {
 				String channel_name = props.getProperty("jgroups.channel.name");
-				policy = ClusterPolicyFactory.jgroups(channel_name);//
+				policy = ClusterPolicyFactory.jgroups(channel_name, props.getProperty("jgroups.configXml"));//
 			}
 			else
 				throw new CacheException("Cache Channel not defined. name = " + cache_broadcast);
