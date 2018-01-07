@@ -1,5 +1,9 @@
 # J2Cache 版本更新记录
 
+**J2Cache 2.2.0-release (xxxx-xx-xx)**
+
+* 提供 clear 和 keys 方法在 generic 存储方式下的非 cluster 模式下可用
+
 **J2Cache 2.2.0 beta (2018-1-6)**
 
 注意，该版本跟以往版本在 API 上不兼容！！！  
