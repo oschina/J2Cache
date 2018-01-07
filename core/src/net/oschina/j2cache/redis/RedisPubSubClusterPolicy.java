@@ -20,6 +20,7 @@ import net.oschina.j2cache.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.BinaryJedisPubSub;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 /**
  * 使用 Redis 的订阅和发布进行集群中的节点通知
@@ -47,7 +48,23 @@ public class RedisPubSubClusterPolicy extends BinaryJedisPubSub implements Clust
     public void connect() {
         long ct = System.currentTimeMillis();
         this.redis.publish(channelBytes, Command.join().jsonBytes());   //Join Cluster
-        new Thread(()-> redis.subscribe(this, channelBytes)).start();
+        new Thread(()-> {
+            //当 Redis 重启会导致订阅线程断开连接，需要进行重连
+            while(true) {
+                try {
+                    redis.subscribe(this, channelBytes);
+                    log.info("Disconnect to redis channel:" + channel);
+                    break;
+                } catch (JedisConnectionException e) {
+                    log.error("Failed connect to redis, reconnect it.", e);
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException ie){
+                        break;
+                    }
+                }
+            }
+        }).start();
         log.info("Connected to redis channel:" + channel + ", time " + (System.currentTimeMillis()-ct) + " ms.");
     }
 
