@@ -64,7 +64,7 @@ public class RedisPubSubClusterPolicy extends BinaryJedisPubSub implements Clust
                     }
                 }
             }
-        }).start();
+        }, "RedisSubscribeThread").start();
         log.info("Connected to redis channel:" + channel + ", time " + (System.currentTimeMillis()-ct) + " ms.");
     }
 
