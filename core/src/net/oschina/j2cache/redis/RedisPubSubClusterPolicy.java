@@ -58,7 +58,7 @@ public class RedisPubSubClusterPolicy extends BinaryJedisPubSub implements Clust
                 } catch (JedisConnectionException e) {
                     log.error("Failed connect to redis, reconnect it.", e);
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep(1000);
                     } catch (InterruptedException ie){
                         break;
                     }
