@@ -15,13 +15,12 @@
  */
 package net.oschina.j2cache.ehcache;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
-import net.oschina.j2cache.Cache;
 import net.oschina.j2cache.CacheException;
 import net.oschina.j2cache.CacheExpiredListener;
+import net.oschina.j2cache.TTLEnableCache;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
@@ -32,7 +31,7 @@ import net.sf.ehcache.event.CacheEventListener;
  *
  * @author Winter Lau(javayou@gmail.com)
  */
-public class EhCache implements Cache, CacheEventListener {
+public class EhCache implements TTLEnableCache, CacheEventListener {
 	
 	private net.sf.ehcache.Cache cache;
 	private CacheExpiredListener listener;
@@ -80,7 +79,7 @@ public class EhCache implements Cache, CacheEventListener {
 	 */
 	@Override
 	public void put(String key, Serializable value) {
-		cache.put(new Element(key, value));
+		put(key, value, 0);
 	}
 
 	/**
@@ -109,15 +108,50 @@ public class EhCache implements Cache, CacheEventListener {
 	}
 
 	@Override
-	public Serializable putIfAbsent(String key, Serializable value) throws IOException {
+	public Serializable putIfAbsent(String key, Serializable value) {
 		Element elem = cache.putIfAbsent(new Element(key, value));
 		return (elem!=null)?(Serializable)elem.getObjectValue():null;
 	}
 
 	@Override
-	public void putAll(Map<String, Serializable> elements) throws IOException {
+	public void putAll(Map<String, Serializable> elements) {
 		List<Element> elems = new ArrayList<>();
 		elements.forEach((k,v) -> elems.add(new Element(k,v)));
+		cache.putAll(elems);
+	}
+
+	@Override
+	public void put(String key, Serializable value, int timeToLiveInSeconds) {
+		Element elem = new Element(key, value);
+		if(timeToLiveInSeconds != 0) {
+			elem.setTimeToIdle(timeToLiveInSeconds);
+			elem.setTimeToLive(timeToLiveInSeconds);
+		}
+		cache.put(elem);
+	}
+
+	@Override
+	public Serializable putIfAbsent(String key, Serializable value, int timeToLiveInSeconds) {
+		Element obj = new Element(key, value);
+		if(timeToLiveInSeconds != 0) {
+			obj.setTimeToIdle(timeToLiveInSeconds);
+			obj.setTimeToLive(timeToLiveInSeconds);
+		}
+		Element elem = cache.putIfAbsent(obj);
+		return (elem!=null)?(Serializable)elem.getObjectValue():null;
+	}
+
+	@Override
+	public void putAll(Map<String, Serializable> elements, int timeToLiveInSeconds) {
+		List<Element> elems = new ArrayList<>();
+		elements.forEach((k,v) -> {
+			Element elem = new Element(k, v);
+			if(timeToLiveInSeconds != 0) {
+				elem.setTimeToIdle(timeToLiveInSeconds);
+				elem.setTimeToLive(timeToLiveInSeconds);
+			}
+			elems.add(elem);
+		});
 		cache.putAll(elems);
 	}
 
