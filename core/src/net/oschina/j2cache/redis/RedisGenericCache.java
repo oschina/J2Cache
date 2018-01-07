@@ -5,6 +5,7 @@ import net.oschina.j2cache.util.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.BinaryJedisCommands;
+import redis.clients.jedis.MultiKeyCommands;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -132,8 +133,18 @@ public class RedisGenericCache implements RedisCache {
         }
     }
 
+    /**
+     * 性能可能极其低下，谨慎使用
+     */
     @Override
     public Collection<String> keys() {
+        try {
+            BinaryJedisCommands cmd = client.get();
+            if (cmd instanceof MultiKeyCommands)
+                return ((MultiKeyCommands) cmd).keys(this.region + ":*");
+        } finally {
+            client.release();
+        }
         throw new CacheException("keys() not implemented in Redis Generic Mode");
     }
 
@@ -150,8 +161,18 @@ public class RedisGenericCache implements RedisCache {
         }
     }
 
+    /**
+     * 性能可能极其低下，谨慎使用
+     */
     @Override
     public void clear() {
+        try {
+            BinaryJedisCommands cmd = client.get();
+            if (cmd instanceof MultiKeyCommands)
+                ((MultiKeyCommands)cmd).del(((MultiKeyCommands) cmd).keys(this.region + ":*").stream().toArray(String[]::new));
+        } finally {
+            client.release();
+        }
         throw new CacheException("clear() not implemented in Redis Generic Mode");
     }
 }
