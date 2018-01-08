@@ -2,7 +2,11 @@
 
 **J2Cache 2.2.0-release (xxxx-xx-xx)**
 
-* 提供 clear 和 keys 方法在 generic 存储方式下的非 cluster 模式下可用
+* 提供 `clear` 和 `keys` 方法在 `generic` 存储方式下的非 `cluster` 模式下可用（性能可能会比较差，慎用）  
+官方文档声称：`KEYS 的速度非常快，但在一个大的数据库中使用它仍然可能造成性能问题，如果你需要从一个数据集中查找特定的 key ，你最好还是用 Redis 的集合结构(set)来代替。`
+* 命令行测试工具支持上下键调用历史命令记录（依赖 `JLine` 库）
+* 当 Redis 重启时会导致订阅线程断开连接，J2Cache 将进行自动重连
+* 支持指定 jgroups 配置文件名称 (`jgroups.configXml = /network.xml`）
 
 **J2Cache 2.2.0 beta (2018-1-6)**
 
@@ -13,7 +17,7 @@
 * 原有的 get/getAll 方法替换成 getXxxx 方法（删除原有方法）
 * 增加对 Caffeine 的支持（一级缓存）
 * 支持设置缓存对象的有效期
-* 支持多种 Redis 普通存储模式和哈希存储模式(redis.storage = generic|hash)
+* 支持多种 Redis 普通存储模式和哈希存储模式(`redis.storage = generic|hash`)
 * 增加 incr 和 decr 方法
 
 ***Bug修复***
