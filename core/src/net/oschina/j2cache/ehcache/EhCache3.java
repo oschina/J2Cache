@@ -82,7 +82,7 @@ public class EhCache3 implements Cache , CacheEventListener {
 
     @Override
     public void evict(String...keys) {
-        this.cache.removeAll(Arrays.asList(keys).stream().collect(Collectors.toSet()));
+        this.cache.removeAll(Arrays.stream(keys).collect(Collectors.toSet()));
     }
 
     @Override
