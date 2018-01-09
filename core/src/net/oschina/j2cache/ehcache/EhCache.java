@@ -108,12 +108,6 @@ public class EhCache implements TTLEnableCache, CacheEventListener {
 	}
 
 	@Override
-	public Serializable putIfAbsent(String key, Serializable value) {
-		Element elem = cache.putIfAbsent(new Element(key, value));
-		return (elem!=null)?(Serializable)elem.getObjectValue():null;
-	}
-
-	@Override
 	public void putAll(Map<String, Serializable> elements) {
 		List<Element> elems = new ArrayList<>();
 		elements.forEach((k,v) -> elems.add(new Element(k,v)));

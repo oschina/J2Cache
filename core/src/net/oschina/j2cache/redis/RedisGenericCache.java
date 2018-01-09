@@ -106,21 +106,6 @@ public class RedisGenericCache implements RedisCache {
     }
 
     @Override
-    public Serializable putIfAbsent(String key, Serializable value) throws IOException {
-        try {
-            byte[] keyBytes = key(key);
-            BinaryJedisCommands cmd = client.get();
-            if (!cmd.exists(keyBytes)) {
-                cmd.set(keyBytes, SerializationUtils.serialize(value));
-                return null;
-            }
-            return SerializationUtils.deserialize(cmd.get(keyBytes));
-        } finally {
-            client.release();
-        }
-    }
-
-    @Override
     public void putAll(Map<String, Serializable> elements) {
         try {
             BinaryJedisCommands cmd = client.get();

@@ -217,26 +217,6 @@ class CacheProviderHolder {
 	}
 
 	/**
-	 * Put an element in the cache if no element is currently mapped to the elements key.
-	 * @param level
-	 * @param region
-	 * @param key
-	 * @param value
-	 * @return
-	 * @throws IOException
-	 */
-	public final static Serializable setIfAbsent(int level, String region, String key, Serializable value) throws IOException {
-		Cache cache = getCache(level, region);
-		return cache.putIfAbsent(key, value);
-	}
-
-
-	public final static Serializable setIfAbsent(int level, String region, String key, Serializable value, long timeToLiveInSeconds) throws IOException {
-		Cache cache = getCache(level, region, timeToLiveInSeconds);
-		return cache.putIfAbsent(key, value);
-	}
-
-	/**
 	 * 批量插入数据
 	 * @param level
 	 * @param region

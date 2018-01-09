@@ -34,7 +34,7 @@ public class J2Cache {
 
 	private final static String CONFIG_FILE = "/j2cache.properties";
 
-	private static CacheChannel channel;
+	private final static CacheChannel channel;
 	private static ClusterPolicy policy; //不同的广播策略
 
 	private static String serializer;
@@ -130,9 +130,9 @@ public class J2Cache {
 	 */
 	private static InputStream getConfigStream() {
 		log.info("Load J2Cache Config File : [{}].", CONFIG_FILE);
-		InputStream configStream = J2Cache.class.getClassLoader().getParent().getResourceAsStream(CONFIG_FILE);
+		InputStream configStream = J2Cache.class.getResourceAsStream(CONFIG_FILE);
 		if(configStream == null)
-			configStream = J2Cache.class.getResourceAsStream(CONFIG_FILE);
+			configStream = J2Cache.class.getClassLoader().getParent().getResourceAsStream(CONFIG_FILE);
 		if(configStream == null)
 			throw new CacheException("Cannot find " + CONFIG_FILE + " !!!");
 		return configStream;

@@ -88,20 +88,6 @@ public class SpringRedisCache implements Cache {
 	}
 
 	@Override
-	public Serializable putIfAbsent(String key, Serializable value) {
-		if (!redisTemplate.opsForHash().putIfAbsent(region, getKeyName(key), value)) {
-			return null;
-		} else {
-			Object o = redisTemplate.opsForHash().get(region, getKeyName(key));
-			if (o == null) {
-				return null;
-			}
-			return (Serializable) o;
-		}
-
-	}
-
-	@Override
 	public void putAll(Map<String, Serializable> elements) {
 		Map<String, Serializable> map = new HashMap<>(elements.size());
 		elements.forEach((k, v) -> {

@@ -51,11 +51,6 @@ public class NullCache implements Cache {
 	}
 
 	@Override
-	public Serializable putIfAbsent(String key, Serializable value) {
-		return null;
-	}
-
-	@Override
 	public void putAll(Map<String, Serializable> elements)  {
 
 	}

@@ -100,21 +100,6 @@ public class RedisHashCache implements RedisCache {
     }
 
     @Override
-    public Serializable putIfAbsent(String key, Serializable value) throws IOException {
-        try {
-            byte[] keyBytes = key.getBytes();
-            BinaryJedisCommands cmd = client.get();
-            if (!cmd.hexists(regionBytes, keyBytes)) {
-                cmd.hset(regionBytes, keyBytes, SerializationUtils.serialize(value));
-                return null;
-            }
-            return SerializationUtils.deserialize(cmd.hget(regionBytes, keyBytes));
-        } finally {
-            client.release();
-        }
-    }
-
-    @Override
     public void putAll(Map<String, Serializable> elements) {
         try {
             BinaryJedisCommands cmd = client.get();
@@ -166,8 +151,7 @@ public class RedisHashCache implements RedisCache {
     @Override
     public Collection<String> keys() {
         try {
-            BinaryJedisCommands cmd = client.get();
-            return cmd.hkeys(regionBytes).stream().map(bs -> new String(bs)).collect(Collectors.toList());
+            return client.get().hkeys(regionBytes).stream().map(bs -> new String(bs)).collect(Collectors.toList());
         } finally {
             client.release();
         }

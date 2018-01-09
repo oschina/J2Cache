@@ -66,11 +66,6 @@ public class EhCache3 implements Cache , CacheEventListener {
     }
 
     @Override
-    public Serializable putIfAbsent(String key, Serializable value) {
-        return cache.putIfAbsent(key, value);
-    }
-
-    @Override
     public void putAll(Map<String, Serializable> elements) {
         cache.putAll(elements);
     }

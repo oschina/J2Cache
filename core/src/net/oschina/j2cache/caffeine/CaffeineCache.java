@@ -68,14 +68,6 @@ public class CaffeineCache implements Cache {
     }
 
     @Override
-    public Serializable putIfAbsent(String key, Serializable value) {
-        Serializable old = get(key);
-        if(old != null)
-            cache.put(key, value);
-        return old;
-    }
-
-    @Override
     public void putAll(Map<String, Serializable> elements) {
         cache.putAll(elements);
     }

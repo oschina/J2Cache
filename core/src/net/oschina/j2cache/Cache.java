@@ -63,15 +63,6 @@ public interface Cache {
 	void put(String key, Serializable value) throws IOException;
 
 	/**
-	 * Put an element in the cache if no element is currently mapped to the elements key.
-	 * @param key cache key
-	 * @param value cache object
-	 * @return return old element exists in cache
-	 * @throws IOException io exception
-	 */
-	Serializable putIfAbsent(String key, Serializable value) throws IOException ;
-
-	/**
 	 * 批量插入数据
 	 * @param elements objects to be put in cache
 	 * @throws IOException io exception
