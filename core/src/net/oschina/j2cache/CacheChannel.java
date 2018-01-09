@@ -97,7 +97,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @return
 	 * @throws IOException
 	 */
-	public CacheObject<Serializable> getObject(String region, String key) throws IOException {
+	public CacheObject<Serializable> get(String region, String key) throws IOException {
 		return _getObject(region, key, Serializable.class);
 	}
 

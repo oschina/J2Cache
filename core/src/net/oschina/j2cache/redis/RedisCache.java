@@ -40,7 +40,7 @@ public interface RedisCache extends Cache {
 
     @Override
     @Deprecated
-    default Map getAll(Collection<String> keys) throws IOException {
+    default Map<String, Serializable> getAll(Collection<String> keys) throws IOException {
         return getObjects(keys);
     }
 

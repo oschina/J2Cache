@@ -1,6 +1,6 @@
 # J2Cache 版本更新记录
 
-**J2Cache 2.2.0-release (xxxx-xx-xx)**
+**J2Cache 2.2.1-release (xxxx-xx-xx)**
 
 * 提供 `clear` 和 `keys` 方法在 `generic` 存储方式下的非 `cluster` 模式下可用（性能可能会比较差，慎用）  
 官方文档声称：`KEYS 的速度非常快，但在一个大的数据库中使用它仍然可能造成性能问题，如果你需要从一个数据集中查找特定的 key ，你最好还是用 Redis 的集合结构(set)来代替。`
@@ -9,6 +9,7 @@
 * 支持指定 jgroups 配置文件名称 (`jgroups.configXml = /network.xml`）
 * 删除 setIfAbsent 方法（有点多余，二级缓存以及有一些缓存框架不支持这个方法，开发者只需自行判断即可)
 * 支持自定义的 ClusterPolicy ，详情请看 j2cache.properties
+* `getObject` 改名 `get` ，能自动识别缓存中的数据是字符串还是序列化对象
 
 **J2Cache 2.2.0 beta (2018-1-6)**
 

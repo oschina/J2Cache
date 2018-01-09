@@ -3,13 +3,11 @@
     <parent>
         <groupId>net.oschina.j2cache</groupId>
         <artifactId>j2cache</artifactId>
-        <version>2.2.0-release</version>
+        <version>2.2.1-release</version>
     </parent>
-    
+
     <modelVersion>4.0.0</modelVersion>
     <artifactId>j2cache-core</artifactId>
-    <packaging>jar</packaging>
-    <version>2.2.0-release</version>
 
     <build>
         <sourceDirectory>src</sourceDirectory>
