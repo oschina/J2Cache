@@ -7,8 +7,8 @@
 * 命令行测试工具支持上下键调用历史命令记录（依赖 `JLine` 库）
 * 当 Redis 重启时会导致订阅线程断开连接，J2Cache 将进行自动重连
 * 支持指定 jgroups 配置文件名称 (`jgroups.configXml = /network.xml`）
-* 删除 setIfAbsent 方法
-* 支持自定义的 ClusterPolicy
+* 删除 setIfAbsent 方法（有点多余，二级缓存以及有一些缓存框架不支持这个方法，开发者只需自行判断即可)
+* 支持自定义的 ClusterPolicy ，详情请看 j2cache.properties
 
 **J2Cache 2.2.0 beta (2018-1-6)**
 
