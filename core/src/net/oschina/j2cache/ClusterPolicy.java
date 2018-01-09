@@ -16,6 +16,7 @@
 package net.oschina.j2cache;
 
 import java.io.IOException;
+import java.util.Properties;
 
 /**
  * 缓存集群策略接口
@@ -25,8 +26,9 @@ public interface ClusterPolicy {
 
     /**
      * 连接到集群
+     * @param props j2cache 配置信息
      */
-    void connect();
+    void connect(Properties props);
 
     /**
      * 发送清除缓存的命令

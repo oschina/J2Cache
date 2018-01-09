@@ -8,6 +8,7 @@
 * 当 Redis 重启时会导致订阅线程断开连接，J2Cache 将进行自动重连
 * 支持指定 jgroups 配置文件名称 (`jgroups.configXml = /network.xml`）
 * 删除 setIfAbsent 方法
+* 支持自定义的 ClusterPolicy
 
 **J2Cache 2.2.0 beta (2018-1-6)**
 

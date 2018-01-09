@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
+import java.util.Properties;
 
 /**
  * 使用 JGroups 组播进行集群内节点通讯
@@ -45,7 +46,7 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
     }
 
     @Override
-    public void connect() {
+    public void connect(Properties props) {
         try{
             long ct = System.currentTimeMillis();
 

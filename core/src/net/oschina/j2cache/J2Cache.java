@@ -111,14 +111,14 @@ public class J2Cache {
 			String cache_broadcast = props.getProperty("j2cache.broadcast");
 			if ("redis".equalsIgnoreCase(cache_broadcast)) {
 				String channel = props.getProperty("redis.channel");
-				policy = ClusterPolicyFactory.redis(channel, CacheProviderHolder.getRedisClient());//.getInstance();
+				policy = ClusterPolicyFactory.redis(channel, CacheProviderHolder.getRedisClient(), props);//.getInstance();
 			}
 			else if ("jgroups".equalsIgnoreCase(cache_broadcast)) {
 				String channel_name = props.getProperty("jgroups.channel.name");
-				policy = ClusterPolicyFactory.jgroups(channel_name, props.getProperty("jgroups.configXml"));//
+				policy = ClusterPolicyFactory.jgroups(channel_name, props.getProperty("jgroups.configXml"), props);//
 			}
 			else
-				throw new CacheException("Cache Channel not defined. name = " + cache_broadcast);
+				policy = ClusterPolicyFactory.custom(cache_broadcast, props);
 
 			log.info("Using cluster policy : " + policy.getClass().getName());
 		}

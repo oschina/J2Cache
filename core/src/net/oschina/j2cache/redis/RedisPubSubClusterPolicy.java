@@ -22,6 +22,8 @@ import org.slf4j.LoggerFactory;
 import redis.clients.jedis.BinaryJedisPubSub;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
+import java.util.Properties;
+
 /**
  * 使用 Redis 的订阅和发布进行集群中的节点通知
  *
@@ -45,7 +47,7 @@ public class RedisPubSubClusterPolicy extends BinaryJedisPubSub implements Clust
      * 加入 Redis 的发布订阅频道
      */
     @Override
-    public void connect() {
+    public void connect(Properties props) {
         long ct = System.currentTimeMillis();
         this.redis.publish(channelBytes, Command.join().jsonBytes());   //Join Cluster
         new Thread(()-> {
