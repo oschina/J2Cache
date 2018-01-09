@@ -10,14 +10,14 @@ import java.util.Set;
 
 import org.springframework.data.redis.core.RedisTemplate;
 
-import net.oschina.j2cache.Cache;
+import net.oschina.j2cache.redis.RedisCache;
 
 /**
  * 
  * @author zhangsaizz
  *
  */
-public class SpringRedisCache implements Cache {
+public class SpringRedisCache implements RedisCache {
 
 	private String namespace;
 
@@ -123,6 +123,21 @@ public class SpringRedisCache implements Cache {
 			keys.add((String) object);
 		}
 		return keys;
+	}
+
+	@Override
+	public Long incr(String key, long l) {
+		return redisTemplate.opsForHash().increment(region, key, l);
+	}
+
+	@Override
+	public Long decr(String key, long l) {
+		return redisTemplate.opsForHash().delete(region, key);
+	}
+
+	@Override
+	public byte[] getBytes(String key) {
+		return (byte[]) redisTemplate.opsForHash().get(region, key);
 	}
 
 }
