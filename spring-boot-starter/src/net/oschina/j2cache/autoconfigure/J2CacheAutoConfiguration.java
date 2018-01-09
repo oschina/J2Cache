@@ -14,12 +14,12 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnClass(J2Cache.class)
 @EnableConfigurationProperties({J2CacheConfig.class})
 @Configuration
-public class J2CacheAutoConfigure {
-    private static Logger logger = LoggerFactory.getLogger(J2CacheAutoConfigure.class);
+public class J2CacheAutoConfiguration {
+    private static Logger logger = LoggerFactory.getLogger(J2CacheAutoConfiguration.class);
 
     private final J2CacheConfig j2CacheConfig;
 
-    public J2CacheAutoConfigure(J2CacheConfig j2CacheConfig) {
+    public J2CacheAutoConfiguration(J2CacheConfig j2CacheConfig) {
         this.j2CacheConfig = j2CacheConfig;
     }
 

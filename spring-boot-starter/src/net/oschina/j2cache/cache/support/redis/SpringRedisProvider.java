@@ -26,19 +26,19 @@ public class SpringRedisProvider implements CacheProvider{
 	@Autowired
 	private RedisTemplate<String, Serializable> redisTemplate;
 	
-    private String namespace;
+    private String namespace = "j2cache";
     
     protected ConcurrentHashMap<String, SpringRedisCache> caches = new ConcurrentHashMap<>();
     
 	@SuppressWarnings("unchecked")
 	public SpringRedisProvider() {
-    	this.redisTemplate = SpringUtil.getBean("redisTemplate", RedisTemplate.class);
+    	this.redisTemplate = SpringUtil.getBean("j2CacheRedisTemplate", RedisTemplate.class);
     }
     
 	
 	@Override
 	public String name() {
-		 return "spring-redis";
+		 return "redis";
 	}
 
 	@Override
