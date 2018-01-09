@@ -108,6 +108,10 @@ class CacheProviderHolder {
 			return getCache(level, cache_name);
 		return ((level==1)?l1_provider:l2_provider).buildCache(cache_name, timeToLiveInSeconds, listener);
 	}
+
+	private final static RedisCache getRedisCache(String cache_name) {
+		return (RedisCache)l2_provider.buildCache(cache_name, listener);
+	}
 	
 	public final static void shutdown() {
 		l1_provider.stop();
@@ -115,43 +119,43 @@ class CacheProviderHolder {
 	}
 
 	public final static Long incr(String region, String key, long l) {
-		return ((RedisCache)getCache(LEVEL_2, region)).incr(key, l);
+		return getRedisCache(region).incr(key, l);
 	}
 
 	public final static Long decr(String region, String key, long l) {
-		return ((RedisCache)getCache(LEVEL_2, region)).decr(key, l);
+		return getRedisCache(region).decr(key, l);
 	}
 
 	public final static byte[] getBytes(String region, String key) {
-		return ((RedisCache)getCache(LEVEL_2, region)).getBytes(key);
+		return getRedisCache(region).getBytes(key);
 	}
 
 	public final static String getString(String region, String key) {
-		return ((RedisCache)getCache(LEVEL_2, region)).getString(key);
+		return getRedisCache(region).getString(key);
 	}
 
 	public final static Long getLong(String region, String key) {
-		return ((RedisCache)getCache(LEVEL_2, region)).getLong(key);
+		return getRedisCache(region).getLong(key);
 	}
 
 	public final static Serializable getObject(String region, String key) throws IOException {
-		return ((RedisCache)getCache(LEVEL_2, region)).getObject(key);
+		return getRedisCache(region).getObject(key);
 	}
 
 	public final static Map<String, Long> getLong(String region, Collection<String> keys){
-		return ((RedisCache)getCache(LEVEL_2, region)).getLong(keys);
+		return getRedisCache(region).getLong(keys);
 	}
 
 	public final static Map<String, String> getString(String region, Collection<String> keys) {
-		return ((RedisCache)getCache(LEVEL_2, region)).getString(keys);
+		return getRedisCache(region).getString(keys);
 	}
 
 	public final static Map<String, byte[]> getBytes(String region, Collection<String> keys) {
-		return ((RedisCache)getCache(LEVEL_2, region)).getBytes(keys);
+		return getRedisCache(region).getBytes(keys);
 	}
 
 	public final static Map<String, Serializable> getObjects(String region, Collection<String> keys) throws IOException {
-		return ((RedisCache)getCache(LEVEL_2, region)).getObjects(keys);
+		return getRedisCache(region).getObjects(keys);
 	}
 
 	/**
