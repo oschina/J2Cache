@@ -88,8 +88,9 @@ public class SerializationUtils {
     public static Serializable deserialize(byte[] bytes) throws IOException {
         if(bytes == null || bytes.length == 0)
             return null;
+
         if(bytes[0] != 0x00)
-            return new String(Arrays.copyOfRange(bytes, 1, bytes.length));
+            return new String(bytes);
 
         return g_serializer.deserialize(Arrays.copyOfRange(bytes, 1, bytes.length));
     }
