@@ -15,7 +15,6 @@
  */
 package net.oschina.j2cache.redis;
 
-import net.oschina.j2cache.CacheException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.*;
@@ -50,7 +49,7 @@ public class RedisClient implements Closeable {
     private JedisCluster cluster;
     private JedisPool single;
     private JedisSentinelPool sentinel;
-    private ShardedJedis sharded;
+    private ShardedJedisPool sharded;
     private String redisPassword;
 
     /**
@@ -119,15 +118,6 @@ public class RedisClient implements Closeable {
         this.redisPassword = (password != null && password.trim().length() > 0)? password.trim(): null;
         this.clients = new ThreadLocal<>();
         switch(mode){
-            case "single":
-                for(String node : hosts.split(",")) {
-                    String[] infos = node.split(":");
-                    String host = infos[0];
-                    int port = (infos.length > 1)?Integer.parseInt(infos[1]):6379;
-                    this.single = new JedisPool(poolConfig, host, port, CONNECT_TIMEOUT, password, database);
-                    break;
-                }
-                break;
             case "sentinel":
                 Set<String> nodes = new HashSet<>();
                 for(String node : hosts.split(","))
@@ -152,10 +142,19 @@ public class RedisClient implements Closeable {
                 } catch (URISyntaxException e) {
                     throw new JedisConnectionException(e);
                 }
-                this.sharded = new ShardedJedis(shards);
+                this.sharded = new ShardedJedisPool(poolConfig, shards);
                 break;
             default:
-                throw new CacheException("Redis mode [" + mode + "] not defined.");
+                for(String node : hosts.split(",")) {
+                    String[] infos = node.split(":");
+                    String host = infos[0];
+                    int port = (infos.length > 1)?Integer.parseInt(infos[1]):6379;
+                    this.single = new JedisPool(poolConfig, host, port, CONNECT_TIMEOUT, password, database);
+                    break;
+                }
+                if(!"single".equalsIgnoreCase(mode))
+                    log.warn("Redis mode [" + mode + "] not defined. Using 'single'.");
+                break;
         }
     }
 
@@ -171,7 +170,7 @@ public class RedisClient implements Closeable {
             else if (sentinel != null)
                 client = sentinel.getResource();
             else if (sharded != null)
-                client = sharded;
+                client = sharded.getResource();
             else if (cluster != null)
                 client = toBinaryJedisCommands(cluster);
             clients.set(client);
@@ -185,13 +184,16 @@ public class RedisClient implements Closeable {
     public void release() {
         BinaryJedisCommands client = clients.get();
         if(client != null) {
-            if(client instanceof Closeable) {
+            //JedisCluster 会自动释放连接
+            if(client instanceof Closeable && !(client instanceof JedisCluster)) {
                 try {
                     ((Closeable) client).close();
                 } catch(IOException e) {
                     log.error("Failed to release jedis connection.", e);
                 }
             }
+            else
+                log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!");
             clients.remove();
         }
     }
@@ -209,7 +211,7 @@ public class RedisClient implements Closeable {
         else if(sentinel != null)
             sentinel.getResource().subscribe(jedisPubSub, channels);
         if(sharded != null)
-            sharded.getAllShards().forEach(node -> node.subscribe(jedisPubSub, channels));
+            sharded.getResource().getAllShards().forEach(node -> node.subscribe(jedisPubSub, channels));
     }
 
     /**
@@ -218,14 +220,34 @@ public class RedisClient implements Closeable {
      * @param bytes 消息数据
      */
     public void publish(byte[] channel, byte[] bytes) {
-        if (cluster != null)
-            cluster.publish(channel, bytes);
-        else if (single != null)
-            single.getResource().publish(channel, bytes);
-        else if (sentinel != null)
-            sentinel.getResource().publish(channel, bytes);
-        else if (sharded != null)
-            sharded.getAllShards().forEach(node -> node.publish(channel, bytes));
+        try {
+            if (cluster != null)
+                cluster.publish(channel, bytes);
+
+            else if (single != null) {
+                try(Jedis jedis = single.getResource()) {
+                    jedis.publish(channel, bytes);
+                }
+            }
+            else if (sentinel != null) {
+                try (Jedis jedis = sentinel.getResource()) {
+                    jedis.publish(channel, bytes);
+                }
+            }
+            else if (sharded != null) {
+                try (ShardedJedis jedis = sharded.getResource()) {
+                    jedis.getAllShards().forEach(node -> {
+                        try {
+                            node.publish(channel, bytes);
+                        } finally {
+                            node.close();
+                        }
+                    });
+                }
+            }
+        } finally {
+            release();
+        }
     }
 
     @Override

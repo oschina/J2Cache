@@ -1,6 +1,12 @@
 # J2Cache 版本更新记录
 
-**J2Cache 2.2.1-release (xxxx-xx-xx)**
+
+**J2Cache 2.2.2-release (2018-1-xx)**
+* 修复使用 `redis` 的订阅广播方式没有释放 `redis` 连接的问题（严重）
+* `sharded` 模式下的 `Redis` 启用连接池
+* `redis.mode` 的配置如果无效默认使用 `single` 模式，而不是抛出异常
+
+**J2Cache 2.2.1-release (2018-1-10)**
 
 * 提供 `clear` 和 `keys` 方法在 `generic` 存储方式下的非 `cluster` 模式下可用（性能可能会比较差，慎用）  
 官方文档声称：`KEYS 的速度非常快，但在一个大的数据库中使用它仍然可能造成性能问题，如果你需要从一个数据集中查找特定的 key ，你最好还是用 Redis 的集合结构(set)来代替。`
