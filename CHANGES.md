@@ -1,7 +1,10 @@
 # J2Cache 版本更新记录
 
 
-**J2Cache 2.2.2-release (2018-1-xx)**
+**J2Cache 2.2.3-release (2018-1-10)**
+* 修复字符串数据的处理问题
+
+**J2Cache 2.2.2-release (2018-1-10)**
 * 修复使用 `redis` 的订阅广播方式没有释放 `redis` 连接的问题（严重）
 * `sharded` 模式下的 `Redis` 启用连接池
 * `redis.mode` 的配置如果无效默认使用 `single` 模式，而不是抛出异常
