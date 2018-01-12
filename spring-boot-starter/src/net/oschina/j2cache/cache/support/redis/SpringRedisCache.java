@@ -8,8 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
-
 import net.oschina.j2cache.redis.RedisCache;
 
 /**
@@ -35,18 +36,9 @@ public class SpringRedisCache implements RedisCache {
 	}
 
 	private String getRegionName(String region) {
-		if (namespace != null && !namespace.isEmpty()) {
+		if (namespace != null && !namespace.isEmpty())
 			region = namespace + ":" + region;
-		}
 		return region;
-	}
-
-	private String getKeyName(Object key) {
-		if (key instanceof Number)
-			return "I:" + key;
-		else if (key instanceof String || key instanceof StringBuilder || key instanceof StringBuffer)
-			return "S:" + key;
-		return "O:" + key;
 	}
 
 	@Override
@@ -56,7 +48,7 @@ public class SpringRedisCache implements RedisCache {
 
 	@Override
 	public Serializable get(String key) {
-		Object value = redisTemplate.opsForHash().get(region, getKeyName(key));
+		Object value = redisTemplate.opsForHash().get(region, key);
 		if (value == null) {
 			return null;
 		}
@@ -67,7 +59,7 @@ public class SpringRedisCache implements RedisCache {
 	public Map<String, Serializable> getAll(Collection<String> keys) {
 		Map<String, Serializable> map = new HashMap<>(keys.size());
 		for (String k : keys) {
-			Object value = redisTemplate.opsForHash().get(region, getKeyName(k));
+			Object value = redisTemplate.opsForHash().get(region, k);
 			if (value != null) {
 				map.put(k, (Serializable) value);
 			} else {
@@ -79,19 +71,19 @@ public class SpringRedisCache implements RedisCache {
 
 	@Override
 	public boolean exists(String key) {
-		return redisTemplate.opsForHash().hasKey(region, getKeyName(key));
+		return redisTemplate.opsForHash().hasKey(region, key);
 	}
 
 	@Override
 	public void put(String key, Serializable value) {
-		redisTemplate.opsForHash().put(region, getKeyName(key), value);
+		redisTemplate.opsForHash().put(region, key, value);
 	}
 
 	@Override
 	public void putAll(Map<String, Serializable> elements) {
 		Map<String, Serializable> map = new HashMap<>(elements.size());
 		elements.forEach((k, v) -> {
-			map.put(getKeyName(k), v);
+			map.put(k, v);
 		});
 		redisTemplate.opsForHash().putAll(region, map);
 	}
@@ -123,7 +115,12 @@ public class SpringRedisCache implements RedisCache {
 
 	@Override
 	public byte[] getBytes(String key) {
-		return (byte[]) redisTemplate.opsForHash().get(region, key);
+		byte[] rawHashValue = redisTemplate.opsForHash().getOperations().execute(new RedisCallback<byte[]>() {
+			public byte[] doInRedis(RedisConnection connection) {
+				return connection.hGet(region.getBytes(), key.getBytes());
+			}
+		});
+		return rawHashValue;
 	}
 
 }
