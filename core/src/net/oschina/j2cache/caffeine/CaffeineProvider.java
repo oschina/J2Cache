@@ -184,10 +184,13 @@ public class CaffeineProvider implements CacheProvider {
                         break;
                     case 'm'://minutes
                         cacheConfig.expire *= 60;
+                        break;
                     case 'h'://hours
                         cacheConfig.expire *= 3600;
+                        break;
                     case 'd'://days
                         cacheConfig.expire *= 86400;
+                        break;
                 }
             }
             return cacheConfig;
