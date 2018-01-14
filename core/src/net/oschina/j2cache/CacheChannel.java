@@ -107,8 +107,10 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 		if(obj.getValue() == null) {
 			if(cls.equals(String.class))
 				obj.setValue((T)CacheProviderHolder.getString(region, key));
-			else if(cls.equals(int.class) || cls.equals(long.class) || cls.equals(Integer.class) || cls.equals(Long.class))
+			else if(cls.equals(int.class) || cls.equals(long.class) || cls.equals(Integer.class) || cls.equals(Long.class) || cls.equals(short.class) || cls.equals(byte.class) || cls.equals(Short.class) || cls.equals(Byte.class))
 				obj.setValue((T)CacheProviderHolder.getLong(region, key));
+			else if(cls.equals(float.class) || cls.equals(double.class) || cls.equals(Float.class) || cls.equals(Double.class))
+				obj.setValue((T)new Double(Double.parseDouble(CacheProviderHolder.getString(region, key))));
 			else if(cls.equals(byte[].class))
 				obj.setValue((T)CacheProviderHolder.getBytes(region, key));
 			else
