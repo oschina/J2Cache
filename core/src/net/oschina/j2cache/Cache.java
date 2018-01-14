@@ -67,7 +67,11 @@ public interface Cache {
 	 * @param elements objects to be put in cache
 	 * @throws IOException io exception
 	 */
-	void putAll(Map<String, Serializable> elements) throws IOException;
+	default void putAll(Map<String, Serializable> elements) throws IOException {
+		for(String key : elements.keySet()){
+			put(key, elements.get(key));
+		}
+	}
 
 	/**
 	 * Return all keys
