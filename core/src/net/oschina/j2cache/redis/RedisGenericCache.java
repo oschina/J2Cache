@@ -155,9 +155,10 @@ public class RedisGenericCache implements RedisCache {
             BinaryJedisCommands cmd = client.get();
             if (cmd instanceof MultiKeyCommands)
                 ((MultiKeyCommands)cmd).del(((MultiKeyCommands) cmd).keys(this.region + ":*").stream().toArray(String[]::new));
+            else
+                throw new CacheException("clear() not implemented in Redis Generic Mode");
         } finally {
             client.release();
         }
-        throw new CacheException("clear() not implemented in Redis Generic Mode");
     }
 }
