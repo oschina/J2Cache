@@ -39,11 +39,11 @@ public class CaffeineCache implements Level1Cache {
         this.expire = expire;
     }
 
-    public long getSize() {
+    long getSize() {
         return size;
     }
 
-    public long getExpire() {
+    long getExpire() {
         return expire;
     }
 
