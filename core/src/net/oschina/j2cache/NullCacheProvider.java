@@ -31,7 +31,7 @@ public class NullCacheProvider implements CacheProvider {
 
 	@Override
 	public int level() {
-		return Cache.LEVEL_1 | Cache.LEVEL_2;
+		return CacheObject.LEVEL_1 | CacheObject.LEVEL_2;
 	}
 
 	@Override

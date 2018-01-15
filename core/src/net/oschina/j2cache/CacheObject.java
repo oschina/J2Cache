@@ -19,48 +19,90 @@ package net.oschina.j2cache;
  * Cached object description
  * @author Winter Lau(javayou@gmail.com)
  */
-public class CacheObject<T> {
+public class CacheObject {
+
+	public final static byte LEVEL_1 = 1;
+	public final static byte LEVEL_2 = 2;
 
 	private String region;
 	private String key;
-	private T value;
+	private Object value;
 	private byte level;
 
-	public CacheObject(String region, String key, byte level) {
+	CacheObject(String region, String key, byte level) {
 		this(region, key, level, null);
 	}
 
-	public CacheObject(String region, String key, byte level, T value) {
+	CacheObject(String region, String key, byte level, Object value) {
 		this.region =  region;
 		this.key = key;
 		this.level = level;
 		this.value = value;
 	}
 
+	void setLevel(byte level) {
+		this.level = level;
+	}
+	void setRegion(String region) {
+		this.region = region;
+	}
+	void setKey(String key) {
+		this.key = key;
+	}
+	void setValue(Object value) {
+		this.value = value;
+	}
+
+	/**
+	 * 获取数据所在的缓存区域
+	 * @return
+	 */
 	public String getRegion() {
 		return region;
 	}
-	public void setRegion(String region) {
-		this.region = region;
-	}
+
+	/**
+	 * 缓存数据键值
+	 * @return
+	 */
 	public String getKey() {
 		return key;
 	}
-	public void setKey(String key) {
-		this.key = key;
-	}
-	public T getValue() {
+
+	/**
+	 * 缓存对象
+	 * @return
+	 */
+	public Object getValue() {
 		return value;
 	}
 
-	public void setValue(T value) {
-		this.value = value;
-	}
+	/**
+	 * 缓存所在的层级
+	 * @return
+	 */
 	public byte getLevel() {
 		return level;
 	}
-	public void setLevel(byte level) {
-		this.level = level;
+
+	public String asString() {
+		return String.valueOf(value);
+	}
+
+	public int asInt() {
+		return (value instanceof String) ? Integer.parseInt((String)value) : (Integer)value;
+	}
+
+	public double asDouble() {
+		return (value instanceof String) ? Double.parseDouble((String)value) : (Double)value;
+	}
+
+	public long asLong() {
+		return (value instanceof String) ? Long.parseLong((String)value) : (Long)value;
+	}
+
+	public float asFloat() {
+		return (value instanceof String) ? Float.parseFloat((String)value) : (Float)value;
 	}
 
 }

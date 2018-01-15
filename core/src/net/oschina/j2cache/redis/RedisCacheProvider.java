@@ -46,7 +46,7 @@ public class RedisCacheProvider implements CacheProvider {
 
     @Override
     public int level() {
-        return Cache.LEVEL_2;
+        return CacheObject.LEVEL_2;
     }
 
     public RedisClient getClient() {

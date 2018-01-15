@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * 对象序列化工具包
@@ -68,16 +67,9 @@ public class SerializationUtils {
      * @throws IOException io exception
      */
     public static byte[] serialize(Object obj) throws IOException {
-        if(obj == null)
+        if (obj == null)
             return null;
-        if(obj instanceof Number || obj instanceof String || obj instanceof Character || obj instanceof Boolean)
-            return obj.toString().getBytes();
-
-        byte[] bytes = g_serializer.serialize(obj);
-        byte[] results = new byte[bytes.length + 1];
-        results[0] = 0x00;
-        System.arraycopy(bytes, 0, results, 1, bytes.length);
-        return results;
+        return g_serializer.serialize(obj);
     }
 
     /**
@@ -87,10 +79,8 @@ public class SerializationUtils {
      * @throws IOException io exception
      */
     public static Object deserialize(byte[] bytes) throws IOException {
-        if(bytes == null || bytes.length == 0)
+        if (bytes == null || bytes.length == 0)
             return null;
-        if(bytes[0] != 0x00)
-            return new String(bytes);
-        return g_serializer.deserialize(Arrays.copyOfRange(bytes, 1, bytes.length));
+        return g_serializer.deserialize(bytes);
     }
 }

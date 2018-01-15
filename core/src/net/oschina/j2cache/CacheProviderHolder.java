@@ -47,13 +47,13 @@ public class CacheProviderHolder {
 		CacheProviderHolder.listener = listener;
 		try {
 			CacheProviderHolder.l1_provider = loadProviderInstance(props.getProperty("j2cache.L1.provider_class"));
-			if (!l1_provider.isLevel(Cache.LEVEL_1))
+			if (!l1_provider.isLevel(CacheObject.LEVEL_1))
 				throw new CacheException(l1_provider.getClass().getName() + " is not level_1 cache provider");
 			CacheProviderHolder.l1_provider.start(loadProviderProperties(props, CacheProviderHolder.l1_provider));
 			log.info("Using L1 CacheProvider : " + l1_provider.getClass().getName());
 
 			CacheProviderHolder.l2_provider = loadProviderInstance(props.getProperty("j2cache.L2.provider_class"));
-			if (!l2_provider.isLevel(Cache.LEVEL_2))
+			if (!l2_provider.isLevel(CacheObject.LEVEL_2))
 				throw new CacheException(l2_provider.getClass().getName() + " is not level_2 cache provider");
 			CacheProviderHolder.l2_provider.start(loadProviderProperties(props, CacheProviderHolder.l2_provider));
 			log.info("Using L2 CacheProvider : " + l2_provider.getClass().getName());

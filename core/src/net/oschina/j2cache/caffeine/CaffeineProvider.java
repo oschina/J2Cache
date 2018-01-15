@@ -17,10 +17,7 @@ package net.oschina.j2cache.caffeine;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalCause;
-import net.oschina.j2cache.Cache;
-import net.oschina.j2cache.CacheException;
-import net.oschina.j2cache.CacheExpiredListener;
-import net.oschina.j2cache.CacheProvider;
+import net.oschina.j2cache.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +46,7 @@ public class CaffeineProvider implements CacheProvider {
 
     @Override
     public int level() {
-        return Cache.LEVEL_1;
+        return CacheObject.LEVEL_1;
     }
 
     @Override

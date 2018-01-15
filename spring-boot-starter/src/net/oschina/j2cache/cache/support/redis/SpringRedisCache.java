@@ -104,16 +104,6 @@ public class SpringRedisCache implements Level2Cache {
 	}
 
 	@Override
-	public Long incr(String key, long l) {
-		return redisTemplate.opsForHash().increment(region, key, l);
-	}
-
-	@Override
-	public Long decr(String key, long l) {
-		return redisTemplate.opsForHash().delete(region, key);
-	}
-
-	@Override
 	public byte[] getBytes(String key) {
 		byte[] rawHashValue = redisTemplate.opsForHash().getOperations().execute(new RedisCallback<byte[]>() {
 			public byte[] doInRedis(RedisConnection connection) {

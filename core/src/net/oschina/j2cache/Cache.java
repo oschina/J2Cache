@@ -26,9 +26,6 @@ import java.util.Map;
  */
 public interface Cache {
 
-	byte LEVEL_1 = 1;
-	byte LEVEL_2 = 2;
-
 	/**
 	 * Get an item from the cache, nontransactionally
 	 * 

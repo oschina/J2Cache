@@ -93,24 +93,6 @@ public class RedisHashCache implements Level2Cache {
     }
 
     @Override
-    public Long incr(String key, long l) {
-        try {
-            return client.get().hincrBy(regionBytes, key.getBytes(), l);
-        } finally {
-            client.release();
-        }
-    }
-
-    @Override
-    public Long decr(String key, long l) {
-        try {
-            return client.get().hincrBy(regionBytes, key.getBytes(), -l);
-        } finally {
-            client.release();
-        }
-    }
-
-    @Override
     public void evict(String...keys) {
         try {
             if (keys == null || keys.length == 0)

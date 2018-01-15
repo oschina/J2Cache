@@ -76,24 +76,6 @@ public class RedisGenericCache implements Level2Cache {
         }
     }
 
-    @Override
-    public Long incr(String key, long l) {
-        try {
-            return client.get().incrBy(_key(key), l);
-        } finally {
-            client.release();
-        }
-    }
-
-    @Override
-    public Long decr(String key, long l) {
-        try {
-            return client.get().decrBy(_key(key), l);
-        } finally {
-            client.release();
-        }
-    }
-
     /**
      * 性能可能极其低下，谨慎使用
      */

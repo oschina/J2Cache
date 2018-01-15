@@ -44,24 +44,6 @@ public interface Level2Cache extends Cache {
     void setBytes(String key, byte[] bytes);
 
     /**
-     * 缓存数值加 l
-     * @param key
-     * @param l
-     * @return
-     */
-    Long incr(String key, long l) ;
-
-    /**
-     * 缓存数据减 l
-     * @param key
-     * @param l
-     * @return
-     */
-    default Long decr(String key, long l) {
-        return incr(key, -l);
-    }
-
-    /**
      * 判断缓存数据是否存在
      * @param key cache key
      * @return

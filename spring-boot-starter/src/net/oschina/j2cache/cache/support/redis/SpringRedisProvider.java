@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.oschina.j2cache.CacheObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,7 @@ public class SpringRedisProvider implements CacheProvider{
 
 	@Override
 	public int level() {
-		return Cache.LEVEL_2;
+		return CacheObject.LEVEL_2;
 	}
 
 	@Override

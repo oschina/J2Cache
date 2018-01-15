@@ -20,6 +20,7 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.oschina.j2cache.Cache;
+import net.oschina.j2cache.CacheObject;
 import net.sf.ehcache.config.CacheConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +51,7 @@ public class EhCacheProvider implements CacheProvider {
 
 	@Override
 	public int level() {
-		return Cache.LEVEL_1;
+		return CacheObject.LEVEL_1;
 	}
 
     /**

@@ -64,11 +64,6 @@ public class NullCache implements Level1Cache, Level2Cache {
 	}
 
 	@Override
-	public Long incr(String key, long l) {
-		return null;
-	}
-
-	@Override
 	public void evict(String...keys) {
 	}
 

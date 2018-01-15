@@ -1,5 +1,9 @@
 # J2Cache 版本更新记录
 
+**J2Cache 2.3.0-release (2018-1-15)**
+* 删除缓存读取方法 getXxx 只保留 get 方法（自动识别不同类型数据），可通过 `CacheObject` 的 asXxx 方法来获取不同类型数据
+* 删除 incr 和 decr 方法
+
 **J2Cache 2.3.0-beta (2018-1-15)**
 * 内部结构的重构，减少模块间的耦合，简化内部接口
 * 去掉对 `commons-beanutils` 的依赖，由于 beanutils 1.8 和 1.9 版本 api 变化大，此举可避免对宿主系统的影响
