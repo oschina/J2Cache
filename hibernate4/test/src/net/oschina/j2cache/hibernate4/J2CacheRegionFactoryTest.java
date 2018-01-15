@@ -145,7 +145,7 @@ public class J2CacheRegionFactoryTest {
             Object item = J2Cache.getChannel().get(region, key).getValue();
             if(item != null)
                 return (Map) BeanUtils.getPropertyDescriptor(item.getClass(),"value").getReadMethod().invoke(item);
-        } catch (IllegalAccessException | InvocationTargetException | IOException e) {
+        } catch (IllegalAccessException | InvocationTargetException e) {
             LOG.error(e.getMessage(), e);
         }
         return null;

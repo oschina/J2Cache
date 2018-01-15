@@ -15,9 +15,9 @@
  */
 package net.oschina.j2cache.caffeine;
 
-import net.oschina.j2cache.Cache;
+import com.github.benmanes.caffeine.cache.Cache;
+import net.oschina.j2cache.Level1Cache;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -27,13 +27,13 @@ import java.util.Map;
  *
  * @author Winter Lau(javayou@gmail.com)
  */
-public class CaffeineCache implements Cache {
+public class CaffeineCache implements Level1Cache {
 
-    private com.github.benmanes.caffeine.cache.Cache<String, Serializable> cache;
+    private com.github.benmanes.caffeine.cache.Cache<String, Object> cache;
     private long size ;
     private long expire ;
 
-    public CaffeineCache(com.github.benmanes.caffeine.cache.Cache<String, Serializable> cache, long size, long expire) {
+    public CaffeineCache(Cache<String, Object> cache, long size, long expire) {
         this.cache = cache;
         this.size = size;
         this.expire = expire;
@@ -48,27 +48,22 @@ public class CaffeineCache implements Cache {
     }
 
     @Override
-    public Serializable get(String key) {
+    public Object get(String key) {
         return cache.getIfPresent(key);
     }
 
     @Override
-    public Map<String, Serializable> getAll(Collection<String> keys) {
+    public Map<String, Object> get(Collection<String> keys) {
         return cache.getAllPresent(keys);
     }
 
     @Override
-    public boolean exists(String key) {
-        return cache.getIfPresent(key) != null;
-    }
-
-    @Override
-    public void put(String key, Serializable value) {
+    public void put(String key, Object value) {
         cache.put(key, value);
     }
 
     @Override
-    public void putAll(Map<String, Serializable> elements) {
+    public void put(Map<String, Object> elements) {
         cache.putAll(elements);
     }
 
@@ -78,7 +73,7 @@ public class CaffeineCache implements Cache {
     }
 
     @Override
-    public void evict(String... keys) {
+    public void evict(String...keys) {
         cache.invalidateAll(Arrays.asList(keys));
     }
 

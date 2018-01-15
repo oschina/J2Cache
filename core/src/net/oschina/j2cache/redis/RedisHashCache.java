@@ -15,13 +15,10 @@
  */
 package net.oschina.j2cache.redis;
 
-import net.oschina.j2cache.util.SerializationUtils;
+import net.oschina.j2cache.Level2Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import redis.clients.jedis.BinaryJedisCommands;
 
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,7 +27,7 @@ import java.util.stream.Collectors;
  * @author wendal
  * @author Winter Lau(javayou@gmail.com)
  */
-public class RedisHashCache implements RedisCache {
+public class RedisHashCache implements Level2Cache {
 
     private final static Logger log = LoggerFactory.getLogger(RedisHashCache.class);
 
@@ -78,15 +75,11 @@ public class RedisHashCache implements RedisCache {
     }
 
     @Override
-    public void put(String key, Serializable value) throws IOException {
-        if (value == null)
-            evict(key);
-        else {
-            try {
-                client.get().hset(regionBytes, key.getBytes(), SerializationUtils.serialize(value));
-            } finally {
-                client.release();
-            }
+    public void setBytes(String key, byte[] bytes) {
+        try {
+            client.get().hset(regionBytes, key.getBytes(), bytes);
+        } finally {
+            client.release();
         }
     }
 
@@ -94,22 +87,6 @@ public class RedisHashCache implements RedisCache {
     public boolean exists(String key) {
         try {
             return client.get().hexists(regionBytes, key.getBytes());
-        } finally {
-            client.release();
-        }
-    }
-
-    @Override
-    public void putAll(Map<String, Serializable> elements) {
-        try {
-            BinaryJedisCommands cmd = client.get();
-            elements.forEach((key, v) -> {
-                try {
-                    cmd.hset(regionBytes, key.getBytes(), SerializationUtils.serialize(v));
-                } catch (IOException e) {
-                    log.error("Failed putAll", e);
-                }
-            });
         } finally {
             client.release();
         }

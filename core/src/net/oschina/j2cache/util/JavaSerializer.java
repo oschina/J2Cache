@@ -32,7 +32,7 @@ public class JavaSerializer implements Serializer {
 	}
 	
 	@Override
-	public byte[] serialize(Serializable obj) throws IOException {
+	public byte[] serialize(Object obj) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try (ObjectOutputStream oos = new ObjectOutputStream(baos)){
 			oos.writeObject(obj);
@@ -41,12 +41,12 @@ public class JavaSerializer implements Serializer {
 	}
 
 	@Override
-	public Serializable deserialize(byte[] bits) throws IOException {
+	public Object deserialize(byte[] bits) throws IOException {
 		if(bits == null || bits.length == 0)
 			return null;
 		ByteArrayInputStream bais = new ByteArrayInputStream(bits);
 		try (ObjectInputStream ois = new ObjectInputStream(bais)){
-			return (Serializable)ois.readObject();
+			return ois.readObject();
 		} catch (ClassNotFoundException e) {
 			throw new CacheException(e);
 		}

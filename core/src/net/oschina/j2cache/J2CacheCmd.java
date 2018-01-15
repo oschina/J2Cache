@@ -18,7 +18,6 @@ package net.oschina.j2cache;
 import jline.console.ConsoleReader;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -71,12 +70,12 @@ public class J2CacheCmd {
 				else
 				if("mset".equalsIgnoreCase(cmds[0])){
 					String region = cmds[1];
-					Map<String, Serializable> objs = new HashMap<>();
+					Map<String, Object> objs = new HashMap<>();
 					for(int i=2;i<cmds.length;i++) {
 						String[] obj = cmds[i].split(":");
 						objs.put(obj[0], obj[1]);
 					}
-					cache.setAll(cmds[1], objs, TTL);
+					cache.set(cmds[1], objs, TTL);
 					objs.forEach((k,v)->System.out.printf("[%s,%s]<=%s(TTL:%d)\n",region, k, v, TTL));
 				}
 				else

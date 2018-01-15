@@ -16,14 +16,12 @@
 package net.oschina.j2cache.redis;
 
 import net.oschina.j2cache.*;
-import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.*;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -41,43 +39,45 @@ public class RedisCacheProvider implements CacheProvider {
     private String storage;
     protected ConcurrentHashMap<String, Cache> caches = new ConcurrentHashMap<>();
 
+    @Override
     public String name() {
         return "redis";
+    }
+
+    @Override
+    public int level() {
+        return Cache.LEVEL_2;
     }
 
     public RedisClient getClient() {
         return redisClient;
     }
 
+    /**
+     * 初始化 Redis 连接
+     * @param props current configuration settings.
+     */
     @Override
     public void start(Properties props) {
-        //初始化 Redis 连接
         this.namespace = props.getProperty("namespace");
         this.storage = props.getProperty("storage");
-        try {
-            JedisPoolConfig poolConfig = new JedisPoolConfig();//Redis 连接池配置
-            HashMap<String, String> props2 = new HashMap<>();
-            props.forEach((k, v) -> props2.put((String)k, (String)v));
-            BeanUtils.populate(poolConfig, props2);
 
-            String hosts = props.getProperty("hosts");
-            String mode = props.getProperty("mode");
-            String cluster_name = props.getProperty("cluster_name");
-            String password = props.getProperty("password");
-            int database = Integer.parseInt(props.getProperty("database"));
-            this.redisClient = new RedisClient.Builder()
-                    .mode(mode)
-                    .hosts(hosts)
-                    .password(password)
-                    .cluster(cluster_name)
-                    .database(database)
-                    .poolConfig(poolConfig).newClient();
+        JedisPoolConfig poolConfig = newPoolConfig(props);
 
-            log.info(String.format("Redis client starts with mode(%s), db(%d), storage(%s), namespace(%s)", mode, database, storage, namespace));
+        String hosts = props.getProperty("hosts");
+        String mode = props.getProperty("mode");
+        String cluster_name = props.getProperty("cluster_name");
+        String password = props.getProperty("password");
+        int database = Integer.parseInt(props.getProperty("database"));
+        this.redisClient = new RedisClient.Builder()
+                .mode(mode)
+                .hosts(hosts)
+                .password(password)
+                .cluster(cluster_name)
+                .database(database)
+                .poolConfig(poolConfig).newClient();
 
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            log.error("Failed to init redis client.", e);
-        }
+        log.info(String.format("Redis client starts with mode(%s), db(%d), storage(%s), namespace(%s)", mode, database, storage, namespace));
     }
 
     @Override
@@ -111,4 +111,28 @@ public class RedisCacheProvider implements CacheProvider {
     public Cache buildCache(String region, long timeToLiveInSeconds, CacheExpiredListener listener) {
         return buildCache(region, listener);
     }
+
+    /**
+     * 初始化 Redis 连接池
+     * @param props
+     * @return
+     */
+    private JedisPoolConfig newPoolConfig(Properties props) {
+        JedisPoolConfig cfg = new JedisPoolConfig();
+        cfg.setMaxTotal(Integer.valueOf((String)props.getOrDefault("maxTotal", "-1")));
+        cfg.setMaxIdle(Integer.valueOf((String)props.getOrDefault("maxIdle", "100")));
+        cfg.setMaxWaitMillis(Integer.valueOf((String)props.getOrDefault("maxWaitMillis", 100)));
+        cfg.setMinEvictableIdleTimeMillis(Integer.valueOf((String)props.getOrDefault("minEvictableIdleTimeMillis", "864000000")));
+        cfg.setMinIdle(Integer.valueOf((String)props.getOrDefault("minIdle", "10")));
+        cfg.setNumTestsPerEvictionRun(Integer.valueOf((String)props.getOrDefault("numTestsPerEvictionRun", "10")));
+        cfg.setLifo(Boolean.valueOf(props.getProperty("lifo", "false")));
+        cfg.setSoftMinEvictableIdleTimeMillis(Integer.valueOf((String)props.getOrDefault("softMinEvictableIdleTimeMillis", "10")));
+        cfg.setTestOnBorrow(Boolean.valueOf(props.getProperty("testOnBorrow", "true")));
+        cfg.setTestOnReturn(Boolean.valueOf(props.getProperty("testOnReturn", "false")));
+        cfg.setTestWhileIdle(Boolean.valueOf(props.getProperty("testWhileIdle", "false")));
+        cfg.setTimeBetweenEvictionRunsMillis(Integer.valueOf((String)props.getOrDefault("timeBetweenEvictionRunsMillis", "300000")));
+        cfg.setBlockWhenExhausted(Boolean.valueOf(props.getProperty("blockWhenExhausted", "true")));
+        return cfg;
+    }
+
 }
