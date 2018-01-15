@@ -61,6 +61,11 @@ public interface Level2Cache extends Cache {
         return incr(key, -l);
     }
 
+    /**
+     * 判断缓存数据是否存在
+     * @param key cache key
+     * @return
+     */
     default boolean exists(String key) {
         return getBytes(key) != null;
     }
