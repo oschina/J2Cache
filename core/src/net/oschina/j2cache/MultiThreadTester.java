@@ -1,6 +1,5 @@
 package net.oschina.j2cache;
 
-import java.io.IOException;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,15 +17,11 @@ public class MultiThreadTester {
             threadPool.execute(() -> {
                 Random seed = new Random(System.currentTimeMillis());
                 String name = "Thread-" + seq;
-                try {
-                    for(int j=0;j<1000;j++) {
-                        long ct = System.currentTimeMillis();
-                        String rand = String.valueOf(seed.nextInt());
-                        cache.set("Users", rand, rand);
-                        System.out.printf("%s -> %s (%dms)\n", name, cache.get("Users", rand).getValue(), (System.currentTimeMillis()-ct));
-                    }
-                }catch (IOException e) {
-                    e.printStackTrace();
+                for(int j=0;j<1000;j++) {
+                    long ct = System.currentTimeMillis();
+                    String rand = String.valueOf(seed.nextInt());
+                    cache.set("Users", rand, seed.nextDouble());
+                    System.out.printf("%s -> %s (%dms)\n", name, cache.get("Users", rand).getValue(), (System.currentTimeMillis()-ct));
                 }
             });
         }

@@ -1,24 +1,17 @@
 package net.oschina.j2cache.redis;
 
 import net.oschina.j2cache.CacheException;
-import net.oschina.j2cache.util.SerializationUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.oschina.j2cache.Level2Cache;
 import redis.clients.jedis.BinaryJedisCommands;
 import redis.clients.jedis.MultiKeyCommands;
 
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.Collection;
-import java.util.Map;
 
 /**
- * Redis 缓存操作封装，基于 region+key 实现多个 Region 的缓存（
+ * Redis 缓存操作封装，基于 region+_key 实现多个 Region 的缓存（
  * @author Winter Lau(javayou@gmail.com)
  */
-public class RedisGenericCache implements RedisCache {
-
-    private final static Logger log = LoggerFactory.getLogger(RedisGenericCache.class);
+public class RedisGenericCache implements Level2Cache {
 
     private String namespace;
     private String region;
@@ -26,7 +19,7 @@ public class RedisGenericCache implements RedisCache {
 
     /**
      * 缓存构造
-     * @param namespace 命名空间，用于在多个实例中避免 key 的重叠
+     * @param namespace 命名空间，用于在多个实例中避免 _key 的重叠
      * @param region 缓存区域的名称
      * @param client 缓存客户端接口
      */
@@ -36,7 +29,7 @@ public class RedisGenericCache implements RedisCache {
 
         this.client = client;
         this.namespace = namespace;
-        this.region = getRegionName(region);
+        this.region = _regionName(region);
     }
 
     /**
@@ -46,20 +39,29 @@ public class RedisGenericCache implements RedisCache {
      * @param region
      * @return
      */
-    private String getRegionName(String region) {
+    private String _regionName(String region) {
         if (namespace != null && !namespace.isEmpty())
             region = namespace + ":" + region;
         return region;
     }
 
-    private byte[] key(String key) {
+    private byte[] _key(String key) {
         return (this.region + ":" + key).getBytes();
     }
 
     @Override
     public byte[] getBytes(String key) {
         try {
-            return client.get().get(key(key));
+            return client.get().get(_key(key));
+        } finally {
+            client.release();
+        }
+    }
+
+    @Override
+    public void setBytes(String key, byte[] bytes) {
+        try {
+            client.get().set(_key(key), bytes);
         } finally {
             client.release();
         }
@@ -68,7 +70,7 @@ public class RedisGenericCache implements RedisCache {
     @Override
     public boolean exists(String key) {
         try {
-            return client.get().exists(key(key));
+            return client.get().exists(_key(key));
         } finally {
             client.release();
         }
@@ -77,7 +79,7 @@ public class RedisGenericCache implements RedisCache {
     @Override
     public Long incr(String key, long l) {
         try {
-            return client.get().incrBy(key(key), l);
+            return client.get().incrBy(_key(key), l);
         } finally {
             client.release();
         }
@@ -86,33 +88,7 @@ public class RedisGenericCache implements RedisCache {
     @Override
     public Long decr(String key, long l) {
         try {
-            return client.get().decrBy(key(key), l);
-        } finally {
-            client.release();
-        }
-    }
-
-    @Override
-    public void put(String key, Serializable value) throws IOException {
-        if (value == null)
-            evict(key);
-        else {
-            try {
-                client.get().set(key(key), SerializationUtils.serialize(value));
-            } finally {
-                client.release();
-            }
-        }
-    }
-
-    @Override
-    public void putAll(Map<String, Serializable> elements) {
-        try {
-            BinaryJedisCommands cmd = client.get();
-            for(String key : elements.keySet())
-                cmd.set(key(key), SerializationUtils.serialize(elements.get(key)));
-        } catch (IOException e) {
-            log.error("Failed putAll", e);
+            return client.get().decrBy(_key(key), l);
         } finally {
             client.release();
         }
@@ -134,13 +110,11 @@ public class RedisGenericCache implements RedisCache {
     }
 
     @Override
-    public void evict(String... keys) {
-        if (keys == null || keys.length == 0)
-            return;
+    public void evict(String...keys) {
         try {
             BinaryJedisCommands cmd = client.get();
             for (String key : keys)
-                cmd.del(key(key));
+                cmd.del(_key(key));
         } finally {
             client.release();
         }
@@ -155,9 +129,10 @@ public class RedisGenericCache implements RedisCache {
             BinaryJedisCommands cmd = client.get();
             if (cmd instanceof MultiKeyCommands)
                 ((MultiKeyCommands)cmd).del(((MultiKeyCommands) cmd).keys(this.region + ":*").stream().toArray(String[]::new));
+            else
+                throw new CacheException("clear() not implemented in Redis Generic Mode");
         } finally {
             client.release();
         }
-        throw new CacheException("clear() not implemented in Redis Generic Mode");
     }
 }

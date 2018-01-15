@@ -52,18 +52,16 @@ public interface ClusterPolicy {
      * 删除本地某个缓存条目
      * @param region 区域名称
      * @param keys   缓存键值
-     * @throws IOException io exception
      */
-    default void evict(String region, String... keys) throws IOException {
-        CacheProviderHolder.evict(CacheProviderHolder.LEVEL_1, region, keys);
+    default void evict(String region, String... keys) {
+        CacheProviderHolder.getLevel1Cache(region).evict(keys);
     }
 
     /**
      * 清除本地整个缓存区域
      * @param region 区域名称
-     * @throws IOException io exception
      */
-    default void clear(String region) throws IOException {
-        CacheProviderHolder.clear(CacheProviderHolder.LEVEL_1, region);
+    default void clear(String region) {
+        CacheProviderHolder.getLevel1Cache(region).clear();
     }
 }

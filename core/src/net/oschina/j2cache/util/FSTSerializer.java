@@ -18,7 +18,6 @@ package net.oschina.j2cache.util;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.Serializable;
 
 import net.oschina.j2cache.CacheException;
 import org.nustaq.serialization.FSTObjectInput;
@@ -37,9 +36,8 @@ public class FSTSerializer implements Serializer {
 	}
 
 	@Override
-	public byte[] serialize(Serializable obj) throws IOException {
-		ByteArrayOutputStream out = null;
-		out = new ByteArrayOutputStream();
+	public byte[] serialize(Object obj) throws IOException {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try (FSTObjectOutput fOut = new FSTObjectOutput(out)) {
 			fOut.writeObject(obj);
 			fOut.flush();
@@ -48,11 +46,11 @@ public class FSTSerializer implements Serializer {
 	}
 
 	@Override
-	public Serializable deserialize(byte[] bytes) throws IOException {
+	public Object deserialize(byte[] bytes) throws IOException {
 		if(bytes == null || bytes.length == 0)
 			return null;
 		try (FSTObjectInput in = new FSTObjectInput(new ByteArrayInputStream(bytes))){
-			return (Serializable)in.readObject();
+			return in.readObject();
 		} catch (ClassNotFoundException e) {
 			throw new CacheException(e);
 		}

@@ -15,41 +15,9 @@
  */
 package net.oschina.j2cache;
 
-import java.util.Properties;
-
 /**
+ * 以及缓存接口
  * @author Winter Lau(javayou@gmail.com)
  */
-public class NullCacheProvider implements CacheProvider {
-
-	private final static NullCache cache = new NullCache();
-
-	@Override
-	public String name() {
-		return "none";
-	}
-
-	@Override
-	public int level() {
-		return Cache.LEVEL_1 | Cache.LEVEL_2;
-	}
-
-	@Override
-	public Cache buildCache(String regionName, CacheExpiredListener listener) throws CacheException {
-		return cache;
-	}
-
-	@Override
-	public Cache buildCache(String region, long timeToLiveInSeconds, CacheExpiredListener listener) {
-		return cache;
-	}
-
-	@Override
-	public void start(Properties props) throws CacheException {
-	}
-
-	@Override
-	public void stop() {
-	}
-
+public interface Level1Cache extends Cache {
 }

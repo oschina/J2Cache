@@ -19,7 +19,6 @@ import net.oschina.j2cache.Cache;
 import net.oschina.j2cache.CacheExpiredListener;
 import org.ehcache.event.*;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,10 +31,10 @@ import java.util.stream.Collectors;
 public class EhCache3 implements Cache , CacheEventListener {
 
     private String name;
-    private org.ehcache.Cache<String, Serializable> cache;
+    private org.ehcache.Cache<String, Object> cache;
     private CacheExpiredListener listener;
 
-    public EhCache3(String name, org.ehcache.Cache<String, Serializable> cache, CacheExpiredListener listener) {
+    public EhCache3(String name, org.ehcache.Cache<String, Object> cache, CacheExpiredListener listener) {
         this.name = name;
         this.cache = cache;
         this.cache.getRuntimeConfiguration().registerCacheEventListener(this,
@@ -46,17 +45,17 @@ public class EhCache3 implements Cache , CacheEventListener {
     }
 
     @Override
-    public Serializable get(String key) {
+    public Object get(String key) {
         return this.cache.get(key);
     }
 
     @Override
-    public void put(String key, Serializable value) {
+    public void put(String key, Object value) {
         this.cache.put(key, value);
     }
 
     @Override
-    public Map getAll(Collection<String> keys) {
+    public Map get(Collection<String> keys) {
         return cache.getAll(keys.stream().collect(Collectors.toSet()));
     }
 
@@ -66,7 +65,7 @@ public class EhCache3 implements Cache , CacheEventListener {
     }
 
     @Override
-    public void putAll(Map<String, Serializable> elements) {
+    public void put(Map<String, Object> elements) {
         cache.putAll(elements);
     }
 

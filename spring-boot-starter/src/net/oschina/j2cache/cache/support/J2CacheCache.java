@@ -1,6 +1,5 @@
 package net.oschina.j2cache.cache.support;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.concurrent.Callable;
 
@@ -61,53 +60,31 @@ public class J2CacheCache extends AbstractValueAdaptingCache {
 
 	@Override
 	public void put(Object key, Object value) {
-		try {
-			cacheChannel.set(j2CacheName, String.valueOf(key), (Serializable) toStoreValue(value));
-		} catch (IOException e) {
-			logger.error("Failed put", e);
-		}
+		cacheChannel.set(j2CacheName, String.valueOf(key), (Serializable) toStoreValue(value));
 	}
 
 	@Override
 	public ValueWrapper putIfAbsent(Object key, Object value) {
-		try {
-			if (!cacheChannel.exists(j2CacheName, String.valueOf(key))) {
-				cacheChannel.set(j2CacheName, String.valueOf(key), (Serializable) value);
-			}
-			return get(key);
-		} catch (IOException e) {
-			logger.error("Failed putIfAbsent", e);
+		if (!cacheChannel.exists(j2CacheName, String.valueOf(key))) {
+			cacheChannel.set(j2CacheName, String.valueOf(key), (Serializable) value);
 		}
-		return null;
+		return get(key);
 	}
 
 	@Override
 	public void evict(Object key) {
-		try {
-			cacheChannel.evict(j2CacheName, String.valueOf(key));
-		} catch (IOException e) {
-			logger.error("Failed putIfAbsent", e);
-		}
+		cacheChannel.evict(j2CacheName, String.valueOf(key));
 	}
 
 	@Override
 	public void clear() {
-		try {
-			cacheChannel.clear(j2CacheName);
-		} catch (IOException e) {
-			logger.error("Failed clear", e);
-		}
+		cacheChannel.clear(j2CacheName);
 	}
 
 	@Override
 	protected Object lookup(Object key) {
-		try {
-			CacheObject cacheObject = cacheChannel.get(j2CacheName, String.valueOf(key));
-			return getValueByCacheObject(cacheObject);
-		} catch (IOException e) {
-			logger.error("Failed lookup", e);
-		}
-		return null;
+		CacheObject cacheObject = cacheChannel.get(j2CacheName, String.valueOf(key));
+		return getValueByCacheObject(cacheObject);
 	}
 
 	private Object getValueByCacheObject(CacheObject cacheObject) {

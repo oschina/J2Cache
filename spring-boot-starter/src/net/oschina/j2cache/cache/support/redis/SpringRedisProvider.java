@@ -42,6 +42,11 @@ public class SpringRedisProvider implements CacheProvider{
 	}
 
 	@Override
+	public int level() {
+		return Cache.LEVEL_2;
+	}
+
+	@Override
 	public Cache buildCache(String region, CacheExpiredListener listener) {
         SpringRedisCache cache = caches.get(region);
         if (cache == null) {

@@ -49,6 +49,11 @@ public class CaffeineProvider implements CacheProvider {
     }
 
     @Override
+    public int level() {
+        return Cache.LEVEL_1;
+    }
+
+    @Override
     public Cache buildCache(String region, CacheExpiredListener listener) {
         CaffeineCache cache = caches.get(region);
         if(cache == null){
@@ -114,7 +119,7 @@ public class CaffeineProvider implements CacheProvider {
      * @return CaffeineCache
      */
     private CaffeineCache buildCache(String region, long size, long expire, CacheExpiredListener listener) {
-        com.github.benmanes.caffeine.cache.Cache<String, Serializable> loadingCache = Caffeine.newBuilder()
+        com.github.benmanes.caffeine.cache.Cache<String, Object> loadingCache = Caffeine.newBuilder()
                 .maximumSize(size)
                 .expireAfterWrite(expire, TimeUnit.SECONDS)
                 .removalListener((k,v, cause) -> {

@@ -28,6 +28,16 @@ public interface CacheProvider {
 	 * @return return cache provider name
 	 */
 	String name();
+
+	/**
+	 * 缓存的层级
+	 * @return
+	 */
+	int level();
+
+	default boolean isLevel(int level) {
+		return (level() & level) == level;
+	}
 	
 	/**
 	 * Configure the cache

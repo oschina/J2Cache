@@ -16,12 +16,10 @@
 package net.oschina.j2cache.util;
 
 import net.oschina.j2cache.CacheException;
-import net.oschina.j2cache.J2Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Arrays;
 
 /**
@@ -34,8 +32,11 @@ public class SerializationUtils {
     private final static Logger log = LoggerFactory.getLogger(SerializationUtils.class);
     private static Serializer g_serializer;
 
-    static {
-        String ser = J2Cache.getSerializer(); //FIXME 依赖 J2Cache ，不爽
+    /**
+     * 初始化序列化器
+     * @param ser
+     */
+    public static void init(String ser) {
         if (ser == null || "".equals(ser.trim()))
             g_serializer = new JavaSerializer();
         else {
@@ -66,7 +67,7 @@ public class SerializationUtils {
      * @return 返回序列化后的字节数组
      * @throws IOException io exception
      */
-    public static byte[] serialize(Serializable obj) throws IOException {
+    public static byte[] serialize(Object obj) throws IOException {
         if(obj == null)
             return null;
         if(obj instanceof Number || obj instanceof String || obj instanceof Character || obj instanceof Boolean)
@@ -85,13 +86,11 @@ public class SerializationUtils {
      * @return 序列化后的对象
      * @throws IOException io exception
      */
-    public static Serializable deserialize(byte[] bytes) throws IOException {
+    public static Object deserialize(byte[] bytes) throws IOException {
         if(bytes == null || bytes.length == 0)
             return null;
-
         if(bytes[0] != 0x00)
             return new String(bytes);
-
         return g_serializer.deserialize(Arrays.copyOfRange(bytes, 1, bytes.length));
     }
 }

@@ -10,15 +10,15 @@ import java.util.Set;
 
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
+import net.oschina.j2cache.Level2Cache;
 import org.springframework.data.redis.core.RedisTemplate;
-import net.oschina.j2cache.redis.RedisCache;
 
 /**
  * 
  * @author zhangsaizz
  *
  */
-public class SpringRedisCache implements RedisCache {
+public class SpringRedisCache implements Level2Cache {
 
 	private String namespace;
 
@@ -56,8 +56,8 @@ public class SpringRedisCache implements RedisCache {
 	}
 
 	@Override
-	public Map<String, Serializable> getAll(Collection<String> keys) {
-		Map<String, Serializable> map = new HashMap<>(keys.size());
+	public Map<String, Object> get(Collection<String> keys) {
+		Map<String, Object> map = new HashMap<>(keys.size());
 		for (String k : keys) {
 			Object value = redisTemplate.opsForHash().get(region, k);
 			if (value != null) {
@@ -75,13 +75,13 @@ public class SpringRedisCache implements RedisCache {
 	}
 
 	@Override
-	public void put(String key, Serializable value) {
+	public void put(String key, Object value) {
 		redisTemplate.opsForHash().put(region, key, value);
 	}
 
 	@Override
-	public void putAll(Map<String, Serializable> elements) {
-		Map<String, Serializable> map = new HashMap<>(elements.size());
+	public void put(Map<String, Object> elements) {
+		Map<String, Object> map = new HashMap<>(elements.size());
 		elements.forEach((k, v) -> {
 			map.put(k, v);
 		});
@@ -123,4 +123,8 @@ public class SpringRedisCache implements RedisCache {
 		return rawHashValue;
 	}
 
+	@Override
+	public void setBytes(String key, byte[] bytes) {
+		redisTemplate.opsForHash().put(region, key, bytes);
+	}
 }
