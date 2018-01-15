@@ -1,5 +1,6 @@
 # J2Cache —— 基于内存和 Redis 实现的两级 Java 缓存框架
 
+专用QQ群: 379110351
 
 J2Cache 是 OSChina 目前正在使用的两级缓存框架。第一级缓存使用内存(同时支持 Ehcache 2.x、Ehcache 3.x 和 Caffeine)，第二级缓存使用 Redis 。
 由于大量的缓存读取会导致 L2 的网络成为整个系统的瓶颈，因此 L1 的目标是降低对 L2 的读取次数。
