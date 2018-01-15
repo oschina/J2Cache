@@ -1,6 +1,5 @@
 package net.oschina.j2cache.cache.support;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.concurrent.Callable;
 
