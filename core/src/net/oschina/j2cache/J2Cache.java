@@ -15,6 +15,7 @@
  */
 package net.oschina.j2cache;
 
+import net.oschina.j2cache.util.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +37,6 @@ public class J2Cache {
 
 	private final static CacheChannel channel;
 	private static ClusterPolicy policy; //不同的广播策略
-
-	private static String serializer;
 
 	static {
 		try {
@@ -78,14 +77,6 @@ public class J2Cache {
 	}
 
 	/**
-	 * 返回配置中定义的序列化方式
-	 * @return 序列化方式的名称(fst,kyro,java)
-	 */
-	public static String getSerializer() {
-		return serializer;
-	}
-
-	/**
 	 * 加载配置
 	 * @return
 	 * @throws IOException
@@ -94,24 +85,26 @@ public class J2Cache {
 		try(InputStream configStream = getConfigStream()){
 			Properties props = new Properties();
 			props.load(configStream);
-			serializer = props.getProperty("j2cache.serialization");
+			SerializationUtils.init(props.getProperty("j2cache.serialization"));
 			//初始化两级的缓存管理
-			CacheProviderHolder.initCacheProvider(props, (region, key)->{
+			CacheProviderHolder.init(props, (region, key)->{
 				//当一级缓存中的对象失效时，自动清除二级缓存中的数据
-				try {
-					CacheProviderHolder.evict(CacheProviderHolder.LEVEL_2, region, key);
-					log.debug(String.format("Level 1 cache object expired, evict level 2 cache object [%s,%s]", region, key));
-				} catch (IOException e){
-					log.error(String.format("Failed to evict level 2 cache object [%s:%s]",region,key), e);
-				}
+				CacheProviderHolder.getLevel2Cache(region).evict(key);
+				log.debug(String.format("Level 1 cache object expired, evict level 2 cache object [%s,%s]", region, key));
 				if(policy != null)
 					policy.sendEvictCmd(region, key);
 			});
 
 			String cache_broadcast = props.getProperty("j2cache.broadcast");
 			if ("redis".equalsIgnoreCase(cache_broadcast)) {
-				String channel = props.getProperty("redis.channel");
-				policy = ClusterPolicyFactory.redis(channel, CacheProviderHolder.getRedisClient(), props);//.getInstance();
+				try {
+					String channel = props.getProperty("redis.channel");
+					policy = ClusterPolicyFactory.redis(channel, CacheProviderHolder.getRedisClient(), props);
+				} catch (ClassCastException e) {
+					String channel_name = props.getProperty("jgroups.channel.name");
+					policy = ClusterPolicyFactory.jgroups(channel_name, props.getProperty("jgroups.configXml"), props);//
+					log.warn("Failed to use redis pub/sub broadcast, use jgroups instead.");
+				}
 			}
 			else if ("jgroups".equalsIgnoreCase(cache_broadcast)) {
 				String channel_name = props.getProperty("jgroups.channel.name");

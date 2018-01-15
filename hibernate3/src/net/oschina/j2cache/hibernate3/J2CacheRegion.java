@@ -117,38 +117,22 @@ public class J2CacheRegion implements GeneralDataRegion {
 
 	@Override
 	public void evict(Object key) throws CacheException {
-		try {
-			cache.evict(this.regionName, (String)key);
-		} catch (IOException e) {
-			throw new CacheException(e);
-		}
+		cache.evict(this.regionName, (String)key);
 	}
 
 	@Override
 	public void evictAll() throws CacheException {
-		try {
-			cache.clear(this.regionName);
-		} catch (IOException e) {
-			throw new CacheException(e);
-		}
+		cache.clear(this.regionName);
 	}
 
 	@Override
 	public Object get(Object key) throws CacheException {
-		try {
-			return cache.get(this.regionName, (String)key);
-		} catch (IOException e) {
-			throw new CacheException(e);
-		}
+		return cache.get(this.regionName, (String)key);
 	}
 
 	@Override
 	public void put(Object key, Object value) throws CacheException {
-		try {
-			cache.set(this.regionName, (String)key, (Serializable)value);
-		} catch (IOException e) {
-			throw new CacheException(e);
-		}
+		cache.set(this.regionName, (String)key, value);
 	}
 
 	private static class Transactional extends J2CacheRegion implements TransactionalDataRegion {

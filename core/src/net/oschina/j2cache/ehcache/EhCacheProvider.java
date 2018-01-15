@@ -48,6 +48,11 @@ public class EhCacheProvider implements CacheProvider {
 		return "ehcache";
 	}
 
+	@Override
+	public int level() {
+		return Cache.LEVEL_1;
+	}
+
     /**
      * Builds a Cache.
      *

@@ -15,7 +15,6 @@
  */
 package net.oschina.j2cache;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
@@ -23,15 +22,15 @@ import java.util.Map;
  * 空的缓存Provider
  * @author Winter Lau(javayou@gmail.com)
  */
-public class NullCache implements Cache {
+public class NullCache implements Level1Cache, Level2Cache {
 
 	@Override
-	public Serializable get(String key) {
+	public Object get(String key) {
 		return null;
 	}
 
 	@Override
-	public void put(String key, Serializable value) {
+	public void put(String key, Object value) {
 
 	}
 
@@ -41,7 +40,7 @@ public class NullCache implements Cache {
 	}
 
 	@Override
-	public Map getAll(Collection<String> keys) {
+	public Map get(Collection<String> keys) {
 		return null;
 	}
 
@@ -51,13 +50,26 @@ public class NullCache implements Cache {
 	}
 
 	@Override
-	public void putAll(Map<String, Serializable> elements)  {
+	public void put(Map<String, Object> elements)  {
 
 	}
 
 	@Override
-	public void evict(String...keys) {
+	public byte[] getBytes(String key) {
+		return null;
+	}
 
+	@Override
+	public void setBytes(String key, byte[] bytes) {
+	}
+
+	@Override
+	public Long incr(String key, long l) {
+		return null;
+	}
+
+	@Override
+	public void evict(String...keys) {
 	}
 
 	@Override

@@ -15,6 +15,7 @@
  */
 package net.oschina.j2cache.ehcache;
 
+import net.oschina.j2cache.Cache;
 import net.oschina.j2cache.CacheExpiredListener;
 import net.oschina.j2cache.CacheProvider;
 import org.ehcache.CacheManager;
@@ -52,6 +53,11 @@ public class EhCacheProvider3 implements CacheProvider {
     @Override
     public String name() {
         return "ehcache3";
+    }
+
+    @Override
+    public int level() {
+        return Cache.LEVEL_1;
     }
 
     @Override

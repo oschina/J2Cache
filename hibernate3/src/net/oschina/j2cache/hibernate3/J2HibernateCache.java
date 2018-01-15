@@ -47,11 +47,7 @@ public class J2HibernateCache implements Cache {
 
     @Override
     public void clear() throws CacheException {
-        try {
-            cache.clear(region);
-        } catch (IOException e) {
-            throw new CacheException(e);
-        }
+        cache.clear(region);
     }
 
     @Override
@@ -61,25 +57,15 @@ public class J2HibernateCache implements Cache {
     
     @Override
     public Object get(Object key) throws CacheException {
-        try {
-            CacheObject cobj = cache.get(region, (String)key);
-            if (log.isDebugEnabled())
-                log.debug("get value for j2cache which key:" + key + ",value:" + cobj.getValue());
-            return cobj.getValue();
-        } catch (IOException e) {
-            throw new CacheException(e);
-        }
+        CacheObject cobj = cache.get(region, (String)key);
+        if (log.isDebugEnabled())
+            log.debug("get value for j2cache which key:" + key + ",value:" + cobj.getValue());
+        return cobj.getValue();
     }
 
     @Override
     public long getElementCountInMemory() {
-        try {
-            int size = cache.keys(region).size();
-            log.info("getElementCountInMemory which size" + size);
-            return size;
-        } catch (IOException e) {
-            throw new CacheException(e);
-        }
+        return cache.keys(region).size();
     }
 
     @Override
@@ -103,7 +89,7 @@ public class J2HibernateCache implements Cache {
     }
 
     @Override
-    public void lock(Object key) throws CacheException {
+    public void lock(Object key) {
         // do nothing
     }
 
@@ -113,15 +99,8 @@ public class J2HibernateCache implements Cache {
     }
 
     @Override
-    public void put(Object key, Object value) throws CacheException {
-        try {
-            if (log.isDebugEnabled()) {
-                log.debug("set put the key to j2cache which key:" + key);
-            }
-            cache.set(region, (String)key, (Serializable)value);
-        } catch (IOException e) {
-            throw new CacheException(e);
-        }
+    public void put(Object key, Object value) {
+        cache.set(region, (String)key, value);
     }
 
     @Override
@@ -131,11 +110,7 @@ public class J2HibernateCache implements Cache {
 
     @Override
     public void remove(Object key) throws CacheException {
-        try {
-            cache.evict(region, (String) key);
-        } catch (IOException e) {
-            throw new CacheException(e);
-        }
+        cache.evict(region, (String) key);
     }
 
     @SuppressWarnings("unchecked")

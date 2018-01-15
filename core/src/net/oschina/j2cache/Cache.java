@@ -16,8 +16,8 @@
 package net.oschina.j2cache;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -27,30 +27,37 @@ import java.util.Map;
  */
 public interface Cache {
 
+	byte LEVEL_1 = 1;
+	byte LEVEL_2 = 2;
+
 	/**
 	 * Get an item from the cache, nontransactionally
 	 * 
 	 * @param key cache key
 	 * @return the cached object or null
-	 * @throws IOException io exception
 	 */
-	Serializable get(String key) throws IOException;
+	Object get(String key) ;
 
 	/**
 	 * 批量获取缓存对象
 	 * @param keys cache keys
 	 * @return return key-value objects
-	 * @throws IOException io exception
 	 */
-	Map<String, Serializable> getAll(Collection<String> keys) throws IOException;
+	default Map<String, Object> get(Collection<String> keys) {
+		Map<String, Object> results = new HashMap<>();
+		for(String key : keys)
+			results.put(key, get(key));
+		return results;
+	}
 
 	/**
 	 * 判断缓存是否存在
 	 * @param key cache key
 	 * @return true if key exists
-	 * @throws IOException io exception
 	 */
-	boolean exists(String key) throws IOException;
+	default boolean exists(String key) {
+		return get(key) != null;
+	}
 	
 	/**
 	 * Add an item to the cache, nontransactionally, with
@@ -58,38 +65,36 @@ public interface Cache {
 	 *
 	 * @param key cache key
 	 * @param value cache value
-	 * @throws IOException io exception
 	 */
-	void put(String key, Serializable value) throws IOException;
+	void put(String key, Object value);
 
 	/**
 	 * 批量插入数据
 	 * @param elements objects to be put in cache
-	 * @throws IOException io exception
 	 */
-	void putAll(Map<String, Serializable> elements) throws IOException;
+	default void put(Map<String, Object> elements) {
+		for(String key : elements.keySet()){
+			put(key, elements.get(key));
+		}
+	}
 
 	/**
 	 * Return all keys
 	 *
 	 * @return 返回键的集合
-	 * @throws IOException io exception
 	 */
-	Collection<String> keys() throws IOException ;
+	Collection<String> keys() ;
 	
 	/**
-	 * Remove an item from the cache
+	 * Remove items from the cache
 	 *
 	 * @param keys Cache key
-	 * @throws IOException io exception
 	 */
-	void evict(String...keys) throws IOException;
+	void evict(String...keys);
 
 	/**
 	 * Clear the cache
-	 *
-	 * @throws IOException io exception
 	 */
-	void clear() throws IOException;
+	void clear();
 
 }

@@ -37,7 +37,7 @@ public interface Serializer {
 	 * @return 返回序列化数据
 	 * @throws IOException io exception
 	 */
-	byte[] serialize(Serializable obj) throws IOException ;
+	byte[] serialize(Object obj) throws IOException ;
 
 	/**
 	 * 反序列化到对象
@@ -45,6 +45,6 @@ public interface Serializer {
 	 * @return 返回序列化对象
 	 * @throws IOException io exception
 	 */
-	Serializable deserialize(byte[] bytes) throws IOException ;
+	Object deserialize(byte[] bytes) throws IOException ;
 	
 }

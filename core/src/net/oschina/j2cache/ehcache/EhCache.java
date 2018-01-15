@@ -18,9 +18,9 @@ package net.oschina.j2cache.ehcache;
 import java.io.Serializable;
 import java.util.*;
 
-import net.oschina.j2cache.CacheException;
 import net.oschina.j2cache.CacheExpiredListener;
-import net.oschina.j2cache.TTLEnableCache;
+import net.oschina.j2cache.Level1Cache;
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
@@ -31,7 +31,7 @@ import net.sf.ehcache.event.CacheEventListener;
  *
  * @author Winter Lau(javayou@gmail.com)
  */
-public class EhCache implements TTLEnableCache, CacheEventListener {
+public class EhCache implements Level1Cache, CacheEventListener {
 	
 	private net.sf.ehcache.Cache cache;
 	private CacheExpiredListener listener;
@@ -42,7 +42,7 @@ public class EhCache implements TTLEnableCache, CacheEventListener {
 	 * @param cache The underlying EhCache instance to use.
 	 * @param listener cache listener
 	 */
-	public EhCache(net.sf.ehcache.Cache cache, CacheExpiredListener listener) {
+	public EhCache(Cache cache, CacheExpiredListener listener) {
 		this.cache = cache;
 		this.cache.getCacheEventNotificationService().registerListener(this);
 		this.listener = listener;
@@ -78,8 +78,8 @@ public class EhCache implements TTLEnableCache, CacheEventListener {
 	 * @param value a value
 	 */
 	@Override
-	public void put(String key, Serializable value) {
-		put(key, value, 0);
+	public void put(String key, Object value) {
+		cache.put(new Element(key, value));
 	}
 
 	/**
@@ -90,15 +90,11 @@ public class EhCache implements TTLEnableCache, CacheEventListener {
 	 */
 	@Override
 	public void evict(String...keys) {
-		try {
-			cache.removeAll(Arrays.asList(keys));
-		} catch (IllegalStateException | net.sf.ehcache.CacheException e) {
-			throw new CacheException( e );
-		}
+		cache.removeAll(Arrays.asList(keys));
 	}
 
 	@Override
-	public Map getAll(Collection<String> keys) {
+	public Map get(Collection<String> keys) {
 		return cache.getAll(keys);
 	}
 
@@ -108,44 +104,9 @@ public class EhCache implements TTLEnableCache, CacheEventListener {
 	}
 
 	@Override
-	public void putAll(Map<String, Serializable> elements) {
+	public void put(Map<String, Object> elements) {
 		List<Element> elems = new ArrayList<>();
 		elements.forEach((k,v) -> elems.add(new Element(k,v)));
-		cache.putAll(elems);
-	}
-
-	@Override
-	public void put(String key, Serializable value, int timeToLiveInSeconds) {
-		Element elem = new Element(key, value);
-		if(timeToLiveInSeconds != 0) {
-			elem.setTimeToIdle(timeToLiveInSeconds);
-			elem.setTimeToLive(timeToLiveInSeconds);
-		}
-		cache.put(elem);
-	}
-
-	@Override
-	public Serializable putIfAbsent(String key, Serializable value, int timeToLiveInSeconds) {
-		Element obj = new Element(key, value);
-		if(timeToLiveInSeconds != 0) {
-			obj.setTimeToIdle(timeToLiveInSeconds);
-			obj.setTimeToLive(timeToLiveInSeconds);
-		}
-		Element elem = cache.putIfAbsent(obj);
-		return (elem!=null)?(Serializable)elem.getObjectValue():null;
-	}
-
-	@Override
-	public void putAll(Map<String, Serializable> elements, int timeToLiveInSeconds) {
-		List<Element> elems = new ArrayList<>();
-		elements.forEach((k,v) -> {
-			Element elem = new Element(k, v);
-			if(timeToLiveInSeconds != 0) {
-				elem.setTimeToIdle(timeToLiveInSeconds);
-				elem.setTimeToLive(timeToLiveInSeconds);
-			}
-			elems.add(elem);
-		});
 		cache.putAll(elems);
 	}
 

@@ -16,8 +16,6 @@
 package net.oschina.j2cache;
 
 import java.io.Closeable;
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -48,75 +46,86 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 
 	/**
 	 * 读取缓存中的字节数组
-	 * @param region
-	 * @param key
-	 * @return
-	 * @throws IOException
+	 * @param region Cache region name
+	 * @param key cache key
+	 * @return cache object
 	 */
-	public CacheObject<byte[]> getBytes(String region, String key) throws IOException {
+	public CacheObject<byte[]> getBytes(String region, String key)  {
 		return _getObject(region, key, byte[].class);
 	}
 
 	/**
 	 * 读取缓存中的字符串
-	 * @param region
-	 * @param key
-	 * @return
-	 * @throws IOException
+	 * @param region Cache region name
+	 * @param key cache key
+	 * @return cache object
 	 */
-	public CacheObject<String> getString(String region, String key) throws IOException {
+	public CacheObject<String> getString(String region, String key)  {
 		return _getObject(region, key, String.class);
 	}
 
 	/**
 	 * 读取缓存中的整数
-	 * @param region
-	 * @param key
-	 * @return
-	 * @throws IOException
+	 * @param region Cache region name
+	 * @param key cache key
+	 * @return cache object
 	 */
-	public CacheObject<Integer> getInteger(String region, String key) throws IOException {
+	public CacheObject<Integer> getInteger(String region, String key)  {
 		return _getObject(region, key, int.class);
 	}
 
 	/**
 	 * 读取缓存中的长整数
-	 * @param region
-	 * @param key
-	 * @return
-	 * @throws IOException
+	 * @param region Cache region name
+	 * @param key cache key
+	 * @return cache object
 	 */
-	public CacheObject<Long> getLong(String region, String key) throws IOException {
+	public CacheObject<Long> getLong(String region, String key)  {
 		return _getObject(region, key, long.class);
 	}
 
 	/**
-	 * 读取缓存中的对象
-	 * @param region
-	 * @param key
-	 * @return
-	 * @throws IOException
+	 * 读取缓存中的双精度数
+	 * @param region Cache region name
+	 * @param key cache key
+	 * @return cache object
 	 */
-	public CacheObject<Serializable> get(String region, String key) throws IOException {
-		return _getObject(region, key, Serializable.class);
+	public CacheObject<Double> getDouble(String region, String key) { return _getObject(region, key, double.class); }
+
+	/**
+	 * 读取缓存中的对象
+	 * @param region Cache region name
+	 * @param key cache key
+	 * @return cache object
+	 */
+	public CacheObject<Object> get(String region, String key)  {
+		return _getObject(region, key, Object.class);
 	}
 
-	private <T> CacheObject<T> _getObject(String region, String key, Class<T> cls) throws IOException {
-		CacheObject<T> obj = new CacheObject<>(region, key, CacheProviderHolder.LEVEL_1);
-		obj.setValue((T)CacheProviderHolder.get(CacheProviderHolder.LEVEL_1, region, key));
+	private <T> CacheObject<T> _getObject(String region, String key, Class<T> cls)  {
+		CacheObject<T> obj = new CacheObject<>(region, key, Cache.LEVEL_1);
+		obj.setValue((T)CacheProviderHolder.getLevel1Cache(region).get(key));
 		if(obj.getValue() == null) {
+
+			obj.setLevel(Cache.LEVEL_2);
+
 			if(cls.equals(String.class))
-				obj.setValue((T)CacheProviderHolder.getString(region, key));
-			else if(cls.equals(int.class) || cls.equals(long.class) || cls.equals(Integer.class) || cls.equals(Long.class))
-				obj.setValue((T)CacheProviderHolder.getLong(region, key));
+				obj.setValue((T)CacheProviderHolder.getLevel2Cache(region).get(key));
+			else if(cls.equals(int.class) || cls.equals(long.class) || cls.equals(Integer.class) || cls.equals(Long.class) || cls.equals(short.class) || cls.equals(byte.class) || cls.equals(Short.class) || cls.equals(Byte.class)) {
+				Object cachedObj = CacheProviderHolder.getLevel2Cache(region).get(key);
+				obj.setValue((T) ((cachedObj != null) ? Long.valueOf((String) cachedObj) : null));
+			}
+			else if(cls.equals(float.class) || cls.equals(double.class) || cls.equals(Float.class) || cls.equals(Double.class)) {
+				Object cachedObj = CacheProviderHolder.getLevel2Cache(region).get(key);
+				obj.setValue((T) ((cachedObj != null) ? Double.valueOf((String) cachedObj) : null));
+			}
 			else if(cls.equals(byte[].class))
-				obj.setValue((T)CacheProviderHolder.getBytes(region, key));
+				obj.setValue((T)CacheProviderHolder.getLevel2Cache(region).getBytes(key));
 			else
-				obj.setValue((T)CacheProviderHolder.getObject(region, key));
+				obj.setValue((T)CacheProviderHolder.getLevel2Cache(region).get(key));
 
 			if(obj.getValue() != null){
-				obj.setLevel(CacheProviderHolder.LEVEL_2);
-				CacheProviderHolder.set(CacheProviderHolder.LEVEL_1, region, key, (Serializable)obj.getValue());
+				CacheProviderHolder.getLevel1Cache(region).put(key, obj.getValue());
 			}
 		}
 		return obj;
@@ -124,95 +133,77 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 
 	/**
 	 * 批量读取缓存中的整数
-	 * @param region
-	 * @param keys
-	 * @return
-	 * @throws IOException
+	 * @param region Cache region name
+	 * @param keys cache keys
+	 * @return cache object
 	 */
-	public Map<String, CacheObject<Integer>> getInteger(String region, Collection<String> keys) throws IOException {
+	public Map<String, CacheObject<Integer>> getInteger(String region, Collection<String> keys)  {
 		return _getObjects(region, keys, int.class);
 	}
 
 	/**
 	 * 批量读取缓存中的长整数
-	 * @param region
-	 * @param keys
-	 * @return
-	 * @throws IOException
+	 * @param region Cache region name
+	 * @param keys cache keys
+	 * @return cache object
 	 */
-	public Map<String, CacheObject<Long>> getLong(String region, Collection<String> keys) throws IOException {
+	public Map<String, CacheObject<Long>> getLong(String region, Collection<String> keys)  {
 		return _getObjects(region, keys, long.class);
 	}
 
 	/**
 	 * 批量读取缓存中的字符串
-	 * @param region
-	 * @param keys
-	 * @return
-	 * @throws IOException
+	 * @param region Cache region name
+	 * @param keys cache keys
+	 * @return cache object
 	 */
-	public Map<String, CacheObject<String>> getString(String region, Collection<String> keys) throws IOException {
+	public Map<String, CacheObject<String>> getString(String region, Collection<String> keys)  {
 		return _getObjects(region, keys, String.class);
 	}
 
 	/**
 	 * 批量读取缓存中的字节数组
-	 * @param region
-	 * @param keys
-	 * @return
-	 * @throws IOException
+	 * @param region Cache region name
+	 * @param keys cache keys
+	 * @return cache object
 	 */
-	public Map<String, CacheObject<byte[]>> getBytes(String region, Collection<String> keys) throws IOException {
+	public Map<String, CacheObject<byte[]>> getBytes(String region, Collection<String> keys)  {
 		return _getObjects(region, keys, byte[].class);
 	}
 
 	/**
 	 * 批量读取缓存中的对象
-	 * @param region
-	 * @param keys
-	 * @return
-	 * @throws IOException
+	 * @param region Cache region name
+	 * @param keys cache keys
+	 * @return cache object
 	 */
-	public Map<String, CacheObject<Serializable>> getObjects(String region, Collection<String> keys) throws IOException {
-		return _getObjects(region, keys, Serializable.class);
+	public Map<String, CacheObject<Object>> get(String region, Collection<String> keys)  {
+		return _getObjects(region, keys, Object.class);
 	}
 
 	/**
 	 * 批量读取缓存中的对象
-	 * @param region
-	 * @param keys
-	 * @param cls
-	 * @return
-	 * @throws IOException
+	 * @param region Cache region name
+	 * @param keys cache keys
+	 * @param cls cache object class
+	 * @return cache object
 	 */
-	private <T> Map<String, CacheObject<T>> _getObjects(String region, Collection<String> keys, Class<T> cls) throws IOException {
+	private <T> Map<String, CacheObject<T>> _getObjects(String region, Collection<String> keys, Class<T> cls)  {
 		Map<String, CacheObject<T>> values = new HashMap<>();
 		List<String> keys_not_in_level_1 = new ArrayList<>();
 		for(String key : keys){
-			T obj = (T)CacheProviderHolder.get(CacheProviderHolder.LEVEL_1, region, key);
+			T obj = (T)CacheProviderHolder.getLevel1Cache(region).get(key);
 			if(obj != null) {
-				CacheObject<T> cacheObject = new CacheObject<T>(region, key, CacheProviderHolder.LEVEL_1, obj);
+				CacheObject<T> cacheObject = new CacheObject<T>(region, key, Cache.LEVEL_1, obj);
 				values.put(key, cacheObject);
 			}
 			else
 				keys_not_in_level_1.add(key);
 		}
-		for(String key : keys_not_in_level_1) {
-			Serializable obj;
-			if(cls.equals(String.class))
-				obj = CacheProviderHolder.getString(region ,key);
-			else if(cls.equals(byte[].class))
-				obj = CacheProviderHolder.getBytes(region ,key);
-			else if(cls.equals(int.class) || cls.equals(long.class) || cls.equals(Integer.class) || cls.equals(Long.class))
-				obj = CacheProviderHolder.getLong(region, key);
-			else
-				obj = CacheProviderHolder.getObject(region, key);
-			if(obj != null) {
-				CacheObject<T> cacheObject = new CacheObject<>(region, key, CacheProviderHolder.LEVEL_2, (T)obj);
-				values.put(key, cacheObject);
-				CacheProviderHolder.set(CacheProviderHolder.LEVEL_1, region, key, obj);
-			}
-		}
+
+		for(String key : keys_not_in_level_1)
+			values.put(key, _getObject(region, key, cls));
+
 		return values;
 	}
 
@@ -221,12 +212,11 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param region Cache region name
 	 * @param key cache key
 	 * @return true if key exists
-	 * @throws IOException io exception
 	 */
-	public boolean exists(String region, String key) throws IOException {
-		boolean exists = CacheProviderHolder.exists(CacheProviderHolder.LEVEL_1, region, key);
+	public boolean exists(String region, String key) {
+		boolean exists = CacheProviderHolder.getLevel1Cache(region).exists(key);
 		if(!exists)
-			exists = CacheProviderHolder.exists(CacheProviderHolder.LEVEL_2, region, key);
+			exists = CacheProviderHolder.getLevel2Cache(region).exists(key);
 		return exists;
 	}
 
@@ -236,11 +226,10 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param key cache key
 	 * @param l increment value
 	 * @return new value
-	 * @throws IOException io exception
 	 */
-	public long incr(String region, String key, long l) throws IOException {
-		long newValue = CacheProviderHolder.incr(region, key, l);
-		CacheProviderHolder.set(CacheProviderHolder.LEVEL_1, region, key, newValue);
+	public long incr(String region, String key, long l)  {
+		long newValue = CacheProviderHolder.getLevel2Cache(region).incr(key, l);
+		CacheProviderHolder.getLevel1Cache(region).put(key, newValue);
 		this.sendEvictCmd(region, key);//清除原有的一级缓存的内容，使之重新加载
 		return newValue;
 	}
@@ -251,11 +240,10 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param key cache key
 	 * @param l decrement value
 	 * @return new value
-	 * @throws IOException io exception
 	 */
-	public long decr(String region, String key, long l) throws IOException {
-		long newValue = CacheProviderHolder.decr(region, key, l);
-		CacheProviderHolder.set(CacheProviderHolder.LEVEL_1, region, key, newValue);
+	public long decr(String region, String key, long l)  {
+		long newValue = CacheProviderHolder.getLevel2Cache(region).decr(key, l);
+		CacheProviderHolder.getLevel1Cache(region).put(key, newValue);
 		this.sendEvictCmd(region, key);//清除原有的一级缓存的内容，使之重新加载
 		return newValue;
 	}
@@ -266,14 +254,13 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param region: Cache Region name
 	 * @param key: Cache key
 	 * @param value: Cache value
-	 * @throws IOException io exception
 	 */
-	public void set(String region, String key, Serializable value) throws IOException {
+	public void set(String region, String key, Object value)  {
 		if(value == null)
 			evict(region, key);
 		else{
-			CacheProviderHolder.set(CacheProviderHolder.LEVEL_1, region, key, value);
-			CacheProviderHolder.set(CacheProviderHolder.LEVEL_2, region, key, value);
+			CacheProviderHolder.getLevel1Cache(region).put(key, value);
+			CacheProviderHolder.getLevel2Cache(region).put(key, value);
 			this.sendEvictCmd(region, key);//清除原有的一级缓存的内容
 		}
     }
@@ -284,15 +271,18 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param key Cache Key
 	 * @param value Cache value
 	 * @param timeToLiveInSeconds cache expired in second
- 	 * @throws IOException io exception
 	 */
-    public void set(String region, String key, Serializable value, long timeToLiveInSeconds) throws IOException {
-		if(value == null)
-			evict(region, key);
-		else{
-			CacheProviderHolder.set(CacheProviderHolder.LEVEL_1, region, key, value, timeToLiveInSeconds);
-			CacheProviderHolder.set(CacheProviderHolder.LEVEL_2, region, key, value, timeToLiveInSeconds);
-			this.sendEvictCmd(region, key);//清除原有的一级缓存的内容
+    public void set(String region, String key, Object value, long timeToLiveInSeconds)  {
+    	if(timeToLiveInSeconds <= 0)
+    		set(region, key, value);
+    	else {
+			if (value == null)
+				evict(region, key);
+			else {
+				CacheProviderHolder.getLevel1Cache(region, timeToLiveInSeconds).put(key, value);
+				CacheProviderHolder.getLevel2Cache(region).put(key, value);
+				this.sendEvictCmd(region, key);//清除原有的一级缓存的内容
+			}
 		}
 	}
 
@@ -300,11 +290,10 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * 批量插入数据
 	 * @param region Cache Region name
 	 * @param elements Cache Elements
-	 * @throws IOException io exception
 	 */
-	public void setAll(String region, Map<String, Serializable> elements) throws IOException {
-		CacheProviderHolder.setAll(CacheProviderHolder.LEVEL_1, region, elements);
-		CacheProviderHolder.setAll(CacheProviderHolder.LEVEL_2, region, elements);
+	public void set(String region, Map<String, Object> elements)  {
+		CacheProviderHolder.getLevel1Cache(region).put(elements);
+		CacheProviderHolder.getLevel2Cache(region).put(elements);
 		//广播
 		this.sendEvictCmd(region, elements.keySet().stream().toArray(String[]::new));
 	}
@@ -314,13 +303,16 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param region Cache Region name
 	 * @param elements Cache Elements
 	 * @param timeToLiveInSeconds cache expired in second
-	 * @throws IOException io exception
 	 */
-	public void setAll(String region, Map<String, Serializable> elements, long timeToLiveInSeconds) throws IOException {
-		CacheProviderHolder.setAll(CacheProviderHolder.LEVEL_1, region, elements, timeToLiveInSeconds);
-		CacheProviderHolder.setAll(CacheProviderHolder.LEVEL_2, region, elements, timeToLiveInSeconds);
-		//广播
-		this.sendEvictCmd(region, elements.keySet().stream().toArray(String[]::new));
+	public void set(String region, Map<String, Object> elements, long timeToLiveInSeconds)  {
+		if(timeToLiveInSeconds <= 0)
+			set(region, elements);
+		else {
+			CacheProviderHolder.getLevel1Cache(region, timeToLiveInSeconds).put(elements);
+			CacheProviderHolder.getLevel2Cache(region).put(elements);
+			//广播
+			this.sendEvictCmd(region, elements.keySet().stream().toArray(String[]::new));
+		}
 	}
 
 	/**
@@ -328,11 +320,10 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 *
 	 * @param region:  Cache Region name
 	 * @param keys: Cache key
-	 * @throws IOException io exception
 	 */
-	public void evict(String region, String...keys) throws IOException {
-        CacheProviderHolder.evict(CacheProviderHolder.LEVEL_1, region, keys); //删除一级缓存
-        CacheProviderHolder.evict(CacheProviderHolder.LEVEL_2, region, keys); //删除二级缓存
+	public void evict(String region, String...keys)  {
+        CacheProviderHolder.getLevel1Cache(region).evict(keys);
+        CacheProviderHolder.getLevel2Cache(region).evict(keys);
         this.sendEvictCmd(region, keys); //发送广播
     }
 
@@ -340,11 +331,10 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * Clear the cache
 	 *
 	 * @param region: Cache region name
-	 * @throws IOException io exception
 	 */
-	public void clear(String region) throws IOException {
-        CacheProviderHolder.clear(CacheProviderHolder.LEVEL_1, region);
-        CacheProviderHolder.clear(CacheProviderHolder.LEVEL_2, region);
+	public void clear(String region)  {
+        CacheProviderHolder.getLevel1Cache(region).clear();
+		CacheProviderHolder.getLevel2Cache(region).clear();
 		this.sendClearCmd(region);
     }
 	
@@ -354,10 +344,9 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 *
 	 * @param region: Cache region name
 	 * @return key list
-	 * @throws IOException io exception
 	 */
-	public Collection<String> keys(String region) throws IOException {
-        return CacheProviderHolder.keys(CacheProviderHolder.LEVEL_1, region);
+	public Collection<String> keys(String region)  {
+        return CacheProviderHolder.getLevel1Cache(region).keys();
     }
 
 	/**
