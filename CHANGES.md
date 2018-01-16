@@ -1,6 +1,11 @@
 # J2Cache 版本更新记录
 
-**J2Cache 2.3.1-release (2018-1-xx)**
+**J2Cache 2.3.2-release (2018-1-xx)**
+
+* 配置默认启用 testWhileIdle 以保持到 redis 的网络连接
+* `RedisPubSubClusterPolicy` 和 `RedisCacheProvider` 独立两个连接池
+
+**J2Cache 2.3.1-release (2018-1-16)**
 * 重构：`RedisPubSubClusterPolicy` 不再依赖 `RedisCacheProvider` 的 `RedisClient` 实例
 * 增加单独的 Redis PubSub 服务器配置项 `redis.channel.host` 和 `redis.channel.timeout` , redis 数据存储和订阅服务可以分开
 * 优化 `get(Collection<String> keys)` 使用 Redis 的 MGET 操作符

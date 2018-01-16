@@ -20,6 +20,8 @@ import net.oschina.j2cache.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
@@ -34,8 +36,7 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
 
     private final static Logger log = LoggerFactory.getLogger(RedisPubSubClusterPolicy.class);
 
-    private Jedis client_publish;
-    private Jedis client_subscribe;
+    private JedisPool client;
     private String channel;
 
     private String host;
@@ -51,12 +52,13 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
         String[] infos = node.split(":");
         this.host = infos[0];
         this.port = (infos.length > 1)?Integer.parseInt(infos[1]):6379;
-        this.timeout = Integer.parseInt((String)props.getOrDefault("redis.channel.timeout", "2000"));
+        this.timeout = Integer.parseInt((String)props.getOrDefault("redis.timeout", "2000"));
         this.password = props.getProperty("redis.password");
+        if(this.password != null && this.password.trim().length() == 0)
+            this.password = null;
 
-        this.client_publish = new Jedis(host, port, timeout);
-        if(password != null && password.trim().length() > 0)
-            this.client_publish.auth(password);
+        JedisPoolConfig config = RedisUtils.newPoolConfig(props, "redis");
+        this.client = new JedisPool(config, host, port, timeout, password);
     }
 
     /**
@@ -65,17 +67,16 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
     @Override
     public void connect(Properties props) {
         long ct = System.currentTimeMillis();
-        this.client_publish.publish(channel, Command.join().json());   //Join Cluster
+
+        try (Jedis jedis = client.getResource()) {
+            jedis.publish(channel, Command.join().json());   //Join Cluster
+        }
+
         new Thread(()-> {
             //当 Redis 重启会导致订阅线程断开连接，需要进行重连
             while(true) {
-                try {
-                    client_subscribe = new Jedis(host, port, timeout);
-                    if(password != null && password.trim().length() > 0)
-                        client_subscribe.auth(password);
-
-                    client_subscribe.subscribe(this, channel);
-
+                try (Jedis jedis = client.getResource()){
+                    jedis.subscribe(this, channel);
                     log.info("Disconnect to redis channel:" + channel);
                     break;
                 } catch (JedisConnectionException e) {
@@ -96,12 +97,9 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
      */
     @Override
     public void disconnect() {
-        try {
+        try (Jedis jedis = client.getResource()) {
             this.unsubscribe();
-            client_publish.publish(channel, Command.quit().json()); //Quit Cluster
-        } finally {
-            client_publish.close();
-            client_subscribe.close();
+            jedis.publish(channel, Command.quit().json()); //Quit Cluster
         }
     }
 
@@ -113,15 +111,8 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
      */
     @Override
     public void sendEvictCmd(String region, String...keys) {
-        Command cmd = new Command(Command.OPT_EVICT_KEY, region, keys);
-        try {
-            client_publish.publish(channel, cmd.json());
-        } catch (JedisConnectionException e) {
-            //准备下一次重连，并抛出异常
-            this.client_publish = new Jedis(host, port, timeout);
-            if(password != null && password.trim().length() > 0)
-                this.client_publish.auth(password);
-            throw e;
+        try (Jedis jedis = client.getResource()) {
+            jedis.publish(channel, new Command(Command.OPT_EVICT_KEY, region, keys).json());
         }
     }
 
@@ -132,15 +123,8 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
      */
     @Override
     public void sendClearCmd(String region) {
-        Command cmd = new Command(Command.OPT_CLEAR_KEY, region, "");
-        try {
-            client_publish.publish(channel, cmd.json());
-        } catch (JedisConnectionException e) {
-            //准备下一次重连，并抛出异常
-            this.client_publish = new Jedis(host, port, timeout);
-            if(password != null && password.trim().length() > 0)
-                this.client_publish.auth(password);
-            throw e;
+        try (Jedis jedis = client.getResource()) {
+            jedis.publish(channel, new Command(Command.OPT_CLEAR_KEY, region, "").json());
         }
     }
 
