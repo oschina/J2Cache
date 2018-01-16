@@ -210,8 +210,12 @@ public class RedisClient implements Closeable, AutoCloseable {
             single.getResource().subscribe(jedisPubSub, channels);
         else if(sentinel != null)
             sentinel.getResource().subscribe(jedisPubSub, channels);
-        if(sharded != null)
-            sharded.getResource().getAllShards().forEach(node -> node.subscribe(jedisPubSub, channels));
+        if(sharded != null) {
+            for(Jedis jedis : sharded.getResource().getAllShards()) {
+                jedis.subscribe(jedisPubSub, channels);
+                break;
+            }
+        }
     }
 
     /**
@@ -236,13 +240,14 @@ public class RedisClient implements Closeable, AutoCloseable {
             }
             else if (sharded != null) {
                 try (ShardedJedis jedis = sharded.getResource()) {
-                    jedis.getAllShards().forEach(node -> {
+                    for(Jedis node : jedis.getAllShards()){
                         try {
                             node.publish(channel, bytes);
                         } finally {
                             node.close();
                         }
-                    });
+                        break;
+                    }
                 }
             }
         } finally {
