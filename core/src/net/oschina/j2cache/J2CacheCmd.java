@@ -80,8 +80,10 @@ public class J2CacheCmd {
 				}
 				else
 				if("evict".equalsIgnoreCase(cmds[0])){
-					cache.evict(cmds[1], cmds[2]);
-					System.out.printf("[%s,%s]=>null\n",cmds[1], cmds[2]);
+					String[] keys = Arrays.stream(cmds).skip(2).toArray(String[]::new);
+					cache.evict(cmds[1], keys);
+					for(String key : keys)
+						System.out.printf("[%s,%s]=>null\n",cmds[1], key);
 				}
 				else
 				if("clear".equalsIgnoreCase(cmds[0])){

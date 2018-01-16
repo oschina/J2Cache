@@ -16,6 +16,7 @@
 package net.oschina.j2cache;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -60,7 +61,17 @@ public class NullCache implements Level1Cache, Level2Cache {
 	}
 
 	@Override
+	public List<byte[]> getBytes(Collection<String> key) {
+		return null;
+	}
+
+	@Override
 	public void setBytes(String key, byte[] bytes) {
+	}
+
+	@Override
+	public void setBytes(Map<String,byte[]> bytes) {
+
 	}
 
 	@Override

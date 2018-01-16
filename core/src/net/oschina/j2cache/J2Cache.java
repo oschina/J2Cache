@@ -97,14 +97,8 @@ public class J2Cache {
 
 			String cache_broadcast = props.getProperty("j2cache.broadcast");
 			if ("redis".equalsIgnoreCase(cache_broadcast)) {
-				try {
-					String channel = props.getProperty("redis.channel");
-					policy = ClusterPolicyFactory.redis(channel, CacheProviderHolder.getRedisClient(), props);
-				} catch (ClassCastException e) {
-					String channel_name = props.getProperty("jgroups.channel.name");
-					policy = ClusterPolicyFactory.jgroups(channel_name, props.getProperty("jgroups.configXml"), props);//
-					log.warn("Failed to use redis pub/sub broadcast, use jgroups instead.");
-				}
+				String channel = props.getProperty("redis.channel");
+				policy = ClusterPolicyFactory.redis(channel, props);
 			}
 			else if ("jgroups".equalsIgnoreCase(cache_broadcast)) {
 				String channel_name = props.getProperty("jgroups.channel.name");

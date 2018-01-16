@@ -70,10 +70,6 @@ public class CacheProviderHolder {
 		l2_provider.stop();
 	}
 
-	public static RedisClient getRedisClient() {
-		return ((RedisCacheProvider)l2_provider).getClient();
-	}
-
 	private final static CacheProvider loadProviderInstance(String cacheIdent) {
 		if("ehcache".equalsIgnoreCase(cacheIdent))
 			return new EhCacheProvider();

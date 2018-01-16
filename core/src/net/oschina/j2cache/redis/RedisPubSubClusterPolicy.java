@@ -19,28 +19,44 @@ import net.oschina.j2cache.ClusterPolicy;
 import net.oschina.j2cache.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import redis.clients.jedis.BinaryJedisPubSub;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.util.Properties;
 
 /**
  * 使用 Redis 的订阅和发布进行集群中的节点通知
- *
+ * 该策略器使用 j2cache.properties 中的 redis 配置自行保持两个到 redis 的连接用于发布和订阅消息（并在失败时自动重连）
  * @author Winter Lau(javayou@gmail.com)
  */
-public class RedisPubSubClusterPolicy extends BinaryJedisPubSub implements ClusterPolicy {
+public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPolicy {
 
     private final static Logger log = LoggerFactory.getLogger(RedisPubSubClusterPolicy.class);
 
-    private RedisClient redis;
+    private Jedis client_publish;
+    private Jedis client_subscribe;
     private String channel;
-    private byte[] channelBytes;
 
-    public RedisPubSubClusterPolicy(String channel, RedisClient redis){
-        this.redis = redis;
+    private String host;
+    private int port;
+    private int timeout;
+    private String password;
+
+    public RedisPubSubClusterPolicy(String channel, Properties props){
         this.channel = channel;
-        this.channelBytes = channel.getBytes();
+        String node = props.getProperty("redis.channel.host");
+        if(node == null || node.trim().length() == 0)
+            node = props.getProperty("redis.hosts").split(",")[0];
+        String[] infos = node.split(":");
+        this.host = infos[0];
+        this.port = (infos.length > 1)?Integer.parseInt(infos[1]):6379;
+        this.timeout = Integer.parseInt((String)props.getOrDefault("redis.channel.timeout", "2000"));
+        this.password = props.getProperty("redis.password");
+
+        this.client_publish = new Jedis(host, port, timeout);
+        if(password != null && password.trim().length() > 0)
+            this.client_publish.auth(password);
     }
 
     /**
@@ -49,12 +65,17 @@ public class RedisPubSubClusterPolicy extends BinaryJedisPubSub implements Clust
     @Override
     public void connect(Properties props) {
         long ct = System.currentTimeMillis();
-        this.redis.publish(channelBytes, Command.join().jsonBytes());   //Join Cluster
+        this.client_publish.publish(channel, Command.join().json());   //Join Cluster
         new Thread(()-> {
             //当 Redis 重启会导致订阅线程断开连接，需要进行重连
             while(true) {
                 try {
-                    redis.subscribe(this, channelBytes);
+                    client_subscribe = new Jedis(host, port, timeout);
+                    if(password != null && password.trim().length() > 0)
+                        client_subscribe.auth(password);
+
+                    client_subscribe.subscribe(this, channel);
+
                     log.info("Disconnect to redis channel:" + channel);
                     break;
                 } catch (JedisConnectionException e) {
@@ -75,8 +96,13 @@ public class RedisPubSubClusterPolicy extends BinaryJedisPubSub implements Clust
      */
     @Override
     public void disconnect() {
-        redis.publish(channelBytes, Command.quit().jsonBytes()); //Quit Cluster
-        this.unsubscribe();
+        try {
+            this.unsubscribe();
+            client_publish.publish(channel, Command.quit().json()); //Quit Cluster
+        } finally {
+            client_publish.close();
+            client_subscribe.close();
+        }
     }
 
     /**
@@ -87,12 +113,15 @@ public class RedisPubSubClusterPolicy extends BinaryJedisPubSub implements Clust
      */
     @Override
     public void sendEvictCmd(String region, String...keys) {
-        // 发送广播
         Command cmd = new Command(Command.OPT_EVICT_KEY, region, keys);
         try {
-            redis.publish(channelBytes, cmd.jsonBytes());
-        } catch (Exception e) {
-            log.error("Failed to delete cache,region=" + region + ",key=" + String.join(",", keys), e);
+            client_publish.publish(channel, cmd.json());
+        } catch (JedisConnectionException e) {
+            //准备下一次重连，并抛出异常
+            this.client_publish = new Jedis(host, port, timeout);
+            if(password != null && password.trim().length() > 0)
+                this.client_publish.auth(password);
+            throw e;
         }
     }
 
@@ -103,12 +132,15 @@ public class RedisPubSubClusterPolicy extends BinaryJedisPubSub implements Clust
      */
     @Override
     public void sendClearCmd(String region) {
-        // 发送广播
         Command cmd = new Command(Command.OPT_CLEAR_KEY, region, "");
         try {
-            redis.publish(channelBytes, cmd.jsonBytes());
-        } catch (Exception e) {
-            log.error("Failed to clear cache,region=" + region, e);
+            client_publish.publish(channel, cmd.json());
+        } catch (JedisConnectionException e) {
+            //准备下一次重连，并抛出异常
+            this.client_publish = new Jedis(host, port, timeout);
+            if(password != null && password.trim().length() > 0)
+                this.client_publish.auth(password);
+            throw e;
         }
     }
 
@@ -117,7 +149,8 @@ public class RedisPubSubClusterPolicy extends BinaryJedisPubSub implements Clust
      * @param channel 频道名称
      * @param message 消息体
      */
-    public void onMessage(byte[] channel, byte[] message) {
+    @Override
+    public void onMessage(String channel, String message) {
         try {
             Command cmd = Command.parse(message);
 

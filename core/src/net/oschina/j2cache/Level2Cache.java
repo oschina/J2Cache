@@ -19,8 +19,9 @@ import net.oschina.j2cache.util.SerializationUtils;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -37,11 +38,24 @@ public interface Level2Cache extends Cache {
     byte[] getBytes(String key);
 
     /**
+     * 同时读取多个 Key
+     * @param keys
+     * @return
+     */
+    List<byte[]> getBytes(Collection<String> keys);
+
+    /**
      * 设置缓存数据字节数组
      * @param key
      * @param bytes
      */
     void setBytes(String key, byte[] bytes);
+
+    /**
+     * 同时设置多个数据
+     * @param bytes
+     */
+    void setBytes(Map<String,byte[]> bytes);
 
     /**
      * 判断缓存数据是否存在
@@ -83,7 +97,19 @@ public interface Level2Cache extends Cache {
 
     @Override
     default Map<String, Object> get(Collection<String> keys) {
-        return keys.stream().collect(Collectors.toMap(Function.identity(), key -> get(key)));
+        Map<String, Object> results = new HashMap<>();
+        List<byte[]> bytes = getBytes(keys);
+        int i = 0;
+        try {
+            for (String key : keys) {
+                Object obj = SerializationUtils.deserialize(bytes.get(i++));
+                if (obj != null)
+                    results.put(key, obj);
+            }
+        } catch (IOException e) {
+            throw new CacheException(e);
+        }
+        return results;
     }
 
     @Override
@@ -97,6 +123,7 @@ public interface Level2Cache extends Cache {
 
     @Override
     default void put(Map<String, Object> elements) {
-        elements.forEach((k,v) -> put(k, v));
+        setBytes(elements.entrySet().stream().collect(Collectors.toMap(p -> p.getKey(), p->SerializationUtils.serializeWithoutException(p.getValue()))));
     }
+
 }

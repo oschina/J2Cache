@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -32,7 +33,6 @@ public class RedisHashCache implements Level2Cache {
     private final static Logger log = LoggerFactory.getLogger(RedisHashCache.class);
 
     private String namespace;
-    private String region;
     private byte[] regionBytes;
     private RedisClient client;
 
@@ -48,8 +48,7 @@ public class RedisHashCache implements Level2Cache {
 
         this.client = client;
         this.namespace = namespace;
-        this.region = getRegionName(region);
-        this.regionBytes = region.getBytes();
+        this.regionBytes = getRegionName(region).getBytes();
     }
 
     /**
@@ -75,9 +74,30 @@ public class RedisHashCache implements Level2Cache {
     }
 
     @Override
+    public List<byte[]> getBytes(Collection<String> keys) {
+        try {
+            byte[][] bytes = keys.stream().map(k -> k.getBytes()).toArray(byte[][]::new);
+            return client.get().hmget(regionBytes, bytes);
+        } finally {
+            client.release();
+        }
+    }
+
+    @Override
     public void setBytes(String key, byte[] bytes) {
         try {
             client.get().hset(regionBytes, key.getBytes(), bytes);
+        } finally {
+            client.release();
+        }
+    }
+
+    @Override
+    public void setBytes(Map<String,byte[]> bytes) {
+        try {
+            Map<byte[], byte[]> data = new HashMap<>();
+            bytes.forEach((k,v) -> data.put(k.getBytes(), v));
+            client.get().hmset(regionBytes, data);
         } finally {
             client.release();
         }
@@ -94,14 +114,11 @@ public class RedisHashCache implements Level2Cache {
 
     @Override
     public void evict(String...keys) {
+        if (keys == null || keys.length == 0)
+            return;
         try {
-            if (keys == null || keys.length == 0)
-                return;
-            byte[][] o_keys = new byte[keys.length][];
-            for (int i = 0; i < keys.length; i++) {
-                o_keys[i] = keys[i].getBytes();
-            }
-            client.get().hdel(regionBytes, o_keys);
+            byte[][] bytes = Arrays.stream(keys).map(k -> k.getBytes()).toArray(byte[][]::new);
+            client.get().hdel(regionBytes, bytes);
         } finally {
             client.release();
         }

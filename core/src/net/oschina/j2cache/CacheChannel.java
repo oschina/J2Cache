@@ -98,9 +98,12 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 		if(value == null)
 			evict(region, key);
 		else{
-			CacheProviderHolder.getLevel1Cache(region).put(key, value);
-			CacheProviderHolder.getLevel2Cache(region).put(key, value);
-			this.sendEvictCmd(region, key);//清除原有的一级缓存的内容
+			try {
+				CacheProviderHolder.getLevel1Cache(region).put(key, value);
+				CacheProviderHolder.getLevel2Cache(region).put(key, value);
+			} finally {
+				this.sendEvictCmd(region, key);//清除原有的一级缓存的内容
+			}
 		}
     }
 
@@ -118,9 +121,12 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 			if (value == null)
 				evict(region, key);
 			else {
-				CacheProviderHolder.getLevel1Cache(region, timeToLiveInSeconds).put(key, value);
-				CacheProviderHolder.getLevel2Cache(region).put(key, value);
-				this.sendEvictCmd(region, key);//清除原有的一级缓存的内容
+				try {
+					CacheProviderHolder.getLevel1Cache(region, timeToLiveInSeconds).put(key, value);
+					CacheProviderHolder.getLevel2Cache(region).put(key, value);
+				} finally {
+					this.sendEvictCmd(region, key);//清除原有的一级缓存的内容
+				}
 			}
 		}
 	}
@@ -131,10 +137,13 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param elements Cache Elements
 	 */
 	public void set(String region, Map<String, Object> elements)  {
-		CacheProviderHolder.getLevel1Cache(region).put(elements);
-		CacheProviderHolder.getLevel2Cache(region).put(elements);
-		//广播
-		this.sendEvictCmd(region, elements.keySet().stream().toArray(String[]::new));
+		try {
+			CacheProviderHolder.getLevel1Cache(region).put(elements);
+			CacheProviderHolder.getLevel2Cache(region).put(elements);
+		} finally {
+			//广播
+			this.sendEvictCmd(region, elements.keySet().stream().toArray(String[]::new));
+		}
 	}
 
 	/**
@@ -147,10 +156,13 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 		if(timeToLiveInSeconds <= 0)
 			set(region, elements);
 		else {
-			CacheProviderHolder.getLevel1Cache(region, timeToLiveInSeconds).put(elements);
-			CacheProviderHolder.getLevel2Cache(region).put(elements);
-			//广播
-			this.sendEvictCmd(region, elements.keySet().stream().toArray(String[]::new));
+			try {
+				CacheProviderHolder.getLevel1Cache(region, timeToLiveInSeconds).put(elements);
+				CacheProviderHolder.getLevel2Cache(region).put(elements);
+			} finally {
+				//广播
+				this.sendEvictCmd(region, elements.keySet().stream().toArray(String[]::new));
+			}
 		}
 	}
 
@@ -161,9 +173,12 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param keys: Cache key
 	 */
 	public void evict(String region, String...keys)  {
-        CacheProviderHolder.getLevel1Cache(region).evict(keys);
-        CacheProviderHolder.getLevel2Cache(region).evict(keys);
-        this.sendEvictCmd(region, keys); //发送广播
+		try {
+			CacheProviderHolder.getLevel1Cache(region).evict(keys);
+			CacheProviderHolder.getLevel2Cache(region).evict(keys);
+		} finally {
+			this.sendEvictCmd(region, keys); //发送广播
+		}
     }
 
 	/**
@@ -172,9 +187,12 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param region: Cache region name
 	 */
 	public void clear(String region)  {
-        CacheProviderHolder.getLevel1Cache(region).clear();
-		CacheProviderHolder.getLevel2Cache(region).clear();
-		this.sendClearCmd(region);
+		try {
+			CacheProviderHolder.getLevel1Cache(region).clear();
+			CacheProviderHolder.getLevel2Cache(region).clear();
+		}finally {
+			this.sendClearCmd(region);
+		}
     }
 	
 	/**

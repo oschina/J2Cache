@@ -72,6 +72,14 @@ public class SerializationUtils {
         return g_serializer.serialize(obj);
     }
 
+    public static byte[] serializeWithoutException(Object obj) {
+        try {
+            return serialize(obj);
+        } catch (IOException e) {
+            throw new CacheException(e);
+        }
+    }
+
     /**
      * 反序列化
      * @param bytes 待反序列化的字节数组

@@ -1,13 +1,9 @@
 package net.oschina.j2cache.cache.support.redis;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
 import net.oschina.j2cache.Level2Cache;
@@ -105,12 +101,27 @@ public class SpringRedisCache implements Level2Cache {
 
 	@Override
 	public byte[] getBytes(String key) {
-		byte[] rawHashValue = redisTemplate.opsForHash().getOperations().execute(new RedisCallback<byte[]>() {
-			public byte[] doInRedis(RedisConnection connection) {
-				return connection.hGet(region.getBytes(), key.getBytes());
+		return redisTemplate.opsForHash().getOperations().execute(new RedisCallback<byte[]>() {
+			public byte[] doInRedis(RedisConnection redis) {
+				return redis.hGet(region.getBytes(), key.getBytes());
 			}
 		});
-		return rawHashValue;
+	}
+
+	@Override
+	public List<byte[]> getBytes(Collection<String> keys) {
+		return redisTemplate.opsForHash().getOperations().execute(new RedisCallback<List<byte[]>>() {
+			@Override
+			public List<byte[]> doInRedis(RedisConnection redis) throws DataAccessException {
+				byte[][] bytes = keys.stream().map(k -> k.getBytes()).toArray(byte[][]::new);
+				return redis.hMGet(region.getBytes(), bytes);
+			}
+		});
+	}
+
+	@Override
+	public void setBytes(Map<String, byte[]> bytes) {
+		redisTemplate.opsForHash().putAll(region, bytes);
 	}
 
 	@Override

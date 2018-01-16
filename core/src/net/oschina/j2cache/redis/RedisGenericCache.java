@@ -2,10 +2,16 @@ package net.oschina.j2cache.redis;
 
 import net.oschina.j2cache.CacheException;
 import net.oschina.j2cache.Level2Cache;
+import redis.clients.jedis.BinaryJedis;
 import redis.clients.jedis.BinaryJedisCommands;
+import redis.clients.jedis.MultiKeyBinaryCommands;
 import redis.clients.jedis.MultiKeyCommands;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Redis 缓存操作封装，基于 region+_key 实现多个 Region 的缓存（
@@ -59,9 +65,43 @@ public class RedisGenericCache implements Level2Cache {
     }
 
     @Override
+    public List<byte[]> getBytes(Collection<String> keys) {
+        try {
+            BinaryJedisCommands cmd = client.get();
+            if(cmd instanceof MultiKeyBinaryCommands) {
+                byte[][] bytes = keys.stream().map(k -> _key(k)).toArray(byte[][]::new);
+                return ((MultiKeyBinaryCommands)cmd).mget(bytes);
+            }
+            return keys.stream().map(k -> getBytes(k)).collect(Collectors.toList());
+        } finally {
+            client.release();
+        }
+    }
+
+    @Override
     public void setBytes(String key, byte[] bytes) {
         try {
             client.get().set(_key(key), bytes);
+        } finally {
+            client.release();
+        }
+    }
+
+    @Override
+    public void setBytes(Map<String,byte[]> bytes) {
+        try {
+            BinaryJedisCommands cmd = client.get();
+            if(cmd instanceof MultiKeyBinaryCommands) {
+                byte[][] data = new byte[bytes.size() * 2][];
+                int idx = 0;
+                for(String key : bytes.keySet()){
+                    data[idx++] = _key(key);
+                    data[idx++] = bytes.get(key);
+                }
+                ((MultiKeyBinaryCommands)cmd).mset(data);
+            }
+            else
+                bytes.forEach((k,v) -> setBytes(k, v));
         } finally {
             client.release();
         }
@@ -95,8 +135,14 @@ public class RedisGenericCache implements Level2Cache {
     public void evict(String...keys) {
         try {
             BinaryJedisCommands cmd = client.get();
-            for (String key : keys)
-                cmd.del(_key(key));
+            if (cmd instanceof BinaryJedis) {
+                byte[][] bytes = Arrays.stream(keys).map(k -> _key(k)).toArray(byte[][]::new);
+                ((BinaryJedis)cmd).del(bytes);
+            }
+            else {
+                for (String key : keys)
+                    cmd.del(_key(key));
+            }
         } finally {
             client.release();
         }

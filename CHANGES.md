@@ -1,5 +1,11 @@
 # J2Cache 版本更新记录
 
+**J2Cache 2.3.1-release (2018-1-xx)**
+* 重构：`RedisPubSubClusterPolicy` 不再依赖 `RedisCacheProvider` 的 `RedisClient` 实例
+* 增加单独的 Redis PubSub 服务器配置项 `redis.channel.host` 和 `redis.channel.timeout` , redis 数据存储和订阅服务可以分开
+* 优化 `get(Collection<String> keys)` 使用 Redis 的 MGET 操作符
+* 优化 evict 多个 key 的操作
+
 **J2Cache 2.3.0-release (2018-1-15)**
 * 删除缓存读取方法 getXxx 只保留 get 方法（自动识别不同类型数据），可通过 `CacheObject` 的 asXxx 方法来获取不同类型数据
 * 删除 incr 和 decr 方法
