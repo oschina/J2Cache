@@ -15,7 +15,6 @@
  */
 package net.oschina.j2cache.ehcache;
 
-import net.oschina.j2cache.Cache;
 import net.oschina.j2cache.CacheExpiredListener;
 import net.oschina.j2cache.CacheObject;
 import net.oschina.j2cache.CacheProvider;
@@ -38,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
- * EhCache 2.x 缓存管理器的封装，用来管理多个缓存区域
+ * EhCache 3.x 缓存管理器的封装，用来管理多个缓存区域
  *
  * @author Winter Lau(javayou@gmail.com)
  */
