@@ -85,13 +85,13 @@ public class EhCacheProvider3 implements CacheProvider {
     @Override
     public EhCache3 buildCache(String region, long timeToLiveInSeconds, CacheExpiredListener listener) {
         EhCache3 ehcache = caches.get(region);
-        if(ehcache == null) {
+        if (ehcache == null) {
             synchronized (EhCacheProvider3.class) {
                 ehcache = caches.get(region);
                 if(ehcache == null) {
                     //配置缓存
-                    CacheConfiguration<String, Serializable> conf = CacheConfigurationBuilder.newCacheConfigurationBuilder(
-                            String.class, Serializable.class, ResourcePoolsBuilder.heap(defaultHeapSize))
+                    CacheConfiguration<String, Object> conf = CacheConfigurationBuilder.newCacheConfigurationBuilder(
+                            String.class, Object.class, ResourcePoolsBuilder.heap(defaultHeapSize))
                             .withExpiry(Expirations.timeToLiveExpiration(Duration.of(timeToLiveInSeconds, TimeUnit.SECONDS)))
                             .build();
                     org.ehcache.Cache cache = manager.createCache(region, conf);
@@ -101,6 +101,9 @@ public class EhCacheProvider3 implements CacheProvider {
                 }
             }
         }
+        else if (ehcache.ttl() != timeToLiveInSeconds)
+            throw new IllegalArgumentException(String.format("Region [%s] TTL %d not match with %d", region, ehcache.ttl(), timeToLiveInSeconds));
+
         return ehcache;
     }
 
