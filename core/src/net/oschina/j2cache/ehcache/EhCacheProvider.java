@@ -19,7 +19,6 @@ import java.net.URL;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
-import net.oschina.j2cache.Cache;
 import net.oschina.j2cache.CacheObject;
 import net.sf.ehcache.config.CacheConfiguration;
 import org.slf4j.Logger;
@@ -87,11 +86,7 @@ public class EhCacheProvider implements CacheProvider {
 	@Override
 	public EhCache buildCache(String region, long timeToLiveInSeconds, CacheExpiredListener listener) {
 		EhCache ehcache = caches.get(region);
-		if(ehcache != null) {
-			if(ehcache.getTimeToLiveSeconds() != timeToLiveInSeconds)
-				throw new IllegalArgumentException(String.format("Region [%s] TTL %d not match with %d", region, ehcache.getTimeToLiveSeconds(), timeToLiveInSeconds));
-		}
-		else {
+		if (ehcache == null) {
 			synchronized (EhCacheProvider.class) {
 				ehcache = caches.get(region);
 				if(ehcache == null) {
@@ -111,6 +106,9 @@ public class EhCacheProvider implements CacheProvider {
 				}
 			}
 		}
+		else if (ehcache.ttl() != timeToLiveInSeconds)
+			throw new IllegalArgumentException(String.format("Region [%s] TTL %d not match with %d", region, ehcache.ttl(), timeToLiveInSeconds));
+
 		return ehcache;
 	}
 
