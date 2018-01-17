@@ -56,7 +56,7 @@ J2Cache 运行时所需 jar 包请查看 core/pom.xml
 <dependency>
   <groupId>net.oschina.j2cache</groupId>  
   <artifactId>j2cache-core</artifactId>  
-  <version>2.3.1-release</version>  
+  <version>2.3.2-release</version>  
 </dependency>
 ```
 ## 示例代码

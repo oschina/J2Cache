@@ -18,10 +18,8 @@ package net.oschina.j2cache;
 import jline.console.ConsoleReader;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 缓存测试入口
@@ -54,9 +52,8 @@ public class J2CacheCmd {
 				}
 				else
 				if("mget".equalsIgnoreCase(cmds[0])){
-					String[] keys = new String[cmds.length - 2];
-					System.arraycopy(cmds, 2, keys, 0, cmds.length - 2);
-					Map<String, CacheObject> values = cache.get(cmds[1], Arrays.asList(keys));
+					List<String> keys = Arrays.stream(cmds).skip(2).collect(Collectors.toList());
+					Map<String, CacheObject> values = cache.get(cmds[1], keys);
 					if(values != null && values.size() > 0)
 						values.forEach((key,obj) -> System.out.printf("[%s,%s,L%d]=>%s(TTL:%d)\n", obj.getRegion(), obj.getKey(), obj.getLevel(), obj.getValue(), TTL));
 					else

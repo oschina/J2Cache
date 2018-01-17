@@ -16,7 +16,6 @@
 package net.oschina.j2cache;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -39,12 +38,7 @@ public interface Cache {
 	 * @param keys cache keys
 	 * @return return key-value objects
 	 */
-	default Map<String, Object> get(Collection<String> keys) {
-		Map<String, Object> results = new HashMap<>();
-		for(String key : keys)
-			results.put(key, get(key));
-		return results;
-	}
+	Map<String, Object> get(Collection<String> keys);
 
 	/**
 	 * 判断缓存是否存在
@@ -68,11 +62,7 @@ public interface Cache {
 	 * 批量插入数据
 	 * @param elements objects to be put in cache
 	 */
-	default void put(Map<String, Object> elements) {
-		for(String key : elements.keySet()){
-			put(key, elements.get(key));
-		}
-	}
+	void put(Map<String, Object> elements);
 
 	/**
 	 * Return all keys

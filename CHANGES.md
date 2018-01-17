@@ -1,9 +1,19 @@
 # J2Cache 版本更新记录
 
-**J2Cache 2.3.2-release (2018-1-xx)**
+**J2Cache 2.3.2-release (2018-1-17)**
 
 * 配置默认启用 testWhileIdle 以保持到 redis 的网络连接
 * `RedisPubSubClusterPolicy` 和 `RedisCacheProvider` 独立两个连接池
+* [增强] 改善 redis 连接的可靠性，包括被 redis 服务器强行断开连接的处理
+* 继续优化同时获取多个缓存数据的方法
+* 增加 `get(String region, String key, DataLoader loader)` 方法用于从外部获取需要缓存的数据  
+  示例代码：  
+  ```
+  CacheChannel cache = J2Cache.getChannel();
+  CacheObject obj = cache.get("Users", "13", () -> "Hello J2Cache");
+  System.out.println(obj);
+  //[Users,13,L3]=>Hello J2Cache
+  ```
 
 **J2Cache 2.3.1-release (2018-1-16)**
 * 重构：`RedisPubSubClusterPolicy` 不再依赖 `RedisCacheProvider` 的 `RedisClient` 实例

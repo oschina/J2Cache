@@ -16,11 +16,8 @@
 package net.oschina.j2cache.redis;
 
 import net.oschina.j2cache.Level2Cache;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -29,8 +26,6 @@ import java.util.stream.Collectors;
  * @author Winter Lau(javayou@gmail.com)
  */
 public class RedisHashCache implements Level2Cache {
-
-    private final static Logger log = LoggerFactory.getLogger(RedisHashCache.class);
 
     private String namespace;
     private byte[] regionBytes;

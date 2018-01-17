@@ -21,8 +21,9 @@ package net.oschina.j2cache;
  */
 public class CacheObject {
 
-	public final static byte LEVEL_1 = 1;
-	public final static byte LEVEL_2 = 2;
+	public final static byte LEVEL_1 	 = 1;	//一级缓存数据
+	public final static byte LEVEL_2 	 = 2;	//二级缓存数据
+	public final static byte LEVEL_OUTER = 3;	//外部数据
 
 	private String region;
 	private String key;
@@ -103,6 +104,11 @@ public class CacheObject {
 
 	public float asFloat() {
 		return (value instanceof String) ? Float.parseFloat((String)value) : (Float)value;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("[%s,%s,L%d]=>%s", region, key, level, value);
 	}
 
 }

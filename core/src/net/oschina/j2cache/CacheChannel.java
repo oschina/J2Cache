@@ -17,7 +17,7 @@ package net.oschina.j2cache;
 
 import java.io.Closeable;
 import java.util.*;
-import java.util.function.Function;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -26,6 +26,8 @@ import java.util.stream.Collectors;
  * @author Winter Lau(javayou@gmail.com)
  */
 public abstract class CacheChannel implements Closeable , AutoCloseable {
+
+	private final static Map<String, Object> _g_keyLocks = new ConcurrentHashMap<>();
 
 	/**
 	 * <p>Just for Inner Use.</p>
@@ -48,9 +50,9 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 
 	/**
 	 * 读取缓存（用户无需判断返回的对象是否为空）
-	 * @param region
-	 * @param key
-	 * @return
+	 * @param region Cache region name
+	 * @param key Cache data key
+	 * @return cache object
 	 */
 	public CacheObject get(String region, String key)  {
 		CacheObject obj = new CacheObject(region, key, CacheObject.LEVEL_1);
@@ -65,13 +67,56 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	}
 
 	/**
+	 * 支持外部数据自动加载的缓存方法
+	 * @param region Cache region name
+	 * @param key Cache data key
+	 * @param loader data loader
+	 * @return cache object
+	 */
+	public CacheObject get(String region, String key, DataLoader loader) {
+		CacheObject cache = get(region, key);
+		if (cache.getValue() == null) {
+			String lock_key = key + '@' + region;
+			synchronized (_g_keyLocks.computeIfAbsent(lock_key, k -> new Object())) {
+				cache = get(region, key);
+				if (cache.getValue() == null) {
+					try {
+						Object obj = loader.get();
+						if (obj != null) {
+							set(region, key, obj);
+							cache = new CacheObject(region, key, CacheObject.LEVEL_OUTER, obj);
+						}
+					} finally {
+						_g_keyLocks.remove(lock_key);
+					}
+				}
+			}
+		}
+		return cache;
+	}
+
+	/**
 	 * 批量读取缓存中的对象（用户无需判断返回的对象是否为空）
 	 * @param region Cache region name
 	 * @param keys cache keys
 	 * @return cache object
 	 */
 	public Map<String, CacheObject> get(String region, Collection<String> keys)  {
-		return keys.stream().collect(Collectors.toMap(Function.identity(), key -> get(region, key)));
+		final Map<String, Object> objs = CacheProviderHolder.getLevel1Cache(region).get(keys);
+		List<String> level2Keys = keys.stream().filter(k -> !objs.containsKey(k) || objs.get(k) == null).collect(Collectors.toList());
+		Map<String, CacheObject> results = objs.entrySet().stream().filter(p -> p.getValue() != null).collect(
+			Collectors.toMap(
+				p -> p.getKey(),
+				p -> new CacheObject(region, p.getKey(), CacheObject.LEVEL_1, p.getValue())
+			)
+		);
+
+		Map<String, Object> objs_level2 = CacheProviderHolder.getLevel2Cache(region).get(level2Keys);
+		objs_level2.forEach((k,v) ->
+			results.put(k, new CacheObject(region, k, CacheObject.LEVEL_2, v))
+		);
+
+		return results;
 	}
 
 	/**
@@ -213,5 +258,14 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * Close J2Cache
 	 */
 	public abstract void close();
+
+	/**
+	 * 批量事务执行数据库更新
+	 * @author winterlau
+	 */
+	@FunctionalInterface
+	public interface DataLoader {
+		Object get();
+	}
 
 }
