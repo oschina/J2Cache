@@ -22,7 +22,7 @@ package net.oschina.j2cache;
 public interface Level1Cache extends Cache {
 
     /**
-     * 返回该缓存区域的 TTL 设置
+     * 返回该缓存区域的 TTL 设置（单位：秒）
      * @return
      */
     long ttl();
