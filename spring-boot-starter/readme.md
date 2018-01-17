@@ -1,4 +1,4 @@
-在j2cache.properties中配置,可以使用springRedis进行广播通知缓存失
+在j2cache.properties中配置,可以使用springRedis进行广播通知缓失效
 
 ```
 j2cache.broadcast = net.oschina.j2cache.cache.support.redis.SpringRedisPubSubPolicy
