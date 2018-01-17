@@ -65,7 +65,7 @@ public class EhCacheProvider3 implements CacheProvider {
     public EhCache3 buildCache(String region, CacheExpiredListener listener) {
         EhCache3 ehcache = caches.get(region);
         if(ehcache == null){
-            synchronized(EhCacheProvider.class){
+            synchronized(EhCacheProvider3.class){
                 ehcache = caches.get(region);
                 if(ehcache == null){
                     org.ehcache.Cache cache = manager.getCache(region, String.class, Serializable.class);
