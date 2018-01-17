@@ -1,5 +1,10 @@
 # J2Cache 版本更新记录
 
+
+**J2Cache 2.3.3-release (2018-1-17)**
+* 修复 `EhcacheProvider3` 中代码和注释的拼写错误
+* 修复 ehcache3 没有实现 Level1Cache 接口的问题，导致无法使用 ehcache3 作为一级缓存
+
 **J2Cache 2.3.2-release (2018-1-17)**
 
 * 配置默认启用 testWhileIdle 以保持到 redis 的网络连接
