@@ -48,7 +48,8 @@ public class EhCache implements Level1Cache, CacheEventListener {
 		this.listener = listener;
 	}
 
-	public long getTimeToLiveSeconds() {
+	@Override
+	public long ttl() {
 		return cache.getCacheConfiguration().getTimeToLiveSeconds();
 	}
 

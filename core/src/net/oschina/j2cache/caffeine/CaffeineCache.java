@@ -29,7 +29,7 @@ import java.util.Map;
  */
 public class CaffeineCache implements Level1Cache {
 
-    private com.github.benmanes.caffeine.cache.Cache<String, Object> cache;
+    private Cache<String, Object> cache;
     private long size ;
     private long expire ;
 
@@ -44,6 +44,11 @@ public class CaffeineCache implements Level1Cache {
     }
 
     long getExpire() {
+        return expire;
+    }
+
+    @Override
+    public long ttl() {
         return expire;
     }
 

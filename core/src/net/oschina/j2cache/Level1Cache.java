@@ -20,4 +20,11 @@ package net.oschina.j2cache;
  * @author Winter Lau(javayou@gmail.com)
  */
 public interface Level1Cache extends Cache {
+
+    /**
+     * 返回该缓存区域的 TTL 设置
+     * @return
+     */
+    long ttl();
+
 }

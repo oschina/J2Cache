@@ -26,6 +26,11 @@ import java.util.Map;
 public class NullCache implements Level1Cache, Level2Cache {
 
 	@Override
+	public long ttl() {
+		return -1;
+	}
+
+	@Override
 	public Object get(String key) {
 		return null;
 	}

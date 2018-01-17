@@ -18,6 +18,7 @@ package net.oschina.j2cache.ehcache;
 import net.oschina.j2cache.CacheExpiredListener;
 import net.oschina.j2cache.Level1Cache;
 import org.ehcache.event.*;
+import org.ehcache.expiry.Duration;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,6 +43,12 @@ public class EhCache3 implements Level1Cache, CacheEventListener {
                 EventFiring.ASYNCHRONOUS,
                 EventType.EXPIRED);
         this.listener = listener;
+    }
+
+    @Override
+    public long ttl() {
+        Duration dur = this.cache.getRuntimeConfiguration().getExpiry().getExpiryForCreation(null,null);
+        return dur.getTimeUnit().toSeconds(dur.getLength());
     }
 
     @Override
