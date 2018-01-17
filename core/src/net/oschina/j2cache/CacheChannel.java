@@ -18,6 +18,7 @@ package net.oschina.j2cache;
 import java.io.Closeable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -73,7 +74,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param loader data loader
 	 * @return cache object
 	 */
-	public CacheObject get(String region, String key, DataLoader loader) {
+	public CacheObject get(String region, String key, Function<String, Object> loader) {
 		CacheObject cache = get(region, key);
 		if (cache.getValue() == null) {
 			String lock_key = key + '@' + region;
@@ -81,7 +82,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 				cache = get(region, key);
 				if (cache.getValue() == null) {
 					try {
-						Object obj = loader.get(key);
+						Object obj = loader.apply(key);
 						if (obj != null) {
 							set(region, key, obj);
 							cache = new CacheObject(region, key, CacheObject.LEVEL_OUTER, obj);
@@ -126,7 +127,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param loader data loader
 	 * @return
 	 */
-	public Map<String, CacheObject> get(String region, Collection<String> keys, DataLoader loader)  {
+	public Map<String, CacheObject> get(String region, Collection<String> keys, Function<String, Object> loader)  {
 		Map<String, CacheObject> results = get(region, keys);
 		results.entrySet().stream().filter(e -> e.getValue().getValue() == null).forEach( e -> {
 			String lock_key = e.getKey() + '@' + region;
@@ -134,7 +135,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 				CacheObject cache = get(region, e.getKey());
 				if(cache == null) {
 					try {
-						Object obj = loader.get(e.getKey());
+						Object obj = loader.apply(e.getKey());
 						if (obj != null) {
 							set(region, e.getKey(), obj);
 							e.getValue().setValue(obj);
@@ -291,14 +292,5 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * Close J2Cache
 	 */
 	public abstract void close();
-
-	/**
-	 * 批量事务执行数据库更新
-	 * @author winterlau
-	 */
-	@FunctionalInterface
-	public interface DataLoader {
-		Object get(String key);
-	}
 
 }
