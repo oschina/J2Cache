@@ -1,5 +1,9 @@
 # J2Cache 版本更新记录
 
+**J2Cache 2.3.4-release (2018-1-xx)**
+
+* `DataLoader` 接口带入 key 参数（老版本使用到这个接口需要简单调整代码)
+* 接口增加 `get(String region, Collection<String> keys, DataLoader loader)` 方法
 
 **J2Cache 2.3.3-release (2018-1-17)**
 * 修复 `EhcacheProvider3` 中代码和注释的拼写错误

@@ -77,11 +77,11 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 		CacheObject cache = get(region, key);
 		if (cache.getValue() == null) {
 			String lock_key = key + '@' + region;
-			synchronized (_g_keyLocks.computeIfAbsent(lock_key, k -> new Object())) {
+			synchronized (_g_keyLocks.computeIfAbsent(lock_key, v -> new Object())) {
 				cache = get(region, key);
 				if (cache.getValue() == null) {
 					try {
-						Object obj = loader.get();
+						Object obj = loader.get(key);
 						if (obj != null) {
 							set(region, key, obj);
 							cache = new CacheObject(region, key, CacheObject.LEVEL_OUTER, obj);
@@ -116,6 +116,39 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 			results.put(k, new CacheObject(region, k, CacheObject.LEVEL_2, v))
 		);
 
+		return results;
+	}
+
+	/**
+	 * 使用数据加载器的批量缓存读取
+	 * @param region Cache region name
+	 * @param keys cache keys
+	 * @param loader data loader
+	 * @return
+	 */
+	public Map<String, CacheObject> get(String region, Collection<String> keys, DataLoader loader)  {
+		Map<String, CacheObject> results = get(region, keys);
+		results.entrySet().stream().filter(e -> e.getValue().getValue() == null).forEach( e -> {
+			String lock_key = e.getKey() + '@' + region;
+			synchronized (_g_keyLocks.computeIfAbsent(lock_key, v -> new Object())) {
+				CacheObject cache = get(region, e.getKey());
+				if(cache == null) {
+					try {
+						Object obj = loader.get(e.getKey());
+						if (obj != null) {
+							set(region, e.getKey(), obj);
+							e.getValue().setValue(obj);
+							e.getValue().setLevel(CacheObject.LEVEL_OUTER);
+						}
+					} finally {
+						_g_keyLocks.remove(lock_key);
+					}
+				}
+				else {
+					e.setValue(cache);
+				}
+			}
+		});
 		return results;
 	}
 
@@ -265,7 +298,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 */
 	@FunctionalInterface
 	public interface DataLoader {
-		Object get();
+		Object get(String key);
 	}
 
 }
