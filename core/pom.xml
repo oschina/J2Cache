@@ -99,17 +99,6 @@
     </build>
 
     <dependencies>
-        <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-            <version>2.10.4</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-            <version>3.4.0</version>
-        </dependency>
 
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
@@ -118,17 +107,30 @@
         </dependency>
 
         <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>2.10.4</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>3.4.0</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
             <version>2.9.0</version>
-            <type>jar</type>
-            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jgroups</groupId>
             <artifactId>jgroups</artifactId>
             <version>3.6.13.Final</version>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
@@ -141,12 +143,14 @@
             <groupId>com.esotericsoftware</groupId>
             <artifactId>kryo-shaded</artifactId>
             <version>3.0.0</version>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
             <groupId>org.xerial.snappy</groupId>
             <artifactId>snappy-java</artifactId>
             <version>1.1.4</version>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
