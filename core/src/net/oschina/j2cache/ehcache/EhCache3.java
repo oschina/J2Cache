@@ -15,8 +15,8 @@
  */
 package net.oschina.j2cache.ehcache;
 
-import net.oschina.j2cache.Cache;
 import net.oschina.j2cache.CacheExpiredListener;
+import net.oschina.j2cache.Level1Cache;
 import org.ehcache.event.*;
 
 import java.util.*;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  *
  * @author Winter Lau(javayou@gmail.com)
  */
-public class EhCache3 implements Cache , CacheEventListener {
+public class EhCache3 implements Level1Cache, CacheEventListener {
 
     private String name;
     private org.ehcache.Cache<String, Object> cache;
