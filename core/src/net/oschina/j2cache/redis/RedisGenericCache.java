@@ -155,8 +155,11 @@ public class RedisGenericCache implements Level2Cache {
     public void clear() {
         try {
             BinaryJedisCommands cmd = client.get();
-            if (cmd instanceof MultiKeyCommands)
-                ((MultiKeyCommands)cmd).del(((MultiKeyCommands) cmd).keys(this.region + ":*").stream().toArray(String[]::new));
+            if (cmd instanceof MultiKeyCommands) {
+                String[] keys = ((MultiKeyCommands) cmd).keys(this.region + ":*").stream().toArray(String[]::new);
+                if (keys != null && keys.length > 0)
+                    ((MultiKeyCommands) cmd).del(keys);
+            }
             else
                 throw new CacheException("clear() not implemented in Redis Generic Mode");
         } finally {
