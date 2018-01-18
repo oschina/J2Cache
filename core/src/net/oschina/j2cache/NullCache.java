@@ -31,6 +31,11 @@ public class NullCache implements Level1Cache, Level2Cache {
 	}
 
 	@Override
+	public long size() {
+		return 0;
+	}
+
+	@Override
 	public Object get(String key) {
 		return null;
 	}

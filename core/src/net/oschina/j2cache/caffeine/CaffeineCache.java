@@ -39,18 +39,13 @@ public class CaffeineCache implements Level1Cache {
         this.expire = expire;
     }
 
-    long getSize() {
-        return size;
-    }
-
-    long getExpire() {
-        return expire;
-    }
-
     @Override
     public long ttl() {
         return expire;
     }
+
+    @Override
+    public long size() { return size; }
 
     @Override
     public Object get(String key) {

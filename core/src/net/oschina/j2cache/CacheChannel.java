@@ -273,7 +273,15 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 			this.sendClearCmd(region);
 		}
     }
-	
+
+	/**
+	 * 返回所有的缓存区域
+	 * @return
+	 */
+	public Collection<Region> regions() {
+		return CacheProviderHolder.regions();
+	}
+
 	/**
 	 * <p>Get cache region keys</p>
 	 * <p><strong>Notice: ehcache3 not support keys</strong></p>
@@ -292,5 +300,51 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * Close J2Cache
 	 */
 	public abstract void close();
+
+	/**
+	 * Cache Region Define
+	 */
+	public static class Region {
+
+		private String name;
+		private long size;
+		private long ttl;
+
+		public Region(){}
+		public Region(String name, long size, long ttl) {
+			this.name = name;
+			this.size = size;
+			this.ttl = ttl;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public long getSize() {
+			return size;
+		}
+
+		public void setSize(long size) {
+			this.size = size;
+		}
+
+		public long getTtl() {
+			return ttl;
+		}
+
+		public void setTtl(long ttl) {
+			this.ttl = ttl;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[%s,size:%d,ttl:%d]", name, size, ttl);
+		}
+	}
 
 }

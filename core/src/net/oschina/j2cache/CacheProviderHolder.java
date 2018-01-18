@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import net.oschina.j2cache.ehcache.EhCacheProvider;
 import net.oschina.j2cache.redis.RedisCacheProvider;
 
+import java.util.Collection;
 import java.util.Properties;
 
 /**
@@ -124,6 +125,10 @@ public class CacheProviderHolder {
 	 */
 	public final static Level2Cache getLevel2Cache(String region) {
 		return (Level2Cache)l2_provider.buildCache(region, listener);
+	}
+
+	public final static Collection<CacheChannel.Region> regions() {
+		return l1_provider.regions();
 	}
 
 }

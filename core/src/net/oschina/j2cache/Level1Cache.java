@@ -15,6 +15,8 @@
  */
 package net.oschina.j2cache;
 
+import java.util.Collection;
+
 /**
  * 以及缓存接口
  * @author Winter Lau(javayou@gmail.com)
@@ -26,5 +28,11 @@ public interface Level1Cache extends Cache {
      * @return
      */
     long ttl();
+
+    /**
+     * 返回该缓存区域中，内存存储对象的最大数量
+     * @return
+     */
+    long size();
 
 }

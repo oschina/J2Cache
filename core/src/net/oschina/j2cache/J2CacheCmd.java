@@ -88,6 +88,11 @@ public class J2CacheCmd {
 					System.out.printf("Cache [%s] clear.\n" , cmds[1]);
 				}
 				else
+				if("regions".equalsIgnoreCase(cmds[0])){
+					System.out.println("Regions:");
+					cache.regions().forEach( r -> System.out.println(r));
+				}
+				else
 				if("keys".equalsIgnoreCase(cmds[0])){
 					Collection<String> keys = cache.keys(cmds[1]);
 					if(keys != null)
@@ -124,13 +129,14 @@ public class J2CacheCmd {
 		}while(true);
 
 		cache.close();
+		reader.shutdown();
 
 		System.exit(0);
 	}
 
 	private static void printHelp() {
 		System.out.println("Usage: [cmd] region key [value]");
-		System.out.println("cmd: get/mget/set/mset/evict/keys/clear/ttl/quit/exit/help");
+		System.out.println("cmd: get/mget/set/mset/evict/regions/keys/clear/ttl/quit/exit/help");
 		System.out.println("Examples:");
 		System.out.println("\tset region key value");
 		System.out.println("\tget region key");

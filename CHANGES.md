@@ -2,8 +2,10 @@
 
 **J2Cache 2.3.4-release (2018-1-xx)**
 
-* `DataLoader` 接口带入 key 参数（老版本使用到这个接口需要简单调整代码)
-* 接口增加 `get(String region, Collection<String> keys, DataLoader loader)` 方法
+* 增加 regions 方法获取所有缓存中的已用缓存区域
+* 整理对第三方库的依赖关系
+* 删除 `DataLoader` 接口，改用 Java 8 的 Function 接口替代（传递 key 参数）
+* 接口增加 `get(String region, Collection<String> keys, Function<String,Object> loader)` 方法
 
 **J2Cache 2.3.3-release (2018-1-17)**
 * 修复 `EhcacheProvider3` 中代码和注释的拼写错误

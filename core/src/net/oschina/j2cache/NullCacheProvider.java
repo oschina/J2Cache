@@ -15,6 +15,7 @@
  */
 package net.oschina.j2cache;
 
+import java.util.Collection;
 import java.util.Properties;
 
 /**
@@ -46,6 +47,11 @@ public class NullCacheProvider implements CacheProvider {
 
 	@Override
 	public void start(Properties props) throws CacheException {
+	}
+
+	@Override
+	public Collection<CacheChannel.Region> regions() {
+		return null;
 	}
 
 	@Override

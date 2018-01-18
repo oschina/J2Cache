@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import redis.clients.jedis.*;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -108,4 +109,8 @@ public class RedisCacheProvider implements CacheProvider {
         return buildCache(region, listener);
     }
 
+    @Override
+    public Collection<CacheChannel.Region> regions() {
+        return null;
+    }
 }

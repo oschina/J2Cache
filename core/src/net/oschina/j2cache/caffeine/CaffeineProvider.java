@@ -21,6 +21,8 @@ import net.oschina.j2cache.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -47,6 +49,13 @@ public class CaffeineProvider implements CacheProvider {
     @Override
     public int level() {
         return CacheObject.LEVEL_1;
+    }
+
+    @Override
+    public Collection<CacheChannel.Region> regions() {
+        Collection<CacheChannel.Region> regions = new ArrayList<>();
+        caches.forEach((k,c) -> regions.add(new CacheChannel.Region(k, c.size(), c.ttl())));
+        return regions;
     }
 
     @Override
@@ -86,8 +95,8 @@ public class CaffeineProvider implements CacheProvider {
 
         CaffeineCache cache = caches.get(region);
         if(cache != null) {
-            if(cache.getExpire() != timeToLiveInSeconds)
-                throw new IllegalArgumentException(String.format("Region [%s] TTL %d not match with %d", region, cache.getExpire(), timeToLiveInSeconds));
+            if(cache.ttl() != timeToLiveInSeconds)
+                throw new IllegalArgumentException(String.format("Region [%s] TTL %d not match with %d", region, cache.ttl(), timeToLiveInSeconds));
         }
         else{
             synchronized (CaffeineProvider.class) {

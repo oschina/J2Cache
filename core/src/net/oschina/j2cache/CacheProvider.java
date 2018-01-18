@@ -15,6 +15,7 @@
  */
 package net.oschina.j2cache;
 
+import java.util.Collection;
 import java.util.Properties;
 
 /**
@@ -58,6 +59,12 @@ public interface CacheProvider {
 	Cache buildCache(String region, long timeToLiveInSeconds, CacheExpiredListener listener);
 
 	/**
+	 * Return all channels defined in first level cache
+	 * @return
+	 */
+	Collection<CacheChannel.Region> regions();
+
+	/**
 	 * Callback to perform any necessary initialization of the underlying cache implementation
 	 * during SessionFactory construction.
 	 *
@@ -70,5 +77,5 @@ public interface CacheProvider {
 	 * during SessionFactory.close().
 	 */
 	void stop();
-	
+
 }

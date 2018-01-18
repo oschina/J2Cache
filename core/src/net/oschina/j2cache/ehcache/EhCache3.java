@@ -17,6 +17,7 @@ package net.oschina.j2cache.ehcache;
 
 import net.oschina.j2cache.CacheExpiredListener;
 import net.oschina.j2cache.Level1Cache;
+import org.ehcache.config.ResourceType;
 import org.ehcache.event.*;
 import org.ehcache.expiry.Duration;
 
@@ -49,6 +50,11 @@ public class EhCache3 implements Level1Cache, CacheEventListener {
     public long ttl() {
         Duration dur = this.cache.getRuntimeConfiguration().getExpiry().getExpiryForCreation(null,null);
         return dur.getTimeUnit().toSeconds(dur.getLength());
+    }
+
+    @Override
+    public long size() {
+        return this.cache.getRuntimeConfiguration().getResourcePools().getPoolForResource(ResourceType.Core.HEAP).getSize();
     }
 
     @Override

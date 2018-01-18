@@ -15,6 +15,7 @@
  */
 package net.oschina.j2cache.ehcache;
 
+import net.oschina.j2cache.CacheChannel;
 import net.oschina.j2cache.CacheExpiredListener;
 import net.oschina.j2cache.CacheObject;
 import net.oschina.j2cache.CacheProvider;
@@ -32,6 +33,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -58,6 +61,13 @@ public class EhCacheProvider3 implements CacheProvider {
     @Override
     public int level() {
         return CacheObject.LEVEL_1;
+    }
+
+    @Override
+    public Collection<CacheChannel.Region> regions() {
+        Collection<CacheChannel.Region> regions = new ArrayList<>();
+        caches.forEach((k,c) -> regions.add(new CacheChannel.Region(k, c.size(), c.ttl())));
+        return regions;
     }
 
     @Override
@@ -132,4 +142,5 @@ public class EhCacheProvider3 implements CacheProvider {
             manager = null;
         }
     }
+
 }

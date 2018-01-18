@@ -1,18 +1,17 @@
 package net.oschina.j2cache.cache.support.redis;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
-import net.oschina.j2cache.CacheObject;
+import net.oschina.j2cache.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 
-import net.oschina.j2cache.Cache;
-import net.oschina.j2cache.CacheExpiredListener;
-import net.oschina.j2cache.CacheProvider;
 import net.oschina.j2cache.cache.support.util.SpringUtil;
 
 /**
@@ -45,6 +44,11 @@ public class SpringRedisProvider implements CacheProvider{
 	@Override
 	public int level() {
 		return CacheObject.LEVEL_2;
+	}
+
+	@Override
+	public Collection<CacheChannel.Region> regions() {
+		return null;
 	}
 
 	@Override

@@ -54,6 +54,11 @@ public class EhCache implements Level1Cache, CacheEventListener {
 	}
 
 	@Override
+	public long size() {
+		return cache.getCacheConfiguration().getMaxEntriesLocalHeap();
+	}
+
+	@Override
 	public Collection<String> keys() {
 		return this.cache.getKeys();
 	}
