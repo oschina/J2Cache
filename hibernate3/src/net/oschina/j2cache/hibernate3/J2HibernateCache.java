@@ -23,8 +23,6 @@ import org.hibernate.cache.Timestamper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -57,7 +55,7 @@ public class J2HibernateCache implements Cache {
     
     @Override
     public Object get(Object key) throws CacheException {
-        CacheObject cobj = cache.get(region, (String)key);
+        CacheObject cobj = cache.get(region, key.toString());
         if (log.isDebugEnabled())
             log.debug("get value for j2cache which key:" + key + ",value:" + cobj.getValue());
         return cobj.getValue();
@@ -100,7 +98,7 @@ public class J2HibernateCache implements Cache {
 
     @Override
     public void put(Object key, Object value) {
-        cache.set(region, (String)key, value);
+        cache.set(region, key.toString(), value);
     }
 
     @Override
@@ -110,7 +108,7 @@ public class J2HibernateCache implements Cache {
 
     @Override
     public void remove(Object key) throws CacheException {
-        cache.evict(region, (String) key);
+        cache.evict(region, key.toString());
     }
 
     @SuppressWarnings("unchecked")
