@@ -15,22 +15,23 @@
  */
 package net.oschina.j2cache.hibernate4.regions;
 
-import net.oschina.j2cache.CacheObject;
-import net.oschina.j2cache.hibernate4.CacheRegion;
-import net.oschina.j2cache.hibernate4.strategy.J2CacheAccessStrategyFactory;
-import net.oschina.j2cache.hibernate4.util.Timestamper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.cache.CacheException;
-import org.hibernate.cache.spi.Region;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.hibernate.cache.CacheException;
+import org.hibernate.cache.spi.Region;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.oschina.j2cache.CacheObject;
+import net.oschina.j2cache.hibernate4.CacheRegion;
+import net.oschina.j2cache.hibernate4.strategy.J2CacheAccessStrategyFactory;
+import net.oschina.j2cache.hibernate4.util.Timestamper;
+
 public abstract class J2CacheDataRegion implements Region {
 
-    private static final Log LOG = LogFactory.getLog(J2CacheDataRegion.class);
+    private static final Logger LOG = LoggerFactory.getLogger(J2CacheDataRegion.class);
     private static final String CACHE_LOCK_TIMEOUT_PROPERTY = "hibernate.cache_lock_timeout";
     private static final int DEFAULT_CACHE_LOCK_TIMEOUT = 60000;
 
