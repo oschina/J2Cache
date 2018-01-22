@@ -113,9 +113,11 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 		);
 
 		Map<String, Object> objs_level2 = CacheProviderHolder.getLevel2Cache(region).get(level2Keys);
-		objs_level2.forEach((k,v) ->
-			results.put(k, new CacheObject(region, k, CacheObject.LEVEL_2, v))
-		);
+		objs_level2.forEach((k,v) -> {
+			results.put(k, new CacheObject(region, k, CacheObject.LEVEL_2, v));
+			if (v != null)
+				CacheProviderHolder.getLevel1Cache(region).put(k, v);
+		});
 
 		return results;
 	}
