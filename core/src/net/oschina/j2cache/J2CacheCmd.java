@@ -31,8 +31,6 @@ public class J2CacheCmd {
 
 	public static void main(String[] args) throws IOException {
 
-		System.setProperty("java.net.preferIPv4Stack", "true"); //Disable IPv6 in JVM
-
 		CacheChannel cache = J2Cache.getChannel();
 		ConsoleReader reader = new ConsoleReader();
 

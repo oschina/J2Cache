@@ -34,6 +34,10 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
     private JChannel channel;
     private String name;
 
+    static {
+        System.setProperty("java.net.preferIPv4Stack", "true"); //Disable IPv6 in JVM
+    }
+
     /**
      * 构造函数
      * @param name 组播频道名称
