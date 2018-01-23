@@ -26,12 +26,29 @@ import java.util.Properties;
 public class ClusterPolicyFactory {
 
     /**
+     * 初始化集群消息通知机制
+     * @param broadcast
+     * @param props
+     * @return
+     */
+    public final static ClusterPolicy init(String broadcast, Properties props) {
+        ClusterPolicy policy;
+        if ("redis".equalsIgnoreCase(broadcast))
+            policy = ClusterPolicyFactory.redis(props);
+        else if ("jgroups".equalsIgnoreCase(broadcast))
+            policy = ClusterPolicyFactory.jgroups(props);//
+        else
+            policy = ClusterPolicyFactory.custom(broadcast, props);
+        return policy;
+    }
+
+    /**
      * 使用 Redis 订阅和发布机制，该方法只能调用一次
-     * @param name  频道名称
      * @param props 框架配置
      * @return 返回 Redis 集群策略的实例
      */
-    public final static ClusterPolicy redis(String name, Properties props) {
+    private final static ClusterPolicy redis(Properties props) {
+        String name = props.getProperty("channel");
         RedisPubSubClusterPolicy policy = new RedisPubSubClusterPolicy(name, props);
         policy.connect(props);
         return policy;
@@ -39,13 +56,12 @@ public class ClusterPolicyFactory {
 
     /**
      * 使用 JGroups 组播机制
-     * @param name  组播识别码
-     * @param configPath 配置文件的名称
      * @param props 框架配置
      * @return 返回 JGroups 集群策略的实例
      */
-    public final static ClusterPolicy jgroups(String name, String configPath, Properties props) {
-        JGroupsClusterPolicy policy = new JGroupsClusterPolicy(name, configPath);
+    private final static ClusterPolicy jgroups(Properties props) {
+        String name = props.getProperty("channel.name");
+        JGroupsClusterPolicy policy = new JGroupsClusterPolicy(name, props);
         policy.connect(props);
         return policy;
     }
@@ -56,7 +72,7 @@ public class ClusterPolicyFactory {
      * @param props
      * @return
      */
-    public final static ClusterPolicy custom(String classname, Properties props) {
+    private final static ClusterPolicy custom(String classname, Properties props) {
         try {
             ClusterPolicy policy = (ClusterPolicy)Class.forName(classname).newInstance();
             policy.connect(props);

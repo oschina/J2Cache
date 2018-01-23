@@ -46,18 +46,18 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
 
     public RedisPubSubClusterPolicy(String channel, Properties props){
         this.channel = channel;
-        String node = props.getProperty("redis.channel.host");
+        String node = props.getProperty("channel.host");
         if(node == null || node.trim().length() == 0)
-            node = props.getProperty("redis.hosts").split(",")[0];
+            node = props.getProperty("hosts").split(",")[0];
         String[] infos = node.split(":");
         this.host = infos[0];
         this.port = (infos.length > 1)?Integer.parseInt(infos[1]):6379;
-        this.timeout = Integer.parseInt((String)props.getOrDefault("redis.timeout", "2000"));
-        this.password = props.getProperty("redis.password");
+        this.timeout = Integer.parseInt((String)props.getOrDefault("timeout", "2000"));
+        this.password = props.getProperty("password");
         if(this.password != null && this.password.trim().length() == 0)
             this.password = null;
 
-        JedisPoolConfig config = RedisUtils.newPoolConfig(props, "redis");
+        JedisPoolConfig config = RedisUtils.newPoolConfig(props, null);
         this.client = new JedisPool(config, host, port, timeout, password);
     }
 

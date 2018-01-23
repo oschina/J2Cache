@@ -75,6 +75,12 @@ public class CacheObject {
 	 * @return
 	 */
 	public Object getValue() {
+		if (value != null && value.getClass().equals(Object.class))
+			return null;
+		return value;
+	}
+
+	Object rawValue() {
 		return value;
 	}
 

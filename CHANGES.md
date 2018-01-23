@@ -1,6 +1,12 @@
 # J2Cache 版本更新记录
 
-**J2Cache 2.3.4-release (2018-1-xx)**
+**J2Cache 2.3.5-release (2018-1-xx)**
+* [新特性] 支持缓存空对象 `j2cache.support_null_object = true` (默认关闭)
+* [BUG] 修复了批量加载缓存后没有设置 L1 数据的问题
+* [BUG] 修复了 `generic` 模式下如果没有对应的数据会导致 `clear` 方法执行失败的问题
+* [BUG] 修复 `java.lang.ClassCastException: org.hibernate.cache.QueryKey cannot be cast to java.lang.String`
+
+**J2Cache 2.3.4-release (2018-1-18)**
 
 * 增加 regions 方法获取所有缓存中的已用缓存区域
 * 整理对第三方库的依赖关系

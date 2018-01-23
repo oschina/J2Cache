@@ -29,20 +29,21 @@ import java.util.Properties;
 public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPolicy {
 
     private final static Logger log = LoggerFactory.getLogger(JGroupsClusterPolicy.class);
-    private String configXml = "/network.xml";
 
+    private String configXml;
     private JChannel channel;
     private String name;
 
     /**
      * 构造函数
      * @param name 组播频道名称
-     * @param configPath 配置文件路径
+     * @param props 配置文件路径
      */
-    public JGroupsClusterPolicy(String name, String configPath) {
+    public JGroupsClusterPolicy(String name, Properties props) {
         this.name = name;
-        if(configPath != null && configPath.trim().length() > 0)
-            this.configXml = configPath;
+        this.configXml = props.getProperty("configXml");
+        if(configXml != null && configXml.trim().length() > 0)
+            this.configXml = "/network.xml";
     }
 
     @Override

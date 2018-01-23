@@ -61,6 +61,8 @@ public class J2CacheCmd {
 				}
 				else
 				if("set".equalsIgnoreCase(cmds[0])){
+					if("null".equalsIgnoreCase(cmds[3]))
+						cmds[3] = null;
 					cache.set(cmds[1], cmds[2], cmds[3], TTL);
 					System.out.printf("[%s,%s]<=%s(TTL:%d)\n",cmds[1], cmds[2], cmds[3], TTL);
 				}

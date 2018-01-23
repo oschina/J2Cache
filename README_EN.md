@@ -48,7 +48,7 @@ Those setting files must be placed in classpath , such as `WEB-INF/classes`
 <dependency>
   <groupId>net.oschina.j2cache</groupId>  
   <artifactId>j2cache-core</artifactId>  
-  <version>2.3.4-release</version>  
+  <version>xxxxx</version>  
 </dependency>
 ```
 ### Usage

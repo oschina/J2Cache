@@ -17,7 +17,6 @@ package net.oschina.j2cache;
 
 import net.oschina.j2cache.caffeine.CaffeineProvider;
 import net.oschina.j2cache.ehcache.EhCacheProvider3;
-import net.oschina.j2cache.redis.RedisClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +24,6 @@ import net.oschina.j2cache.ehcache.EhCacheProvider;
 import net.oschina.j2cache.redis.RedisCacheProvider;
 
 import java.util.Collection;
-import java.util.Properties;
 
 /**
  * 两级的缓存管理器
@@ -44,19 +42,19 @@ public class CacheProviderHolder {
 	 * Initialize Cache Provider
 	 * @param listener cache listener
 	 */
-	public static void init(Properties props, CacheExpiredListener listener){
+	public static void init(J2CacheConfig config, CacheExpiredListener listener){
 		CacheProviderHolder.listener = listener;
 		try {
-			CacheProviderHolder.l1_provider = loadProviderInstance(props.getProperty("j2cache.L1.provider_class"));
+			CacheProviderHolder.l1_provider = loadProviderInstance(config.getL1CacheName());
 			if (!l1_provider.isLevel(CacheObject.LEVEL_1))
 				throw new CacheException(l1_provider.getClass().getName() + " is not level_1 cache provider");
-			CacheProviderHolder.l1_provider.start(loadProviderProperties(props, CacheProviderHolder.l1_provider));
+			CacheProviderHolder.l1_provider.start(config.getL1CacheProperties());
 			log.info("Using L1 CacheProvider : " + l1_provider.getClass().getName());
 
-			CacheProviderHolder.l2_provider = loadProviderInstance(props.getProperty("j2cache.L2.provider_class"));
+			CacheProviderHolder.l2_provider = loadProviderInstance(config.getL2CacheName());
 			if (!l2_provider.isLevel(CacheObject.LEVEL_2))
 				throw new CacheException(l2_provider.getClass().getName() + " is not level_2 cache provider");
-			CacheProviderHolder.l2_provider.start(loadProviderProperties(props, CacheProviderHolder.l2_provider));
+			CacheProviderHolder.l2_provider.start(config.getL2CacheProperties());
 			log.info("Using L2 CacheProvider : " + l2_provider.getClass().getName());
 		} catch (CacheException e) {
 			throw e;
@@ -87,16 +85,6 @@ public class CacheProviderHolder {
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
 			throw new CacheException("Failed to initialize cache providers", e);
 		}
-	}
-	
-	private final static Properties loadProviderProperties(Properties props, CacheProvider provider) {
-		String prefix = provider.name() + '.';
-		Properties new_props = new Properties();
-		for(String key : props.stringPropertyNames()) {
-			if(key.startsWith(prefix))
-				new_props.setProperty(key.substring(prefix.length()), props.getProperty(key));
-		}
-		return new_props;
 	}
 
 	/**
