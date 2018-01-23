@@ -40,7 +40,7 @@ public class J2Cache {
 			config = J2CacheConfig.initFromConfig(CONFIG_FILE);
 			initFromConfig(config);
 			/* 初始化缓存接口 */
-			channel = new CacheChannel(config.isSupport_null_object()){
+			channel = new CacheChannel(){
 				@Override
 				public void sendClearCmd(String region) {
 					policy.sendClearCmd(region);

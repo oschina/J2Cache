@@ -63,7 +63,7 @@ public class J2CacheCmd {
 				if("set".equalsIgnoreCase(cmds[0])){
 					if("null".equalsIgnoreCase(cmds[3]))
 						cmds[3] = null;
-					cache.set(cmds[1], cmds[2], cmds[3], TTL);
+					cache.set(cmds[1], cmds[2], cmds[3], TTL, true);
 					System.out.printf("[%s,%s]<=%s(TTL:%d)\n",cmds[1], cmds[2], cmds[3], TTL);
 				}
 				else
@@ -72,9 +72,11 @@ public class J2CacheCmd {
 					Map<String, Object> objs = new HashMap<>();
 					for(int i=2;i<cmds.length;i++) {
 						String[] obj = cmds[i].split(":");
+						if("null".equalsIgnoreCase(obj[1]))
+							obj[1] = null;
 						objs.put(obj[0], obj[1]);
 					}
-					cache.set(cmds[1], objs, TTL);
+					cache.set(cmds[1], objs, TTL, true);
 					objs.forEach((k,v)->System.out.printf("[%s,%s]<=%s(TTL:%d)\n",region, k, v, TTL));
 				}
 				else

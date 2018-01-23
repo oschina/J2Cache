@@ -29,11 +29,6 @@ import java.util.stream.Collectors;
 public abstract class CacheChannel implements Closeable , AutoCloseable {
 
 	private final static Map<String, Object> _g_keyLocks = new ConcurrentHashMap<>();
-	private boolean support_null_obj = false;
-
-	public CacheChannel(boolean support_null_obj){
-		this.support_null_obj = support_null_obj;
-	}
 
 	/**
 	 * <p>Just for Inner Use.</p>
@@ -181,13 +176,26 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param value: Cache value
 	 */
 	public void set(String region, String key, Object value) {
+		set(region, key, value,false);
+	}
+
+	/**
+	 * Write data to J2Cache
+	 *
+	 * @param region: Cache Region name
+	 * @param key: Cache key
+	 * @param value: Cache value
+	 * @param cacheNullObject if allow cache null object
+	 */
+	public void set(String region, String key, Object value, boolean cacheNullObject) {
 		try {
-			CacheProviderHolder.getLevel1Cache(region).put(key, (value==null && support_null_obj)?new Object():value);
-			CacheProviderHolder.getLevel2Cache(region).put(key, (value==null && support_null_obj)?new Object():value);
+			CacheProviderHolder.getLevel1Cache(region).put(key, (value==null && cacheNullObject)?new Object():value);
+			CacheProviderHolder.getLevel2Cache(region).put(key, (value==null && cacheNullObject)?new Object():value);
 		} finally {
 			this.sendEvictCmd(region, key);//清除原有的一级缓存的内容
 		}
     }
+
 
 	/**
 	 * Write data to j2cache with expired setting
@@ -196,13 +204,25 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param value Cache value
 	 * @param timeToLiveInSeconds cache expired in second
 	 */
-    public void set(String region, String key, Object value, long timeToLiveInSeconds) {
+	public void set(String region, String key, Object value, long timeToLiveInSeconds ) {
+		set(region, key, value, timeToLiveInSeconds, false);
+	}
+
+	/**
+	 * Write data to j2cache with expired setting
+	 * @param region Cache Region name
+	 * @param key Cache Key
+	 * @param value Cache value
+	 * @param timeToLiveInSeconds cache expired in second
+	 * @param cacheNullObject if allow cache null object
+	 */
+    public void set(String region, String key, Object value, long timeToLiveInSeconds, boolean cacheNullObject) {
     	if(timeToLiveInSeconds <= 0)
-    		set(region, key, value);
+    		set(region, key, value, cacheNullObject);
     	else {
 			try {
-				CacheProviderHolder.getLevel1Cache(region, timeToLiveInSeconds).put(key, (value==null && support_null_obj)?new Object():value);
-				CacheProviderHolder.getLevel2Cache(region).put(key, (value==null && support_null_obj)?new Object():value);
+				CacheProviderHolder.getLevel1Cache(region, timeToLiveInSeconds).put(key, (value==null && cacheNullObject)?new Object():value);
+				CacheProviderHolder.getLevel2Cache(region).put(key, (value==null && cacheNullObject)?new Object():value);
 			} finally {
 				this.sendEvictCmd(region, key);//清除原有的一级缓存的内容
 			}
@@ -214,10 +234,32 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param region Cache Region name
 	 * @param elements Cache Elements
 	 */
-	public void set(String region, Map<String, Object> elements)  {
+	public void set(String region, Map<String, Object> elements){
+    	set(region, elements, false);
+	}
+
+	/**
+	 * 批量插入数据
+	 * @param region Cache Region name
+	 * @param elements Cache Elements
+	 * @param cacheNullObject if allow cache null object
+	 */
+	public void set(String region, Map<String, Object> elements, boolean cacheNullObject)  {
 		try {
-			CacheProviderHolder.getLevel1Cache(region).put(elements);
-			CacheProviderHolder.getLevel2Cache(region).put(elements);
+			if (cacheNullObject && elements.containsValue(null)) {
+				Map<String, Object> newElems = new HashMap<>();
+				newElems.putAll(elements);
+				newElems.forEach((k,v) -> {
+					if (v == null)
+						newElems.put(k, new Object());
+				});
+				CacheProviderHolder.getLevel1Cache(region).put(newElems);
+				CacheProviderHolder.getLevel2Cache(region).put(newElems);
+			}
+			else {
+				CacheProviderHolder.getLevel1Cache(region).put(elements);
+				CacheProviderHolder.getLevel2Cache(region).put(elements);
+			}
 		} finally {
 			//广播
 			this.sendEvictCmd(region, elements.keySet().stream().toArray(String[]::new));
@@ -230,13 +272,36 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param elements Cache Elements
 	 * @param timeToLiveInSeconds cache expired in second
 	 */
-	public void set(String region, Map<String, Object> elements, long timeToLiveInSeconds)  {
+	public void set(String region, Map<String, Object> elements, long timeToLiveInSeconds){
+		set(region, elements, timeToLiveInSeconds, false);
+	}
+
+	/**
+	 * 带失效时间的批量缓存数据插入
+	 * @param region Cache Region name
+	 * @param elements Cache Elements
+	 * @param timeToLiveInSeconds cache expired in second
+	 * @param cacheNullObject if allow cache null object
+	 */
+	public void set(String region, Map<String, Object> elements, long timeToLiveInSeconds, boolean cacheNullObject)  {
 		if(timeToLiveInSeconds <= 0)
-			set(region, elements);
+			set(region, elements, cacheNullObject);
 		else {
 			try {
-				CacheProviderHolder.getLevel1Cache(region, timeToLiveInSeconds).put(elements);
-				CacheProviderHolder.getLevel2Cache(region).put(elements);
+				if (cacheNullObject && elements.containsValue(null)) {
+					Map<String, Object> newElems = new HashMap<>();
+					newElems.putAll(elements);
+					newElems.forEach((k,v) -> {
+						if (v == null)
+							newElems.put(k, new Object());
+					});
+					CacheProviderHolder.getLevel1Cache(region, timeToLiveInSeconds).put(newElems);
+					CacheProviderHolder.getLevel2Cache(region).put(newElems);
+				}
+				else {
+					CacheProviderHolder.getLevel1Cache(region, timeToLiveInSeconds).put(elements);
+					CacheProviderHolder.getLevel2Cache(region).put(elements);
+				}
 			} finally {
 				//广播
 				this.sendEvictCmd(region, elements.keySet().stream().toArray(String[]::new));

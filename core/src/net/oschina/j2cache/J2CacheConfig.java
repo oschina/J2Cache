@@ -36,7 +36,6 @@ public class J2CacheConfig {
     private String l1CacheName;
     private String l2CacheName;
     private String serialization;
-    private boolean support_null_object;
     private Properties broadcastProperties = new Properties();
     private Properties l1CacheProperties = new Properties();
     private Properties l2CacheProperties = new Properties();
@@ -48,7 +47,6 @@ public class J2CacheConfig {
             config.properties.load(stream);
             config.serialization = config.properties.getProperty("j2cache.serialization");
             config.broadcast = config.properties.getProperty("j2cache.broadcast");
-            config.support_null_object = Boolean.valueOf(config.properties.getProperty("j2cache.support_null_object", "false"));
             config.l1CacheName = config.properties.getProperty("j2cache.L1.provider_class");
             config.l2CacheName = config.properties.getProperty("j2cache.L2.provider_class");
             config.properties.forEach((k,v) -> {
@@ -83,7 +81,6 @@ public class J2CacheConfig {
 
     public void dump(PrintStream writer) {
         writer.printf("j2cache.serialization = %s\n", this.serialization);
-        writer.printf("j2cache.support_null_object = %s\n", this.support_null_object);
         writer.printf("[%s]\n",this.broadcast);
         broadcastProperties.list(writer);
         writer.printf("[%s]\n",this.l1CacheName);
@@ -126,14 +123,6 @@ public class J2CacheConfig {
 
     public void setSerialization(String serialization) {
         this.serialization = serialization;
-    }
-
-    public boolean isSupport_null_object() {
-        return support_null_object;
-    }
-
-    public void setSupport_null_object(boolean support_null_object) {
-        this.support_null_object = support_null_object;
     }
 
     public Properties getBroadcastProperties() {
