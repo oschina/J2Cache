@@ -199,6 +199,9 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 
 	/**
 	 * Write data to j2cache with expired setting
+	 *
+	 * <strong>注意：强烈不推荐使用带 TTL 的 set 方法，所有的缓存 TTL 都应该预先配置好，避免多个节点的缓存 Region 配置不同步</strong>
+	 *
 	 * @param region Cache Region name
 	 * @param key Cache Key
 	 * @param value Cache value
@@ -210,6 +213,9 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 
 	/**
 	 * Write data to j2cache with expired setting
+	 *
+	 * <strong>注意：强烈不推荐使用带 TTL 的 set 方法，所有的缓存 TTL 都应该预先配置好，避免多个节点的缓存 Region 配置不同步</strong>
+	 *
 	 * @param region Cache Region name
 	 * @param key Cache Key
 	 * @param value Cache value
@@ -268,6 +274,9 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 
 	/**
 	 * 带失效时间的批量缓存数据插入
+	 *
+	 * <strong>注意：强烈不推荐使用带 TTL 的 set 方法，所有的缓存 TTL 都应该预先配置好，避免多个节点的缓存 Region 配置不同步</strong>
+	 *
 	 * @param region Cache Region name
 	 * @param elements Cache Elements
 	 * @param timeToLiveInSeconds cache expired in second
@@ -278,6 +287,9 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 
 	/**
 	 * 带失效时间的批量缓存数据插入
+	 *
+	 * <strong>注意：强烈不推荐使用带 TTL 的 set 方法，所有的缓存 TTL 都应该预先配置好，避免多个节点的缓存 Region 配置不同步</strong>
+	 *
 	 * @param region Cache Region name
 	 * @param elements Cache Elements
 	 * @param timeToLiveInSeconds cache expired in second
