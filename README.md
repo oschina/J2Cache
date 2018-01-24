@@ -95,11 +95,15 @@ public static void main(String[] args) {
     //缓存操作
     cache.set("default", "1", "Hello J2Cache");
     System.out.println(cache.get("default", "1"));
+    cache.evict("default", "1");
+    System.out.println(cache.get("default", "1"));
     
     cache.close();
 }
 ```
 编译并运行查看结果，更多的用法请参考 [CacheChannel.java](https://gitee.com/ld/J2Cache/blob/master/core/src/net/oschina/j2cache/CacheChannel.java) 接口的方法。
+
+*请注意 cache.close() 方法只需在程序退出时调用。*
 
 **四. 集群测试**
 
