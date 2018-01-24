@@ -113,4 +113,12 @@ public class RedisCacheProvider implements CacheProvider {
     public Collection<CacheChannel.Region> regions() {
         return null;
     }
+
+    /**
+     * 获取 Redis 客户端实例
+     * @return
+     */
+    public RedisClient getRedisClient() {
+        return redisClient;
+    }
 }

@@ -4,6 +4,16 @@
 
 * 同时兼容 JGroups 3.6.x 和 4.0.x 版本
 * 支持直接使用 J2CacheConfig 配置 J2Cache，请参考 `J2CacheBuilder` 类
+* CacheChannel 提供直接访问底层 Redis 的接口，示例代码：
+    ```
+    CacheChannel channel = J2Cache.getChannel();
+    RedisClient client = ((RedisCacheProvider)channel.getL2Provider()).getRedisClient();
+    try {
+        client.get().xxxxx(...);
+    } finally {
+        client.release();
+    }
+    ```
 
 **J2Cache 2.3.5-release (2018-1-23)**
 * [新特性] 支持缓存空对象

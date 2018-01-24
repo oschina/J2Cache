@@ -193,65 +193,8 @@ public class RedisClient implements Closeable, AutoCloseable {
                 }
             }
             else
-                log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                log.warn("Nothing to do while release redis client.");
             clients.remove();
-        }
-    }
-
-    /**
-     * 订阅
-     * @param jedisPubSub 接受订阅消息的实例
-     * @param channels 订阅的频道名称
-     */
-    public void subscribe(BinaryJedisPubSub jedisPubSub, byte[]... channels) {
-        if(cluster != null)
-            cluster.subscribe(jedisPubSub, channels);
-        else if(single != null)
-            single.getResource().subscribe(jedisPubSub, channels);
-        else if(sentinel != null)
-            sentinel.getResource().subscribe(jedisPubSub, channels);
-        if(sharded != null) {
-            for(Jedis jedis : sharded.getResource().getAllShards()) {
-                jedis.subscribe(jedisPubSub, channels);
-                break;
-            }
-        }
-    }
-
-    /**
-     * 发布订阅消息
-     * @param channel 订阅频道
-     * @param bytes 消息数据
-     */
-    public void publish(byte[] channel, byte[] bytes) {
-        try {
-            if (cluster != null)
-                cluster.publish(channel, bytes);
-
-            else if (single != null) {
-                try(Jedis jedis = single.getResource()) {
-                    jedis.publish(channel, bytes);
-                }
-            }
-            else if (sentinel != null) {
-                try (Jedis jedis = sentinel.getResource()) {
-                    jedis.publish(channel, bytes);
-                }
-            }
-            else if (sharded != null) {
-                try (ShardedJedis jedis = sharded.getResource()) {
-                    for(Jedis node : jedis.getAllShards()){
-                        try {
-                            node.publish(channel, bytes);
-                        } finally {
-                            node.close();
-                        }
-                        break;
-                    }
-                }
-            }
-        } finally {
-            release();
         }
     }
 

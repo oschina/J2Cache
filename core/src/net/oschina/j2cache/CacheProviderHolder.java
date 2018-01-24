@@ -87,6 +87,14 @@ public class CacheProviderHolder {
 		}
 	}
 
+	public final static CacheProvider getL1Provider() {
+		return l1_provider;
+	}
+
+	public final static CacheProvider getL2Provider() {
+		return l2_provider;
+	}
+
 	/**
 	 * 一级缓存实例
 	 * @param region

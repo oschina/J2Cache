@@ -378,6 +378,32 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	public abstract void close();
 
 	/**
+	 * 获取一级缓存接口
+	 * @return 返回一级缓存的 CacheProvider 实例
+	 */
+	public CacheProvider getL1Provider() {
+		return CacheProviderHolder.getL1Provider();
+	}
+
+	/**
+	 * <p>获取二级缓存的接口，该方法可用来直接获取 J2Cache 底层的 Redis 客户端实例</p>
+	 * <p>方法如下：</p>
+	 * <code>
+	 *     CacheChannel channel = J2Cache.getChannel();
+	 *     RedisClient client = ((RedisCacheProvider)channel.getL2Provider()).getRedisClient();
+	 *     try {
+	 *     	   client.get().xxxxx(...);
+	 *     } finally {
+	 *         client.release();
+	 *     }
+	 * </code>
+	 * @return 返回二级缓存的 CacheProvider 实例
+	 */
+	public CacheProvider getL2Provider() {
+		return CacheProviderHolder.getL2Provider();
+	}
+
+	/**
 	 * Cache Region Define
 	 */
 	public static class Region {
