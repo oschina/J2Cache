@@ -31,7 +31,7 @@ public class J2CacheCmd {
 
 	public static void main(String[] args) throws IOException {
 
-		CacheChannel cache = J2Cache.getChannel();
+		CacheChannel cache = J2Cache.getChannel(); //获取 J2Cache 操作接口
 		ConsoleReader reader = new ConsoleReader();
 
 		String line;
@@ -45,13 +45,13 @@ public class J2CacheCmd {
 
 				String[] cmds = line.split(" ");
 				if("get".equalsIgnoreCase(cmds[0])){
-					CacheObject obj = cache.get(cmds[1], cmds[2]);
+					CacheObject obj = cache.get(cmds[1], cmds[2]); //从缓存读取数据
 					System.out.printf("[%s,%s,L%d]=>%s(TTL:%d)\n", obj.getRegion(), obj.getKey(), obj.getLevel(), obj.getValue(), TTL);
 				}
 				else
 				if("mget".equalsIgnoreCase(cmds[0])){
 					List<String> keys = Arrays.stream(cmds).skip(2).collect(Collectors.toList());
-					Map<String, CacheObject> values = cache.get(cmds[1], keys);
+					Map<String, CacheObject> values = cache.get(cmds[1], keys); //批量获取缓存数据
 					if(values != null && values.size() > 0)
 						values.forEach((key,obj) -> System.out.printf("[%s,%s,L%d]=>%s(TTL:%d)\n", obj.getRegion(), obj.getKey(), obj.getLevel(), obj.getValue(), TTL));
 					else
@@ -61,7 +61,7 @@ public class J2CacheCmd {
 				if("set".equalsIgnoreCase(cmds[0])){
 					if("null".equalsIgnoreCase(cmds[3]))
 						cmds[3] = null;
-					cache.set(cmds[1], cmds[2], cmds[3], TTL, true);
+					cache.set(cmds[1], cmds[2], cmds[3], TTL, true); //数据写入缓存
 					System.out.printf("[%s,%s]<=%s(TTL:%d)\n",cmds[1], cmds[2], cmds[3], TTL);
 				}
 				else
@@ -74,19 +74,19 @@ public class J2CacheCmd {
 							obj[1] = null;
 						objs.put(obj[0], obj[1]);
 					}
-					cache.set(cmds[1], objs, TTL, true);
+					cache.set(cmds[1], objs, TTL, true); //批量写入数据到缓存
 					objs.forEach((k,v)->System.out.printf("[%s,%s]<=%s(TTL:%d)\n",region, k, v, TTL));
 				}
 				else
 				if("evict".equalsIgnoreCase(cmds[0])){
 					String[] keys = Arrays.stream(cmds).skip(2).toArray(String[]::new);
-					cache.evict(cmds[1], keys);
+					cache.evict(cmds[1], keys); //清除某个缓存数据
 					for(String key : keys)
 						System.out.printf("[%s,%s]=>null\n",cmds[1], key);
 				}
 				else
 				if("clear".equalsIgnoreCase(cmds[0])){
-					cache.clear(cmds[1]);
+					cache.clear(cmds[1]);	//清除某个缓存区域的数据
 					System.out.printf("Cache [%s] clear.\n" , cmds[1]);
 				}
 				else
@@ -96,7 +96,7 @@ public class J2CacheCmd {
 				}
 				else
 				if("keys".equalsIgnoreCase(cmds[0])){
-					Collection<String> keys = cache.keys(cmds[1]);
+					Collection<String> keys = cache.keys(cmds[1]); //获得某个缓存区域的所有 key
 					if(keys != null)
 						System.out.printf("[%s:keys] => (%s)(TTL:%d)\n" , cmds[1], String.join(",", keys), TTL);
 					else
@@ -130,7 +130,7 @@ public class J2CacheCmd {
 			}
 		}while(true);
 
-		cache.close();
+		cache.close();	//关闭 J2Cache 缓存
 		reader.shutdown();
 
 		System.exit(0);
