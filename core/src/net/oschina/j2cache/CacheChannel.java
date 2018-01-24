@@ -74,7 +74,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param loader data loader
 	 * @return cache object
 	 */
-	public CacheObject get(String region, String key, Function<String, Object> loader) {
+	public CacheObject get(String region, String key, Function<String, Object> loader, boolean...cacheNullObject) {
 		CacheObject cache = get(region, key);
 		if (cache.rawValue() == null) {
 			String lock_key = key + '@' + region;
@@ -84,7 +84,8 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 					try {
 						Object obj = loader.apply(key);
 						if (obj != null) {
-							set(region, key, obj);
+							boolean cacheNull = (cacheNullObject.length>0)?cacheNullObject[0]:false;
+							set(region, key, obj, cacheNull);
 							cache = new CacheObject(region, key, CacheObject.LEVEL_OUTER, obj);
 						}
 					} finally {
@@ -129,7 +130,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param loader data loader
 	 * @return
 	 */
-	public Map<String, CacheObject> get(String region, Collection<String> keys, Function<String, Object> loader)  {
+	public Map<String, CacheObject> get(String region, Collection<String> keys, Function<String, Object> loader, boolean...cacheNullObject)  {
 		Map<String, CacheObject> results = get(region, keys);
 		results.entrySet().stream().filter(e -> e.getValue().rawValue() == null).forEach( e -> {
 			String lock_key = e.getKey() + '@' + region;
@@ -139,7 +140,8 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 					try {
 						Object obj = loader.apply(e.getKey());
 						if (obj != null) {
-							set(region, e.getKey(), obj);
+							boolean cacheNull = (cacheNullObject.length>0)?cacheNullObject[0]:false;
+							set(region, e.getKey(), obj, cacheNull);
 							e.getValue().setValue(obj);
 							e.getValue().setLevel(CacheObject.LEVEL_OUTER);
 						}
