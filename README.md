@@ -79,5 +79,3 @@ J2Cache 运行时所需 jar 包请查看 core/pom.xml
 * 更多项目收集中，如果你的项目用了，请告诉我
 
 ## TODO ##
-
-* 增加使用 API 对 J2Cache 进行初始化配置

@@ -3,6 +3,7 @@
 **J2Cache 2.3.6-release (2018-1-xx)**
 
 * 同时兼容 JGroups 3.6.x 和 4.0.x 版本
+* 支持直接使用 J2CacheConfig 配置 J2Cache，请参考 `J2CacheBuilder` 类
 
 **J2Cache 2.3.5-release (2018-1-23)**
 * [新特性] 支持缓存空对象
