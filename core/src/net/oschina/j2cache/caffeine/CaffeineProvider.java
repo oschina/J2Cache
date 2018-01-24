@@ -21,6 +21,8 @@ import net.oschina.j2cache.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Properties;
@@ -152,18 +154,34 @@ public class CaffeineProvider implements CacheProvider {
                 continue ;
             String s_config = props.getProperty(region).trim();
             region = region.substring(PREFIX_REGION.length());
-            CacheConfig cfg = CacheConfig.parse(s_config);
-            if(cfg == null) {
-                log.warn(String.format("Illegal caffeine cache config [%s=%s]", region, s_config));
-                continue;
-            }
-            cacheConfigs.put(region, cfg);
+            this.saveCacheConfig(region, s_config);
         }
+        //加载 Caffeine 独立配置文件
+        String propertiesFile = props.getProperty("properties");
+        if(propertiesFile != null && propertiesFile.trim().length() > 0) {
+            try (InputStream stream = getClass().getResourceAsStream(propertiesFile)) {
+                Properties regionsProps = new Properties();
+                regionsProps.load(stream);
+                for(String region : regionsProps.stringPropertyNames()) {
+                    String s_config = regionsProps.getProperty(region).trim();
+                    this.saveCacheConfig(region, s_config);
+                }
+            } catch (IOException e) {
+                log.error("Failed to load caffeine regions define " + propertiesFile, e);
+            }
+        }
+    }
+
+    private void saveCacheConfig(String region, String region_config) {
+        CacheConfig cfg = CacheConfig.parse(region_config);
+        if(cfg == null)
+            log.warn(String.format("Illegal caffeine cache config [%s=%s]", region, region_config));
+        else
+            cacheConfigs.put(region, cfg);
     }
 
     @Override
     public void stop() {
-
     }
 
     /**
@@ -204,6 +222,11 @@ public class CaffeineProvider implements CacheProvider {
                 }
             }
             return cacheConfig;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("[SIZE:%d,EXPIRE:%d]", size, expire);
         }
 
     }

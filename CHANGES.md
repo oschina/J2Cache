@@ -1,5 +1,9 @@
 # J2Cache 版本更新记录
 
+**J2Cache 2.3.7-release (2018-1-24)**
+
+* 支持独立的 Caffeine 缓存定义文件 caffeine.properties
+
 **J2Cache 2.3.6-release (2018-1-24)**
 
 * 同时兼容 JGroups 3.6.x 和 4.0.x 版本
