@@ -1,9 +1,10 @@
 # J2Cache 版本更新记录
 
-**J2Cache 2.3.6-release (2018-1-xx)**
+**J2Cache 2.3.6-release (2018-1-24)**
 
 * 同时兼容 JGroups 3.6.x 和 4.0.x 版本
 * 支持直接使用 J2CacheConfig 配置 J2Cache，请参考 `J2CacheBuilder` 类
+* get with loader 方法支持 cacheNullObject 参数
 * CacheChannel 提供直接访问底层 Redis 的接口，示例代码：
     ```
     CacheChannel channel = J2Cache.getChannel();
