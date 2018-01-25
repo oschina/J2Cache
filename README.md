@@ -1,3 +1,5 @@
+![J2Cache](docs/J2Cache.png)
+
 # J2Cache —— 基于内存和 Redis 实现的两级 Java 缓存框架
 
 专用QQ群: `379110351`
