@@ -10,7 +10,7 @@ import net.oschina.j2cache.Level2Cache;
 import org.springframework.data.redis.core.RedisTemplate;
 
 /**
- * 
+ * 重新实现二级缓存
  * @author zhangsaizz
  *
  */

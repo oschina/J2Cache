@@ -13,7 +13,7 @@ import net.oschina.j2cache.Command;
 import net.oschina.j2cache.cache.support.util.SpringUtil;
 
 /**
- * 
+ * 使用spring redis实现订阅功能
  * @author zhangsaizz
  *
  */
@@ -29,7 +29,7 @@ public class SpringRedisPubSubPolicy implements ClusterPolicy{
 	@Override
 	public void connect(Properties props) {
 		String channel_name = props.getProperty("jgroups.channel.name");
-		if(channel_name == null || channel_name.isEmpty()) {
+		if(channel_name != null && !channel_name.isEmpty()) {
 			this.channel = channel_name;
 		}
 		this.redisConnectionFactory = SpringUtil.getBean(RedisConnectionFactory.class);
