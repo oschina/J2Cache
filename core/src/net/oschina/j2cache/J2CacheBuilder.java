@@ -29,13 +29,10 @@ public class J2CacheBuilder {
 
     private final static Logger log = LoggerFactory.getLogger(J2CacheBuilder.class);
 
-    private J2CacheConfig config;
     private CacheChannel channel;
-    private static ClusterPolicy policy; //不同的广播策略
+    private ClusterPolicy policy; //不同的广播策略
 
     private J2CacheBuilder(J2CacheConfig config) {
-        this.config = config;
-
         this.initFromConfig(config);
         /* 初始化缓存接口 */
         this.channel = new CacheChannel(){
@@ -86,7 +83,7 @@ public class J2CacheBuilder {
      * @return
      * @throws IOException
      */
-    private static void initFromConfig(J2CacheConfig config) {
+    private void initFromConfig(J2CacheConfig config) {
         SerializationUtils.init(config.getSerialization());
         //初始化两级的缓存管理
         CacheProviderHolder.init(config, (region, key)->{
