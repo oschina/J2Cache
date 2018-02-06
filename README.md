@@ -146,6 +146,16 @@ public static void main(String[] args) {
     </dependency>
 
 	```
+5. **为什么 J2Cache 初始化时，连接 Redis 非常慢，要 5 秒以上？**
+
+    如果出现这种情况，请在系统 hosts 里配置机器名和IP地址的对应关系，例如：  
+
+    ```
+    127.0.0.1       localhost
+    127.0.0.1       winter-notebook.local
+    ::1             localhost
+    ::1             winter-notebook.local
+    ```
 
 ## 哪些项目在用 J2Cache ？
 
