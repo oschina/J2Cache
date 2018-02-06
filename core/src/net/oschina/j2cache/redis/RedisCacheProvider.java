@@ -66,6 +66,9 @@ public class RedisCacheProvider implements CacheProvider {
         String cluster_name = props.getProperty("cluster_name");
         String password = props.getProperty("password");
         int database = Integer.parseInt(props.getProperty("database"));
+
+        long ct = System.currentTimeMillis();
+
         this.redisClient = new RedisClient.Builder()
                 .mode(mode)
                 .hosts(hosts)
@@ -74,7 +77,7 @@ public class RedisCacheProvider implements CacheProvider {
                 .database(database)
                 .poolConfig(poolConfig).newClient();
 
-        log.info(String.format("Redis client starts with mode(%s), db(%d), storage(%s), namespace(%s)", mode, database, storage, namespace));
+        log.info(String.format("Redis client starts with mode(%s),db(%d),storage(%s),namespace(%s),time(%dms)", mode,database,storage,namespace,(System.currentTimeMillis()-ct)));
     }
 
     @Override
