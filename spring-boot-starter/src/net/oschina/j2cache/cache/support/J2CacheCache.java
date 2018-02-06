@@ -5,13 +5,13 @@ import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.support.AbstractValueAdaptingCache;
 import net.oschina.j2cache.CacheChannel;
 import net.oschina.j2cache.CacheObject;
-import net.oschina.j2cache.J2Cache;
 
 /**
- * 
+ * {@link CacheManager} implementation for J2Cache.
  * @author zhangsaizz
  *
  */
@@ -19,17 +19,18 @@ public class J2CacheCache extends AbstractValueAdaptingCache {
 
 	private static Logger logger = LoggerFactory.getLogger(J2CacheCache.class);
 
-	private CacheChannel cacheChannel = J2Cache.getChannel();
+	private CacheChannel cacheChannel;
 
 	private String j2CacheName = "j2cache";
 
-	public J2CacheCache(String cacheName) {
-		this(cacheName, true);
+	public J2CacheCache(String cacheName, CacheChannel cacheChannel) {
+		this(cacheName,cacheChannel, true);
 	}
 
-	public J2CacheCache(String cacheName, boolean allowNullValues) {
+	public J2CacheCache(String cacheName, CacheChannel cacheChannel, boolean allowNullValues) {
 		super(allowNullValues);
 		j2CacheName = cacheName;
+		this.cacheChannel = cacheChannel;
 	}
 
 	@Override

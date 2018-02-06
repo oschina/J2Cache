@@ -9,7 +9,7 @@ import net.oschina.j2cache.ClusterPolicy;
 import net.oschina.j2cache.Command;
 
 /**
- * 
+ * spring redis 订阅消息监听
  * @author zhangsaizz
  *
  */
