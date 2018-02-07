@@ -88,8 +88,6 @@ public class J2CacheBuilder {
         //初始化两级的缓存管理
         CacheProviderHolder.init(config, (region, key)->{
             //当一级缓存中的对象失效时，自动清除二级缓存中的数据
-
-            System.out.printf("cache expired %s:%s\n", region, key);
             CacheProviderHolder.getLevel2Cache(region).evict(key);
             //再一次清除一级缓存是为了避免缓存失效时再次从 L2 获取到值
             CacheProviderHolder.getLevel1Cache(region).evict(key);
