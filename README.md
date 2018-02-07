@@ -163,6 +163,8 @@ public static void main(String[] args) {
 * https://gitee.com/jfinal/jfinal
 * https://gitee.com/fuhai/jboot
 * https://gitee.com/tywo45/t-io
-* 更多项目收集中，如果你的项目用了，请告诉我
+* https://gitee.com/nutz/nutzboot
+
+更多项目收集中，如果你的项目用了，请告诉我
 
 ## TODO ##
