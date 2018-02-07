@@ -1,5 +1,15 @@
 # J2Cache 版本更新记录
 
+**J2Cache 2.3.8-release (2018-2-7)**
+
+* 启用全新 Logo
+* 增加 redis 连接时间显示
+* 一级缓存数据失效时再一次清除一级缓存是为了避免缓存失效时再次从 L2 获取到值
+* 默认禁用 Jedis 的 JMX 功能
+* 修复了 generic 模式下 keys 方法返回的 key 包含 region 信息的问题
+* 内部代码优化
+* 完善使用文档
+
 **J2Cache 2.3.7-release (2018-1-24)**
 
 * 支持独立的 Caffeine 缓存定义文件 caffeine.properties

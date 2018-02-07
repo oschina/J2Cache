@@ -125,7 +125,7 @@ public class RedisGenericCache implements Level2Cache {
             BinaryJedisCommands cmd = client.get();
             if (cmd instanceof MultiKeyCommands) {
                 Collection<String> keys = ((MultiKeyCommands) cmd).keys(this.region + ":*");
-                return keys.stream().map(k -> k.substring(k.indexOf(':')+1)).collect(Collectors.toList());
+                return keys.stream().map(k -> k.substring(this.region.length()+1)).collect(Collectors.toList());
             }
         } finally {
             client.release();
