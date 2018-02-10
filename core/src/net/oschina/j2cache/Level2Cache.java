@@ -58,6 +58,30 @@ public interface Level2Cache extends Cache {
     void setBytes(Map<String,byte[]> bytes);
 
     /**
+     * 设置缓存数据字节数组（带有效期）
+     * @param key
+     * @param bytes
+     * @param timeToLiveInSeconds
+     */
+    default void setBytes(String key, byte[] bytes, long timeToLiveInSeconds){
+        setBytes(key, bytes);
+    }
+
+    /**
+     * 设置缓存数据的有效期
+     * @param key
+     * @param value
+     * @param timeToLiveInSeconds
+     */
+    default void put(String key, Object value, long timeToLiveInSeconds) {
+        try {
+            setBytes(key, SerializationUtils.serialize(value), timeToLiveInSeconds);
+        } catch (IOException e) {
+            throw new CacheException(e);
+        }
+    }
+
+    /**
      * 判断缓存数据是否存在
      * @param key cache key
      * @return

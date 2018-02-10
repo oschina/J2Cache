@@ -108,6 +108,15 @@ public class RedisGenericCache implements Level2Cache {
     }
 
     @Override
+    public void setBytes(String key, byte[] bytes, long timeToLiveInSeconds) {
+        try {
+            client.get().setex(_key(key), (int) timeToLiveInSeconds, bytes);
+        } finally {
+            client.release();
+        }
+    }
+
+    @Override
     public boolean exists(String key) {
         try {
             return client.get().exists(_key(key));

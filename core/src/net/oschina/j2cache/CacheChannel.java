@@ -191,8 +191,9 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 */
 	public void set(String region, String key, Object value, boolean cacheNullObject) {
 		try {
-			CacheProviderHolder.getLevel1Cache(region).put(key, (value==null && cacheNullObject)?new Object():value);
-			CacheProviderHolder.getLevel2Cache(region).put(key, (value==null && cacheNullObject)?new Object():value);
+			Level1Cache level1 = CacheProviderHolder.getLevel1Cache(region);
+			level1.put(key, (value==null && cacheNullObject)?new Object():value);
+			CacheProviderHolder.getLevel2Cache(region).put(key, (value==null && cacheNullObject)?new Object():value, level1.ttl());
 		} finally {
 			this.sendEvictCmd(region, key);//清除原有的一级缓存的内容
 		}
@@ -230,7 +231,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
     	else {
 			try {
 				CacheProviderHolder.getLevel1Cache(region, timeToLiveInSeconds).put(key, (value==null && cacheNullObject)?new Object():value);
-				CacheProviderHolder.getLevel2Cache(region).put(key, (value==null && cacheNullObject)?new Object():value);
+				CacheProviderHolder.getLevel2Cache(region).put(key, (value==null && cacheNullObject)?new Object():value, timeToLiveInSeconds);
 			} finally {
 				this.sendEvictCmd(region, key);//清除原有的一级缓存的内容
 			}

@@ -16,21 +16,25 @@
 package net.oschina.j2cache;
 
 /**
- * 以及缓存接口
- * @author Winter Lau(javayou@gmail.com)
+ * 用来测试缓存的有效期
  */
-public interface Level1Cache extends Cache {
+public class ExpiredTester {
 
-    /**
-     * 返回该缓存区域的 TTL 设置（单位：秒）
-     * @return
-     */
-    long ttl();
+    public static void main(String[] args) throws InterruptedException {
 
-    /**
-     * 返回该缓存区域中，内存存储对象的最大数量
-     * @return
-     */
-    long size();
+        CacheChannel cache = J2Cache.getChannel();
+
+        cache.set("default", "name", "Winter Lau");
+
+        for(int i=1;i<=20;i++) {
+
+            System.out.printf("%d: %s\n", i, cache.get("default", "name"));
+
+            Thread.sleep(1000);
+        }
+
+        cache.close();
+
+    }
 
 }
