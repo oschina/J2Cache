@@ -1,5 +1,10 @@
 # J2Cache 版本更新记录
 
+**J2Cache 2.3.9-release (2018-2-xx)**
+
+* 使用 Generic 模式时，写入 redis 的数据都带 TTL 参数设置，取值来自 L1 缓存中的配置
+* 默认缓存 null 对象（2.3.9 版本以前默认不缓存 null 对象）
+
 **J2Cache 2.3.8-release (2018-2-7)**
 
 * 启用全新 Logo
