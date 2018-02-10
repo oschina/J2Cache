@@ -262,12 +262,14 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 					if (v == null)
 						newElems.put(k, new Object());
 				});
-				CacheProviderHolder.getLevel1Cache(region).put(newElems);
-				CacheProviderHolder.getLevel2Cache(region).put(newElems);
+				Level1Cache level1 = CacheProviderHolder.getLevel1Cache(region);
+				level1.put(newElems);
+				CacheProviderHolder.getLevel2Cache(region).put(newElems, level1.ttl());
 			}
 			else {
-				CacheProviderHolder.getLevel1Cache(region).put(elements);
-				CacheProviderHolder.getLevel2Cache(region).put(elements);
+				Level1Cache level1 = CacheProviderHolder.getLevel1Cache(region);
+				level1.put(elements);
+				CacheProviderHolder.getLevel2Cache(region).put(elements, level1.ttl());
 			}
 		} finally {
 			//广播
@@ -311,11 +313,11 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 							newElems.put(k, new Object());
 					});
 					CacheProviderHolder.getLevel1Cache(region, timeToLiveInSeconds).put(newElems);
-					CacheProviderHolder.getLevel2Cache(region).put(newElems);
+					CacheProviderHolder.getLevel2Cache(region).put(newElems, timeToLiveInSeconds);
 				}
 				else {
 					CacheProviderHolder.getLevel1Cache(region, timeToLiveInSeconds).put(elements);
-					CacheProviderHolder.getLevel2Cache(region).put(elements);
+					CacheProviderHolder.getLevel2Cache(region).put(elements, timeToLiveInSeconds);
 				}
 			} finally {
 				//广播

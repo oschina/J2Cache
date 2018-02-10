@@ -117,6 +117,29 @@ public class RedisGenericCache implements Level2Cache {
     }
 
     @Override
+    public void setBytes(Map<String,byte[]> bytes, long timeToLiveInSeconds) {
+        try {
+            /* 为了支持 TTL ，没法使用批量写入方法 */
+            /*
+            BinaryJedisCommands cmd = client.get();
+            if(cmd instanceof MultiKeyBinaryCommands) {
+                byte[][] data = new byte[bytes.size() * 2][];
+                int idx = 0;
+                for(String key : bytes.keySet()){
+                    data[idx++] = _key(key);
+                    data[idx++] = bytes.get(key);
+                }
+                ((MultiKeyBinaryCommands)cmd).mset(data);
+            }
+            else
+            */
+            bytes.forEach((k,v) -> setBytes(k, v, timeToLiveInSeconds));
+        } finally {
+            client.release();
+        }
+    }
+
+    @Override
     public boolean exists(String key) {
         try {
             return client.get().exists(_key(key));

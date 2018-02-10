@@ -68,17 +68,12 @@ public interface Level2Cache extends Cache {
     }
 
     /**
-     * 设置缓存数据的有效期
-     * @param key
-     * @param value
+     * 批量设置带 TTL 的缓存数据
+     * @param bytes
      * @param timeToLiveInSeconds
      */
-    default void put(String key, Object value, long timeToLiveInSeconds) {
-        try {
-            setBytes(key, SerializationUtils.serialize(value), timeToLiveInSeconds);
-        } catch (IOException e) {
-            throw new CacheException(e);
-        }
+    default void setBytes(Map<String,byte[]> bytes, long timeToLiveInSeconds) {
+        setBytes(bytes);
     }
 
     /**
@@ -144,10 +139,29 @@ public interface Level2Cache extends Cache {
         }
     }
 
+    /**
+     * 设置缓存数据的有效期
+     * @param key
+     * @param value
+     * @param timeToLiveInSeconds
+     */
+    default void put(String key, Object value, long timeToLiveInSeconds) {
+        try {
+            setBytes(key, SerializationUtils.serialize(value), timeToLiveInSeconds);
+        } catch (IOException e) {
+            throw new CacheException(e);
+        }
+    }
+
     @Override
     default void put(Map<String, Object> elements) {
         if(elements.size() > 0)
             setBytes(elements.entrySet().stream().collect(Collectors.toMap(p -> p.getKey(), p->SerializationUtils.serializeWithoutException(p.getValue()))));
+    }
+
+    default void put(Map<String, Object> elements, long timeToLiveInSeconds) {
+        if(elements.size() > 0)
+            setBytes(elements.entrySet().stream().collect(Collectors.toMap(p -> p.getKey(), p->SerializationUtils.serializeWithoutException(p.getValue()))), timeToLiveInSeconds);
     }
 
 }
