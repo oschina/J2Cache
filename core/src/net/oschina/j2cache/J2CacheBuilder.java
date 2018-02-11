@@ -88,9 +88,12 @@ public class J2CacheBuilder {
         //初始化两级的缓存管理
         CacheProviderHolder.init(config, (region, key)->{
             //当一级缓存中的对象失效时，自动清除二级缓存中的数据
-            CacheProviderHolder.getLevel2Cache(region).evict(key);
-            //再一次清除一级缓存是为了避免缓存失效时再次从 L2 获取到值
-            CacheProviderHolder.getLevel1Cache(region).evict(key);
+            Level2Cache level2 = CacheProviderHolder.getLevel2Cache(region);
+            level2.evict(key);
+            if(!level2.supportTTL()) {
+                //再一次清除一级缓存是为了避免缓存失效时再次从 L2 获取到值
+                CacheProviderHolder.getLevel1Cache(region).evict(key);
+            }
             log.debug(String.format("Level 1 cache object expired, evict level 2 cache object [%s,%s]", region, key));
             if(policy != null)
                 policy.sendEvictCmd(region, key);

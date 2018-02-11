@@ -38,6 +38,11 @@ public class RedisGenericCache implements Level2Cache {
         this.region = _regionName(region);
     }
 
+    @Override
+    public boolean supportTTL() {
+        return true;
+    }
+
     /**
      * 在region里增加一个可选的层级,作为命名空间,使结构更加清晰
      * 同时满足小型应用,多个J2Cache共享一个redis database的场景
