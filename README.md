@@ -156,6 +156,11 @@ public static void main(String[] args) {
     ::1             localhost
     ::1             winter-notebook.local
     ```
+    
+6. **使用何种 Redis 的存储模式最佳？ generic 还是 hash ?**  
+
+    我们推荐使用 generic 存储模式，这也是 J2Cache 默认的存储模式。因为 hash 在语义上并不合适
+   ，2.0 版本保留对 hash 的支持只是为了兼容之前 1.x 版本。hash 模式最大的问题是无法单独对 key 进行 expire 设置。
 
 ## 哪些项目在用 J2Cache ？
 
