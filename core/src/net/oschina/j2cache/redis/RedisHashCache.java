@@ -46,11 +46,6 @@ public class RedisHashCache implements Level2Cache {
         this.regionBytes = getRegionName(region).getBytes();
     }
 
-    @Override
-    public boolean supportTTL() {
-        return false;
-    }
-
     /**
      * 在region里增加一个可选的层级,作为命名空间,使结构更加清晰
      * 同时满足小型应用,多个J2Cache共享一个redis database的场景

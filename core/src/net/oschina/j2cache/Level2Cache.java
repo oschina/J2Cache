@@ -34,7 +34,9 @@ public interface Level2Cache extends Cache {
      * 是否支持缓存 TTL 的设置
      * @return
      */
-    boolean supportTTL();
+    default boolean supportTTL() {
+        return false;
+    }
 
     /**
      * 读取缓存数据字节数组
