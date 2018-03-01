@@ -116,7 +116,7 @@
         <dependency>
             <groupId>org.ehcache</groupId>
             <artifactId>ehcache</artifactId>
-            <version>3.4.0</version>
+            <version>3.5.0</version>
             <optional>true</optional>
         </dependency>
 
@@ -129,7 +129,7 @@
         <dependency>
             <groupId>org.jgroups</groupId>
             <artifactId>jgroups</artifactId>
-            <version>3.6.13.Final</version>
+            <version>3.6.15.Final</version>
             <optional>true</optional>
         </dependency>
 
@@ -142,7 +142,7 @@
         <dependency>
             <groupId>com.esotericsoftware</groupId>
             <artifactId>kryo-shaded</artifactId>
-            <version>3.0.0</version>
+            <version>4.0.1</version>
             <optional>true</optional>
         </dependency>
 
@@ -156,7 +156,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.45</version>
+            <version>1.2.46</version>
         </dependency>
 
         <dependency>
