@@ -40,8 +40,9 @@ import net.sf.ehcache.CacheManager;
 public class EhCacheProvider implements CacheProvider {
 
 	private final static Logger log = LoggerFactory.getLogger(EhCacheProvider.class);
-	public static String KEY_EHCACHE_NAME = "name";
-	public static String KEY_EHCACHE_CONFIG_XML = "configXml";
+
+	public final static String KEY_EHCACHE_NAME = "name";
+	public final static String KEY_EHCACHE_CONFIG_XML = "configXml";
 
 	private CacheManager manager;
 	private ConcurrentHashMap<String, EhCache> caches;
@@ -103,8 +104,10 @@ public class EhCacheProvider implements CacheProvider {
 					//配置缓存
 					CacheConfiguration cfg = manager.getConfiguration().getDefaultCacheConfiguration().clone();
 					cfg.setName(region);
-					cfg.setTimeToLiveSeconds(timeToLiveInSeconds);
-					cfg.setTimeToIdleSeconds(timeToLiveInSeconds);
+					if(timeToLiveInSeconds > 0) {
+						cfg.setTimeToLiveSeconds(timeToLiveInSeconds);
+						cfg.setTimeToIdleSeconds(timeToLiveInSeconds);
+					}
 
 					net.sf.ehcache.Cache cache = new net.sf.ehcache.Cache(cfg);
 					manager.addCache(cache);
