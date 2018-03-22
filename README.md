@@ -1,11 +1,6 @@
+<p align="center"><img src="/ld/J2Cache/raw/master/docs/J2Cache.png" alt="J2Cache"></p>
 
-![J2Cache](docs/J2Cache.png)
-
-
-<p style="text-align:center">
-<h1>J2Cache —— 基于内存和 Redis 的两级缓存框架</h1>
-</p>
-
+<p align="center"><h1>J2Cache —— 基于内存和 Redis 的两级缓存框架</h1></p>
 
 专用QQ群: `379110351`
 
