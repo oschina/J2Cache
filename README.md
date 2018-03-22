@@ -1,6 +1,6 @@
 ![J2Cache](docs/J2Cache.png)
 
-# J2Cache —— 基于内存和 Redis 实现的两级 Java 缓存框架
+# J2Cache —— 基于内存和 Redis 实现的两级 Java 缓存框架（要求至少 Java 8）
 
 专用QQ群: `379110351`
 
@@ -173,3 +173,5 @@ public static void main(String[] args) {
 更多项目收集中，如果你的项目用了，请告诉我
 
 ## TODO ##
+
+1. 当 ehcache 配置模板为永久时的处理
