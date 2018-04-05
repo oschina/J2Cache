@@ -68,7 +68,7 @@ public class EhCache3 implements Level1Cache, CacheEventListener {
     }
 
     @Override
-    public Map get(Collection<String> keys) {
+    public Map<String, Object> get(Collection<String> keys) {
         return cache.getAll(keys.stream().collect(Collectors.toSet()));
     }
 
