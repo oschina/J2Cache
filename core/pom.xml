@@ -3,100 +3,11 @@
     <parent>
         <groupId>net.oschina.j2cache</groupId>
         <artifactId>j2cache</artifactId>
-        <version>2.3.9-release</version>
+        <version>2.3.10-release</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>j2cache-core</artifactId>
-
-    <build>
-        <sourceDirectory>src</sourceDirectory>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.5</version>
-                <executions>
-                    <execution>
-                        <id>copy-resources</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <!--
-                            <source>5</source>
-                            <target>5</target>
-                            -->
-                            <encoding>UTF-8</encoding>
-                            <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>src</directory>
-                                    <includes>
-                                        <include>*.xml</include>
-                                        <include>*.properties</include>
-                                        <include>*.conf</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.1</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <configuration>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                            <artifactSet>
-                                <excludes>
-                                    <!--过滤掉不用的jar-->
-                                    <exclude>com.esotericsoftware.kryo:kryo</exclude>
-                                </excludes>
-                            </artifactSet>
-                            <transformers>
-                                <!--<transformer-->
-                                <!--implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">-->
-                                <!--<mainClass>testJRedis.userBean</mainClass>-->
-                                <!--</transformer>-->
-                                <!--<transformer-->
-                                <!--implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">-->
-                                <!--<resource>META-INF/spring.tooling</resource>-->
-                                <!--</transformer>-->
-                                <!--<transformer-->
-                                <!--implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">-->
-                                <!--<resource>META-INF/spring.handlers</resource>-->
-                                <!--</transformer>-->
-                                <!--<transformer-->
-                                <!--implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">-->
-                                <!--<resource>META-INF/spring.schemas</resource>-->
-                                <!--</transformer>-->
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer">
-                                </transformer>
-                            </transformers>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 
     <dependencies>
 

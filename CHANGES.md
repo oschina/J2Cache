@@ -1,12 +1,13 @@
 # J2Cache 版本更新记录
 
-**J2Cache 2.3.10-release (2018-x-xx)**
+**J2Cache 2.3.10-release (2018-4-5)**
 
 * 升级 Caffeine 到 2.6.2 版本
-* 升级 Ehcache 3.x 到 3.5.0 版本
 * 升级 JGroups 到 3.6.15.Final 版本
 * 升级 kryo-shaded 到 4.0.1 版本
 * 升级 fastjson 到 1.2.46 版本
+* 修复 ehcache 3 下使用 keys 方法的空指针异常
+* 修复 @阿南哥 提交的关于 ehcache2 的 bug https://gitee.com/ld/J2Cache#note_893981
 
 **J2Cache 2.3.9-release (2018-2-13)**
 
