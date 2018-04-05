@@ -100,8 +100,14 @@ public class EhCache implements Level1Cache, CacheEventListener {
 	}
 
 	@Override
-	public Map get(Collection<String> keys) {
-		return cache.getAll(keys);
+	public Map<String, Object> get(Collection<String> keys) {
+		Map<Object,Element> elements = cache.getAll(keys);
+		Map<String, Object> results = new HashMap<>();
+		elements.forEach((k,v)-> {
+			if(v != null)
+				results.put((String)k, v.getObjectValue());
+		});
+		return results;
 	}
 
 	@Override
