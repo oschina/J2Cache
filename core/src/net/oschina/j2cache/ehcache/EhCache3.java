@@ -84,7 +84,7 @@ public class EhCache3 implements Level1Cache, CacheEventListener {
 
     @Override
     public Collection<String> keys() {
-        return null;
+        return Collections.EMPTY_LIST;
     }
 
     @Override
