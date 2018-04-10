@@ -175,3 +175,4 @@ public static void main(String[] args) {
 ## TODO ##
 
 1. 当 ehcache 配置模板为永久时的处理
+2. 欢迎大家给 J2Cache 提建议
