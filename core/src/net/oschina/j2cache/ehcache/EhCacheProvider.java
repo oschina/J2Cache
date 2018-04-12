@@ -144,7 +144,7 @@ public class EhCacheProvider implements CacheProvider {
 			// 指定了配置文件路径? 加载之
 			if (props.containsKey(KEY_EHCACHE_CONFIG_XML)) {
 				URL url = getClass().getResource(props.getProperty(KEY_EHCACHE_CONFIG_XML));
-				manager = CacheManager.newInstance(url);//props.getProperty(KEY_EHCACHE_CONFIG_XML));
+				manager = CacheManager.newInstance(url);
 			} else {
 				// 加载默认实例
 				manager = CacheManager.getInstance();

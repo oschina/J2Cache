@@ -39,15 +39,15 @@ public class SerializationUtils {
         if (ser == null || "".equals(ser.trim()))
             g_serializer = new JavaSerializer();
         else {
-            if (ser.equals("java")) {
+            if ("java".equals(ser)) {
                 g_serializer = new JavaSerializer();
-            } else if (ser.equals("fst")) {
+            } else if ("fst".equals(ser)) {
                 g_serializer = new FSTSerializer();
-            } else if (ser.equals("kryo")) {
+            } else if ("kryo".equals(ser)) {
                 g_serializer = new KryoSerializer();
-            } else if (ser.equals("kryo-pool")){
+            } else if ("kryo-pool".equals(ser)){
                 g_serializer = new KryoPoolSerializer();
-            } else if(ser.equals("fst-snappy")){
+            } else if("fst-snappy".equals(ser)){
                 g_serializer=new FstSnappySerializer();
             } else {
                 try {

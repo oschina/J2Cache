@@ -130,6 +130,7 @@ public class EhCache implements Level1Cache, CacheEventListener {
 		cache.removeAll();
 	}
 
+	@Override
 	public Object clone() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
 	}

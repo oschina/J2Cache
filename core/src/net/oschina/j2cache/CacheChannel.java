@@ -77,22 +77,26 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 */
 	public CacheObject get(String region, String key, Function<String, Object> loader, boolean...cacheNullObject) {
 		CacheObject cache = get(region, key);
-		if (cache.rawValue() == null) {
-			String lock_key = key + '@' + region;
-			synchronized (_g_keyLocks.computeIfAbsent(lock_key, v -> new Object())) {
-				cache = get(region, key);
-				if (cache.rawValue() == null) {
-					try {
-						Object obj = loader.apply(key);
-						if (obj != null) {
-							boolean cacheNull = (cacheNullObject.length>0)?cacheNullObject[0]:DEFAULT_CACHE_NULL_OBJECT;
-							set(region, key, obj, cacheNull);
-							cache = new CacheObject(region, key, CacheObject.LEVEL_OUTER, obj);
-						}
-					} finally {
-						_g_keyLocks.remove(lock_key);
-					}
+
+		if (cache.rawValue() != null)
+			return cache ;
+
+		String lock_key = key + '@' + region;
+		synchronized (_g_keyLocks.computeIfAbsent(lock_key, v -> new Object())) {
+			cache = get(region, key);
+
+			if (cache.rawValue() != null)
+				return cache ;
+
+			try {
+				Object obj = loader.apply(key);
+				if (obj != null) {
+					boolean cacheNull = (cacheNullObject.length>0)?cacheNullObject[0]:DEFAULT_CACHE_NULL_OBJECT;
+					set(region, key, obj, cacheNull);
+					cache = new CacheObject(region, key, CacheObject.LEVEL_OUTER, obj);
 				}
+			} finally {
+				_g_keyLocks.remove(lock_key);
 			}
 		}
 		return cache;
@@ -381,6 +385,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	/**
 	 * Close J2Cache
 	 */
+	@Override
 	public abstract void close();
 
 	/**
@@ -418,7 +423,6 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 		private long size;
 		private long ttl;
 
-		public Region(){}
 		public Region(String name, long size, long ttl) {
 			this.name = name;
 			this.size = size;

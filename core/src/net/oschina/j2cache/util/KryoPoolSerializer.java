@@ -113,7 +113,7 @@ public class KryoPoolSerializer implements Serializer{
         /**
          * thread safe list
          */
-        private final Deque<KryoHolder> kryoHolderDeque=new ConcurrentLinkedDeque<KryoHolder>();
+        private final Deque<KryoHolder> kryoHolderDeque=new ConcurrentLinkedDeque<>();
 
         private KryoPoolImpl() {
 

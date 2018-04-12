@@ -44,21 +44,17 @@ public class CacheProviderHolder {
 	 */
 	public static void init(J2CacheConfig config, CacheExpiredListener listener){
 		CacheProviderHolder.listener = listener;
-		try {
-			CacheProviderHolder.l1_provider = loadProviderInstance(config.getL1CacheName());
-			if (!l1_provider.isLevel(CacheObject.LEVEL_1))
-				throw new CacheException(l1_provider.getClass().getName() + " is not level_1 cache provider");
-			CacheProviderHolder.l1_provider.start(config.getL1CacheProperties());
-			log.info("Using L1 CacheProvider : " + l1_provider.getClass().getName());
+		CacheProviderHolder.l1_provider = loadProviderInstance(config.getL1CacheName());
+		if (!l1_provider.isLevel(CacheObject.LEVEL_1))
+			throw new CacheException(l1_provider.getClass().getName() + " is not level_1 cache provider");
+		CacheProviderHolder.l1_provider.start(config.getL1CacheProperties());
+		log.info("Using L1 CacheProvider : " + l1_provider.getClass().getName());
 
-			CacheProviderHolder.l2_provider = loadProviderInstance(config.getL2CacheName());
-			if (!l2_provider.isLevel(CacheObject.LEVEL_2))
-				throw new CacheException(l2_provider.getClass().getName() + " is not level_2 cache provider");
-			CacheProviderHolder.l2_provider.start(config.getL2CacheProperties());
-			log.info("Using L2 CacheProvider : " + l2_provider.getClass().getName());
-		} catch (CacheException e) {
-			throw e;
-		}
+		CacheProviderHolder.l2_provider = loadProviderInstance(config.getL2CacheName());
+		if (!l2_provider.isLevel(CacheObject.LEVEL_2))
+			throw new CacheException(l2_provider.getClass().getName() + " is not level_2 cache provider");
+		CacheProviderHolder.l2_provider.start(config.getL2CacheProperties());
+		log.info("Using L2 CacheProvider : " + l2_provider.getClass().getName());
 	}
 
 	/**

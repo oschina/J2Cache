@@ -63,24 +63,27 @@ public class CaffeineProvider implements CacheProvider {
     @Override
     public Cache buildCache(String region, CacheExpiredListener listener) {
         CaffeineCache cache = caches.get(region);
-        if(cache == null){
-            synchronized (CaffeineProvider.class) {
-                cache = caches.get(region);
-                if(cache == null) {
-                    CacheConfig config = cacheConfigs.get(region);
-                    if(config == null) {
-                        config = cacheConfigs.get(DEFAULT_REGION);
-                        if(config == null)
-                            throw new CacheException(String.format("Undefined caffeine cache region name = %s", region));
+        if(cache != null)
+            return cache ;
 
-                        log.info(String.format("Caffeine cache [%s] not defined, using default.", region));
-                    }
+        synchronized (CaffeineProvider.class) {
+            cache = caches.get(region);
+            if(cache != null)
+                return cache;
 
-                    cache = buildCache(region, config.size, config.expire, listener);
-                    caches.put(region, cache);
-                }
+            CacheConfig config = cacheConfigs.get(region);
+            if(config == null) {
+                config = cacheConfigs.get(DEFAULT_REGION);
+                if(config == null)
+                    throw new CacheException(String.format("Undefined caffeine cache region name = %s", region));
+
+                log.info(String.format("Caffeine cache [%s] not defined, using default.", region));
             }
+
+            cache = buildCache(region, config.size, config.expire, listener);
+            caches.put(region, cache);
         }
+
         return cache;
     }
 
@@ -219,6 +222,8 @@ public class CaffeineProvider implements CacheProvider {
                     case 'd'://days
                         cacheConfig.expire *= 86400;
                         break;
+                    default:
+                        throw new IllegalArgumentException("Unknown expire unit:" + unit);
                 }
             }
             return cacheConfig;

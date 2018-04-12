@@ -25,6 +25,8 @@ import java.util.Properties;
  */
 public class ClusterPolicyFactory {
 
+    private ClusterPolicyFactory(){}
+
     /**
      * 初始化集群消息通知机制
      * @param broadcast

@@ -16,7 +16,6 @@
 package net.oschina.j2cache.util;
 
 import java.io.IOException;
-import java.io.Serializable;
 
 /**
  * 对象序列化接口
