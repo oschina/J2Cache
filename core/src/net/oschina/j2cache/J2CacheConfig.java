@@ -63,7 +63,6 @@ public class J2CacheConfig {
         return config;
     }
 
-
     /**
      * get j2cache properties stream
      * @return
@@ -78,14 +77,13 @@ public class J2CacheConfig {
         return configStream;
     }
 
-
     public void dump(PrintStream writer) {
-        writer.printf("j2cache.serialization = %s\n", this.serialization);
-        writer.printf("[%s]\n",this.broadcast);
+        writer.printf("j2cache.serialization = %s%n", this.serialization);
+        writer.printf("[%s]%n",this.broadcast);
         broadcastProperties.list(writer);
-        writer.printf("[%s]\n",this.l1CacheName);
+        writer.printf("[%s]%n",this.l1CacheName);
         l1CacheProperties.list(writer);
-        writer.printf("[%s]\n",this.l2CacheName);
+        writer.printf("[%s]%n",this.l2CacheName);
         l2CacheProperties.list(writer);
     }
 
