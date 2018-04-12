@@ -22,6 +22,7 @@ import redis.clients.jedis.*;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -77,7 +78,13 @@ public class RedisCacheProvider implements CacheProvider {
                 .database(database)
                 .poolConfig(poolConfig).newClient();
 
-        log.info(String.format("Redis client starts with mode(%s),db(%d),storage(%s),namespace(%s),time(%dms)", mode,database,storage,namespace,(System.currentTimeMillis()-ct)));
+        log.info(String.format("Redis client starts with mode(%s),db(%d),storage(%s),namespace(%s),time(%dms)",
+                mode,
+                database,
+                storage,
+                namespace,
+                System.currentTimeMillis()-ct
+        ));
     }
 
     @Override
@@ -93,17 +100,20 @@ public class RedisCacheProvider implements CacheProvider {
     @Override
     public Cache buildCache(String region, CacheExpiredListener listener) {
         Cache cache = caches.get(region);
-        if (cache == null) {
-            synchronized(RedisCacheProvider.class) {
-                if(cache == null) {
-                    if("hash".equalsIgnoreCase(this.storage))
-                        cache = new RedisHashCache(this.namespace, region, redisClient);
-                    else
-                        cache = new RedisGenericCache(this.namespace, region, redisClient);
-                    caches.put(region, cache);
-                }
+        if (cache != null)
+            return cache;
+
+        synchronized(RedisCacheProvider.class) {
+            if(cache == null) {
+                if("hash".equalsIgnoreCase(this.storage))
+                    cache = new RedisHashCache(this.namespace, region, redisClient);
+                else
+                    cache = new RedisGenericCache(this.namespace, region, redisClient);
+
+                caches.put(region, cache);
             }
         }
+
         return cache;
     }
 
@@ -114,7 +124,7 @@ public class RedisCacheProvider implements CacheProvider {
 
     @Override
     public Collection<CacheChannel.Region> regions() {
-        return null;
+        return Collections.emptyList();
     }
 
     /**
