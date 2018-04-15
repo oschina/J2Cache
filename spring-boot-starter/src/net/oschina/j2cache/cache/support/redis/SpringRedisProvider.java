@@ -2,6 +2,7 @@ package net.oschina.j2cache.cache.support.redis;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,8 +19,6 @@ import net.oschina.j2cache.cache.support.util.SpringUtil;
  *
  */
 public class SpringRedisProvider implements CacheProvider {
-
-	private final static Logger log = LoggerFactory.getLogger(SpringRedisProvider.class);
 
 	private RedisTemplate<String, Serializable> redisTemplate;
 
@@ -39,7 +38,7 @@ public class SpringRedisProvider implements CacheProvider {
 
 	@Override
 	public Collection<CacheChannel.Region> regions() {
-		return null;
+		return Collections.emptyList();
 	}
 
 	@Override
@@ -47,6 +46,7 @@ public class SpringRedisProvider implements CacheProvider {
 		SpringRedisCache cache = caches.get(region);
 		if (cache == null) {
 			synchronized (SpringRedisProvider.class) {
+				cache = caches.get(region);
 				if (cache == null) {
 					cache = new SpringRedisCache(this.namespace, region, redisTemplate);
 					caches.put(region, cache);

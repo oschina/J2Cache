@@ -17,8 +17,6 @@ import net.oschina.j2cache.CacheObject;
  */
 public class J2CacheCache extends AbstractValueAdaptingCache {
 
-	private static Logger logger = LoggerFactory.getLogger(J2CacheCache.class);
-
 	private CacheChannel cacheChannel;
 
 	private String j2CacheName = "j2cache";
@@ -52,7 +50,7 @@ public class J2CacheCache extends AbstractValueAdaptingCache {
 		T value;
 		try {
 			value = valueLoader.call();
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new ValueRetrievalException(key, valueLoader, ex);
 		}
 		put(key, value);
