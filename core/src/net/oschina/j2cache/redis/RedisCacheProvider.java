@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class RedisCacheProvider implements CacheProvider {
 
-    private final static Logger log = LoggerFactory.getLogger(RedisCacheProvider.class);
+    private static final Logger log = LoggerFactory.getLogger(RedisCacheProvider.class);
 
     private RedisClient redisClient;
     private String namespace;
@@ -64,7 +64,7 @@ public class RedisCacheProvider implements CacheProvider {
 
         String hosts = props.getProperty("hosts");
         String mode = props.getProperty("mode");
-        String cluster_name = props.getProperty("cluster_name");
+        String clusterName = props.getProperty("cluster_name");
         String password = props.getProperty("password");
         int database = Integer.parseInt(props.getProperty("database"));
 
@@ -74,7 +74,7 @@ public class RedisCacheProvider implements CacheProvider {
                 .mode(mode)
                 .hosts(hosts)
                 .password(password)
-                .cluster(cluster_name)
+                .cluster(clusterName)
                 .database(database)
                 .poolConfig(poolConfig).newClient();
 
@@ -104,6 +104,7 @@ public class RedisCacheProvider implements CacheProvider {
             return cache;
 
         synchronized(RedisCacheProvider.class) {
+            cache = caches.get(region);
             if(cache == null) {
                 if("hash".equalsIgnoreCase(this.storage))
                     cache = new RedisHashCache(this.namespace, region, redisClient);
