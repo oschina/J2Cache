@@ -7,6 +7,7 @@ import org.springframework.data.redis.connection.MessageListener;
 
 import net.oschina.j2cache.ClusterPolicy;
 import net.oschina.j2cache.Command;
+import net.oschina.j2cache.util.SerializationUtils;
 
 /**
  * spring redis 订阅消息监听
@@ -34,9 +35,9 @@ public class SpringRedisMessageListener implements MessageListener{
 			return;
 		}
         try {
-            Command cmd = Command.parse(messageBody);
-            if (cmd == null || cmd.isLocal())
-                return;
+            Command cmd = Command.parse(String.valueOf(SerializationUtils.deserialize(messageBody)));
+//            if (cmd == null || cmd.isLocal())
+//                return;
 
             switch (cmd.getOperator()) {
                 case Command.OPT_JOIN:

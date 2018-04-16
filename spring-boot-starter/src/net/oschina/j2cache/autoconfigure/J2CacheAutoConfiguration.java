@@ -1,19 +1,17 @@
 package net.oschina.j2cache.autoconfigure;
 
-import net.oschina.j2cache.CacheChannel;
-import net.oschina.j2cache.J2Cache;
-import net.oschina.j2cache.J2CacheBuilder;
-import net.oschina.j2cache.cache.support.util.SpringUtil;
-
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+
+import net.oschina.j2cache.CacheChannel;
+import net.oschina.j2cache.J2Cache;
+import net.oschina.j2cache.J2CacheBuilder;
+import net.oschina.j2cache.cache.support.util.SpringUtil;
 /**
  * 启动入口
  * @author zhangsaizz
@@ -24,8 +22,6 @@ import org.springframework.context.annotation.DependsOn;
 @Configuration
 public class J2CacheAutoConfiguration {
 	
-    private static Logger logger = LoggerFactory.getLogger(J2CacheAutoConfiguration.class);
-
     private final J2CacheConfig j2CacheConfig;
 
     public J2CacheAutoConfiguration(J2CacheConfig j2CacheConfig) {
