@@ -6,11 +6,13 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
-import net.oschina.j2cache.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import net.oschina.j2cache.Cache;
+import net.oschina.j2cache.CacheChannel;
+import net.oschina.j2cache.CacheExpiredListener;
+import net.oschina.j2cache.CacheObject;
+import net.oschina.j2cache.CacheProvider;
 import net.oschina.j2cache.cache.support.util.SpringUtil;
 
 /**

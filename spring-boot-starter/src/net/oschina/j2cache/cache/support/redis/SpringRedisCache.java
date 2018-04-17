@@ -1,13 +1,18 @@
 package net.oschina.j2cache.cache.support.redis;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
-import net.oschina.j2cache.Level2Cache;
 import org.springframework.data.redis.core.RedisTemplate;
+
+import net.oschina.j2cache.Level2Cache;
 
 /**
  * 重新实现二级缓存
@@ -42,51 +47,57 @@ public class SpringRedisCache implements Level2Cache {
 		redisTemplate.opsForHash().delete(region);
 	}
 
-	@Override
-	public Serializable get(String key) {
-		Object value = redisTemplate.opsForHash().get(region, key);
-		if (value == null) {
-			return null;
-		}
-		return (Serializable) value;
-	}
+//	@Override
+//	public Serializable get(String key) {
+//		Object value = redisTemplate.opsForHash().get(region, key);
+//		if (value == null) {
+//			return null;
+//		}
+//		return (Serializable) bs;
+//	}
 
-	@Override
-	public Map<String, Object> get(Collection<String> keys) {
-		Map<String, Object> map = new HashMap<>(keys.size());
-		for (String k : keys) {
-			Object value = redisTemplate.opsForHash().get(region, k);
-			if (value != null) {
-				map.put(k, (Serializable) value);
-			} else {
-				map.put(k, null);
-			}
-		}
-		return map;
-	}
+//	@Override
+//	public Map<String, Object> get(Collection<String> keys) {
+//		Map<String, Object> map = new HashMap<>(keys.size());
+//		for (String k : keys) {
+//			Object value = redisTemplate.opsForHash().get(region, k);
+//			if (value != null) {
+//				map.put(k, (Serializable) value);
+//			} else {
+//				map.put(k, null);
+//			}
+//		}
+//		return map;
+//	}
 
 	@Override
 	public boolean exists(String key) {
 		return redisTemplate.opsForHash().hasKey(region, key);
 	}
 
-	@Override
-	public void put(String key, Object value) {
-		redisTemplate.opsForHash().put(region, key, value);
-	}
+//	@Override
+//	public void put(String key, Object value) {
+//		redisTemplate.opsForHash().put(region, key, value);
+//	}
 
-	@Override
-	public void put(Map<String, Object> elements) {
-		Map<String, Object> map = new HashMap<>(elements.size());
-		elements.forEach((k, v) -> {
-			map.put(k, v);
-		});
-		redisTemplate.opsForHash().putAll(region, map);
-	}
+//	@Override
+//	public void put(Map<String, Object> elements) {
+//		Map<String, Object> map = new HashMap<>(elements.size());
+//		elements.forEach((k, v) -> {
+//			map.put(k, v);
+//		});
+//		redisTemplate.opsForHash().putAll(region, map);
+//	}
 
 	@Override
 	public void evict(String... keys) {
-		redisTemplate.opsForHash().delete(region, keys);
+		for (String k : keys) {
+			if(!k.equals("null")) {
+				redisTemplate.opsForHash().delete(region, k);
+			}else {
+				redisTemplate.delete(region);
+			}
+		}
 	}
 
 	@Override
