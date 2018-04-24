@@ -1,5 +1,11 @@
 # J2Cache 版本更新记录
 
+
+**J2Cache 2.3.11-release (2018-4-xx)**
+
+* 修复 `redis` 接口中关于同步块的代码逻辑错误 [详情](https://gitee.com/ld/J2Cache/tree/7fe229d5f49f0c253e95810554b1bea58aa40f08/)
+* 根据码云的 `Sonar` 检测的代码问题进行修复
+
 **J2Cache 2.3.10-release (2018-4-5)**
 
 * 升级 Caffeine 到 2.6.2 版本
