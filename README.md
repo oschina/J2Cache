@@ -49,7 +49,7 @@ J2Cache 运行时所需 jar 包请查看 core/pom.xml
 1. 安装 Redis  
 2. `git clone https://gitee.com/ld/J2Cache`
 3. 修改 `core/resource/j2cache.properties` 配置使用已安装的 Redis 服务器
-4. 在命令行中执行 `mvn package -DskipTest=true` 进行项目编译  
+4. 在命令行中执行 `mvn package -DskipTests=true` 进行项目编译  
 5. 打开多个命令行窗口，同时运行 `runtest.sh` 
 6. 在 > 提示符后输入 help 查看命令，并进行测试
 
