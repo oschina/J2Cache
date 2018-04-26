@@ -38,7 +38,7 @@ Those setting files must be placed in classpath , such as `WEB-INF/classes`
 
 1. Install Redis  
 2. Modify `core/resource/j2cache.properties` to use installed redis servers
-3. Open shell windows and execute command: `mvn package -DskipTest=true`  
+3. Open shell windows and execute command: `mvn package -DskipTests=true`  
 4. Open multiple command line windows and running `runtest.sh` 
 5. In > prompt type `help` to show command list 
 
