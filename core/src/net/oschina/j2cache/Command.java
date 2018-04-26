@@ -51,8 +51,6 @@ public class Command {
 		return (int)(rnd_seed.nextInt(10000) * 1000 + ct % 1000);
 	}
 
-	public Command(){}//just for json deserialize
-
 	public Command(byte o, String r, String...keys){
 		this.operator = o;
 		this.region = r;
@@ -71,18 +69,8 @@ public class Command {
 		return JSON.toJSONString(this);
 	}
 
-	public byte[] jsonBytes() {
-		return json().getBytes();
-	}
-
 	public static Command parse(String json) {
 		return JSON.parseObject(json, Command.class);
-	}
-
-	public static Command parse(byte[] bytes) {
-		if(bytes == null || bytes.length == 0)
-			return null;
-		return parse(new String(bytes));
 	}
 
 	@JSONField(serialize = false)
@@ -94,32 +82,16 @@ public class Command {
 		return operator;
 	}
 
-	public void setOperator(int operator) {
-		this.operator = operator;
-	}
-
 	public String getRegion() {
 		return region;
-	}
-
-	public void setRegion(String region) {
-		this.region = region;
 	}
 
 	public String[] getKeys() {
 		return keys;
 	}
 
-	public void setKeys(String[] keys) {
-		this.keys = keys;
-	}
-
 	public int getSrc() {
 		return src;
-	}
-
-	public void setSrc(int src) {
-		this.src = src;
 	}
 
 }
