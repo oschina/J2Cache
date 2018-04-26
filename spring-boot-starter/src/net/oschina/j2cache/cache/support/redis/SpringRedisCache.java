@@ -11,17 +11,19 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.util.StringUtils;
 
 import net.oschina.j2cache.Level2Cache;
 
 /**
  * 重新实现二级缓存
+ * 
  * @author zhangsaizz
  *
  */
 public class SpringRedisCache implements Level2Cache {
 
-	private String namespace;
+	private String namespace = "j2cache~key";
 
 	private String region;
 
@@ -31,7 +33,9 @@ public class SpringRedisCache implements Level2Cache {
 		if (region == null || region.isEmpty()) {
 			region = "_"; // 缺省region
 		}
-		this.namespace = namespace;
+		if(!StringUtils.isEmpty(namespace)) {
+			this.namespace = namespace;
+		}
 		this.redisTemplate = redisTemplate;
 		this.region = getRegionName(region);
 	}
@@ -47,54 +51,22 @@ public class SpringRedisCache implements Level2Cache {
 		redisTemplate.opsForHash().delete(region);
 	}
 
-//	@Override
-//	public Serializable get(String key) {
-//		Object value = redisTemplate.opsForHash().get(region, key);
-//		if (value == null) {
-//			return null;
-//		}
-//		return (Serializable) bs;
-//	}
-
-//	@Override
-//	public Map<String, Object> get(Collection<String> keys) {
-//		Map<String, Object> map = new HashMap<>(keys.size());
-//		for (String k : keys) {
-//			Object value = redisTemplate.opsForHash().get(region, k);
-//			if (value != null) {
-//				map.put(k, (Serializable) value);
-//			} else {
-//				map.put(k, null);
-//			}
-//		}
-//		return map;
-//	}
+	@Override
+	public Object get(String key) {
+		return redisTemplate.boundHashOps(region).get(key);
+	}
 
 	@Override
 	public boolean exists(String key) {
 		return redisTemplate.opsForHash().hasKey(region, key);
 	}
 
-//	@Override
-//	public void put(String key, Object value) {
-//		redisTemplate.opsForHash().put(region, key, value);
-//	}
-
-//	@Override
-//	public void put(Map<String, Object> elements) {
-//		Map<String, Object> map = new HashMap<>(elements.size());
-//		elements.forEach((k, v) -> {
-//			map.put(k, v);
-//		});
-//		redisTemplate.opsForHash().putAll(region, map);
-//	}
-
 	@Override
 	public void evict(String... keys) {
 		for (String k : keys) {
-			if(!k.equals("null")) {
+			if (!k.equals("null")) {
 				redisTemplate.opsForHash().delete(region, k);
-			}else {
+			} else {
 				redisTemplate.delete(region);
 			}
 		}
@@ -131,12 +103,31 @@ public class SpringRedisCache implements Level2Cache {
 	}
 
 	@Override
-	public void setBytes(Map<String, byte[]> bytes) {
-		redisTemplate.opsForHash().putAll(region, bytes);
+	public void put(String key, Object value) {
+		redisTemplate.opsForHash().put(region, key, value);
 	}
+
+    /**
+     * 设置缓存数据的有效期
+     * @param key
+     * @param value
+     * @param timeToLiveInSeconds
+     */
+	@Override
+	public void put(String key, Object value, long timeToLiveInSeconds) {
+        redisTemplate.opsForHash().put(region, key, value);
+    }
 
 	@Override
 	public void setBytes(String key, byte[] bytes) {
-		redisTemplate.opsForHash().put(region, key, bytes);
+		// TODO Auto-generated method stub
+		
 	}
+
+	@Override
+	public void setBytes(Map<String, byte[]> bytes) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 }

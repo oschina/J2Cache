@@ -59,7 +59,7 @@ J2Cache 运行时所需 jar 包请查看 core/pom.xml
 
 ## 使用方法
 
-J2Cache 默认使用 Caffeine 作为一级缓存，使用 Redis 作为二级缓存。你还可以选择 Ehcache2 和 Ehcache3 作为一级缓存。
+J2Cache 默认使用 [Caffeine](https://www.oschina.net/p/ben-manes-caffeine) 作为一级缓存，使用 Redis 作为二级缓存。你还可以选择 Ehcache2 和 Ehcache3 作为一级缓存。
 
 **准备工作**
 
