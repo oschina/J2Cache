@@ -49,14 +49,21 @@ public class J2CacheConfig {
             config.broadcast = config.properties.getProperty("j2cache.broadcast");
             config.l1CacheName = config.properties.getProperty("j2cache.L1.provider_class");
             config.l2CacheName = config.properties.getProperty("j2cache.L2.provider_class");
+
+            String l2_config_section = config.properties.getProperty("j2cache.L2.config_section");
+            if(l2_config_section == null || l2_config_section.trim().equals(""))
+                l2_config_section = config.l2CacheName;
+
+            final String l2_section = l2_config_section;
+
             config.properties.forEach((k,v) -> {
                 String key = (String)k;
                 if(key.startsWith(config.broadcast + "."))
                     config.broadcastProperties.setProperty(key.substring((config.broadcast + ".").length()), (String)v);
                 if(key.startsWith(config.l1CacheName + "."))
                     config.l1CacheProperties.setProperty(key.substring((config.l1CacheName + ".").length()), (String)v);
-                if(key.startsWith(config.l2CacheName + "."))
-                    config.l2CacheProperties.setProperty(key.substring((config.l2CacheName + ".").length()), (String)v);
+                if(key.startsWith(l2_section + "."))
+                    config.l2CacheProperties.setProperty(key.substring((l2_section + ".").length()), (String)v);
 
             });
         }

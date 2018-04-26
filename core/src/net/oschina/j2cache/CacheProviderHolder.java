@@ -17,6 +17,7 @@ package net.oschina.j2cache;
 
 import net.oschina.j2cache.caffeine.CaffeineProvider;
 import net.oschina.j2cache.ehcache.EhCacheProvider3;
+import net.oschina.j2cache.redis.ReadonlyRedisCacheProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,6 +75,8 @@ public class CacheProviderHolder {
 			return new CaffeineProvider();
 		if("redis".equalsIgnoreCase(cacheIdent))
 			return new RedisCacheProvider();
+		if("readonly-redis".equalsIgnoreCase(cacheIdent))
+			return new ReadonlyRedisCacheProvider();
 		if("none".equalsIgnoreCase(cacheIdent))
 			return new NullCacheProvider();
 		try {
