@@ -53,6 +53,9 @@ public class ReadonlyRedisCacheProvider extends RedisCacheProvider {
         return new ReadonlyCache(cache).get();
     }
 
+    /**
+     * 接管 Cache 接口，并对缓存更新的方法进行屏蔽
+     */
     private static final class ReadonlyCache implements InvocationHandler {
 
         private static final List<String> ignoreMethods = Arrays.asList("put","evict","clear");
