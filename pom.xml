@@ -129,7 +129,7 @@
         <module>hibernate3</module>
         <module>hibernate4</module>
         <module>spring-boot-starter</module>
-    <module>j2cache-spring-boot2-starter</module>
+    	<module>spring-boot2-starter</module>
   </modules>
 
     <dependencies>
