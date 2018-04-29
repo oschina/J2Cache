@@ -36,6 +36,7 @@ public class J2CacheConfig {
     private String l1CacheName;
     private String l2CacheName;
     private String serialization;
+    private boolean syncTtlToRedis;
     private Properties broadcastProperties = new Properties();
     private Properties l1CacheProperties = new Properties();
     private Properties l2CacheProperties = new Properties();
@@ -49,6 +50,7 @@ public class J2CacheConfig {
             config.broadcast = config.properties.getProperty("j2cache.broadcast");
             config.l1CacheName = config.properties.getProperty("j2cache.L1.provider_class");
             config.l2CacheName = config.properties.getProperty("j2cache.L2.provider_class");
+            config.syncTtlToRedis = !"false".equalsIgnoreCase(config.properties.getProperty("j2cache.sync_ttl_to_redis"));
 
             String l2_config_section = config.properties.getProperty("j2cache.L2.config_section");
             if(l2_config_section == null || l2_config_section.trim().equals(""))
@@ -104,6 +106,14 @@ public class J2CacheConfig {
 
     public void setBroadcast(String broadcast) {
         this.broadcast = broadcast;
+    }
+
+    public boolean isSyncTtlToRedis() {
+        return syncTtlToRedis;
+    }
+
+    public void setSyncTtlToRedis(boolean syncTtlToRedis) {
+        this.syncTtlToRedis = syncTtlToRedis;
     }
 
     public String getL1CacheName() {

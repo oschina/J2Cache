@@ -28,8 +28,13 @@ import java.util.stream.Collectors;
  */
 public abstract class CacheChannel implements Closeable , AutoCloseable {
 
-	private final static boolean DEFAULT_CACHE_NULL_OBJECT = true;
-	private final static Map<String, Object> _g_keyLocks = new ConcurrentHashMap<>();
+	private static final boolean DEFAULT_CACHE_NULL_OBJECT = true;
+	private static final Map<String, Object> _g_keyLocks = new ConcurrentHashMap<>();
+	private J2CacheConfig config;
+
+	public CacheChannel(J2CacheConfig config) {
+		this.config = config;
+	}
 
 	/**
 	 * <p>Just for Inner Use.</p>
@@ -198,7 +203,11 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 		try {
 			Level1Cache level1 = CacheProviderHolder.getLevel1Cache(region);
 			level1.put(key, (value==null && cacheNullObject)?new Object():value);
-			CacheProviderHolder.getLevel2Cache(region).put(key, (value==null && cacheNullObject)?new Object():value, level1.ttl());
+			Level2Cache level2 = CacheProviderHolder.getLevel2Cache(region);
+			if(config.isSyncTtlToRedis())
+				level2.put(key, (value==null && cacheNullObject)?new Object():value, level1.ttl());
+			else
+				level2.put(key, (value==null && cacheNullObject)?new Object():value);
 		} finally {
 			this.sendEvictCmd(region, key);//清除原有的一级缓存的内容
 		}
@@ -236,7 +245,11 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
     	else {
 			try {
 				CacheProviderHolder.getLevel1Cache(region, timeToLiveInSeconds).put(key, (value==null && cacheNullObject)?new Object():value);
-				CacheProviderHolder.getLevel2Cache(region).put(key, (value==null && cacheNullObject)?new Object():value, timeToLiveInSeconds);
+				Level2Cache level2 = CacheProviderHolder.getLevel2Cache(region);
+				if(config.isSyncTtlToRedis())
+					level2.put(key, (value==null && cacheNullObject)?new Object():value, timeToLiveInSeconds);
+				else
+					level2.put(key, (value==null && cacheNullObject)?new Object():value);
 			} finally {
 				this.sendEvictCmd(region, key);//清除原有的一级缓存的内容
 			}
@@ -269,12 +282,19 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 				});
 				Level1Cache level1 = CacheProviderHolder.getLevel1Cache(region);
 				level1.put(newElems);
-				CacheProviderHolder.getLevel2Cache(region).put(newElems, level1.ttl());
+				if(config.isSyncTtlToRedis())
+					CacheProviderHolder.getLevel2Cache(region).put(newElems, level1.ttl());
+				else
+					CacheProviderHolder.getLevel2Cache(region).put(newElems);
 			}
 			else {
 				Level1Cache level1 = CacheProviderHolder.getLevel1Cache(region);
 				level1.put(elements);
-				CacheProviderHolder.getLevel2Cache(region).put(elements, level1.ttl());
+				if(config.isSyncTtlToRedis())
+					CacheProviderHolder.getLevel2Cache(region).put(elements, level1.ttl());
+				else
+
+					CacheProviderHolder.getLevel2Cache(region).put(elements);
 			}
 		} finally {
 			//广播
@@ -318,11 +338,17 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 							newElems.put(k, new Object());
 					});
 					CacheProviderHolder.getLevel1Cache(region, timeToLiveInSeconds).put(newElems);
-					CacheProviderHolder.getLevel2Cache(region).put(newElems, timeToLiveInSeconds);
+					if(config.isSyncTtlToRedis())
+						CacheProviderHolder.getLevel2Cache(region).put(newElems, timeToLiveInSeconds);
+					else
+						CacheProviderHolder.getLevel2Cache(region).put(newElems);
 				}
 				else {
 					CacheProviderHolder.getLevel1Cache(region, timeToLiveInSeconds).put(elements);
-					CacheProviderHolder.getLevel2Cache(region).put(elements, timeToLiveInSeconds);
+					if(config.isSyncTtlToRedis())
+						CacheProviderHolder.getLevel2Cache(region).put(elements, timeToLiveInSeconds);
+					else
+						CacheProviderHolder.getLevel2Cache(region).put(elements);
 				}
 			} finally {
 				//广播

@@ -35,7 +35,7 @@ public class J2CacheBuilder {
     private J2CacheBuilder(J2CacheConfig config) {
         this.initFromConfig(config);
         /* 初始化缓存接口 */
-        this.channel = new CacheChannel(){
+        this.channel = new CacheChannel(config){
             @Override
             public void sendClearCmd(String region) {
                 policy.sendClearCmd(region);
