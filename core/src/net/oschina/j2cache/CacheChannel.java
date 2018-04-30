@@ -174,10 +174,21 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @return true if key exists
 	 */
 	public boolean exists(String region, String key) {
-		boolean exists = CacheProviderHolder.getLevel1Cache(region).exists(key);
-		if(!exists)
-			exists = CacheProviderHolder.getLevel2Cache(region).exists(key);
-		return exists;
+		return check(region, key) > 0;
+	}
+
+	/**
+	 * 判断某个key存在于哪级的缓存中
+	 * @param region
+	 * @param key
+	 * @return  0(不存在),1(一级),2(二级)
+	 */
+	public int check(String region, String key) {
+		if(CacheProviderHolder.getLevel1Cache(region).exists(key))
+			return 1;
+		if(CacheProviderHolder.getLevel2Cache(region).exists(key))
+			return 2;
+		return 0;
 	}
 
 	/**
