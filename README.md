@@ -107,9 +107,21 @@ public static void main(String[] args) {
 
 *请注意 cache.close() 方法只需在程序退出时调用。*
 
-**四. 集群测试**
+**四. 动态构建 J2Cache 实例**
+
+```
+J2CacheConfig config = new J2CacheConfig();
+//填充 config 变量所需的配置信息
+J2CacheBuilder builder = J2CacheBuilder.init(config);
+CacheChannel channel = builder.getChannel();
+//进行缓存的操作
+channel.close();
+```
+
+**五. 集群测试**
 
 为了方便测试集群模式下 J2Cache 的运行，我们提供了一个命令行小程序，请参考此页面前面的 [“测试方法”](#%E6%B5%8B%E8%AF%95%E6%96%B9%E6%B3%95)。
+
 
 ## 常见问题
 
