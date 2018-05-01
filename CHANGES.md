@@ -1,6 +1,6 @@
 # J2Cache 版本更新记录
 
-**J2Cache 2.3.13-release (2018-5-xx)**
+**J2Cache 2.3.13-release (2018-5-1)**
 
 * 支持通过 `j2cache.sync_ttl_to_redis` 配置项来决定是否 Redis 缓存的数据也带 ttl 信息（相当于该配置如果设置为 false 时，redis 上的数据不会自动过期，该配置值默认为 true）
 * 增加 Spring Boot 2.0 的支持模块

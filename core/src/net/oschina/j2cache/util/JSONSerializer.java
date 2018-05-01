@@ -20,12 +20,20 @@ import com.alibaba.fastjson.JSONObject;
 import org.nustaq.kson.Kson;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 /**
- * TODO 使用 fastjson 实现序列化
+ * 为了实现跨语言的支持，有必要支持 JSON 的序列化
+ *
+ * 需要支持的数据类型包括：
+ *
+ * 1. 原生类型
+ * 2. 数组类型
+ * 3. 集合类型
+ * 4. 对象类型
+ * 5. 对象数据
+ * 6. 对象集合
  *
  * @author Winter Lau(javayou@gmail.com)
  */
