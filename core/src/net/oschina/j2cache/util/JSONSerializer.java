@@ -19,9 +19,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.nustaq.kson.Kson;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * 为了实现跨语言的支持，有必要支持 JSON 的序列化
@@ -34,6 +32,13 @@ import java.util.List;
  * 4. 对象类型
  * 5. 对象数据
  * 6. 对象集合
+ *
+ * 输出格式：
+ *
+ * {
+ *     "type": "int",
+ *     "value": "123"
+ * }
  *
  * @author Winter Lau(javayou@gmail.com)
  */
@@ -52,14 +57,10 @@ public class JSONSerializer implements Serializer {
 
     @Override
     public byte[] serialize(Object obj) {
-        if(!primitiveClasses.contains(obj.getClass())){
-            HashMap<String, Object> val = new HashMap<>();
-            val.put("value", obj);
-            val.put("__class__", obj.getClass().getName());
-            String jsonStr = JSON.toJSONString(obj);
-            return jsonStr.getBytes();
-        }
-        String jsonStr = JSON.toJSONString(obj);
+        JSONObject json = new JSONObject();
+        json.put("type", obj.getClass().getName());
+        json.put("value", obj);
+        String jsonStr = JSON.toJSONString(json);
         return jsonStr.getBytes();
     }
 
@@ -74,14 +75,43 @@ public class JSONSerializer implements Serializer {
 
     public static void main(String[] args) throws Exception {
         JSONSerializer json = new JSONSerializer();
-        int[] i = {10,11,12};
+        //int[] i = {10,11,12};
         //Date i = new Date(2018,10,1);//"100";
-        String result = new String(json.serialize(i));
-        new Kson().readObject(result);
-        System.out.println(json.deserialize(result.getBytes()));
-        System.out.println(JSON.parse(result).getClass().getName());
+        List<Person> persons = Arrays.asList(new Person("Winter Lau", 19));
 
+        String result = new Kson().writeObject(persons);
 
-        System.out.println(new Kson().writeObject(i));
+        System.out.println(result);
+
+        System.out.println(new Kson().map(Person.class).readObject(result).getClass().getName());
+
+    }
+
+    public static class Person {
+        private String name;
+        private int age;
+
+        public Person(){}
+
+        public Person(String name, int age) {
+            this.name = name;
+            this.age = age;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public int getAge() {
+            return age;
+        }
+
+        public void setAge(int age) {
+            this.age = age;
+        }
     }
 }

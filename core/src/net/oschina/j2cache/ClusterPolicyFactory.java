@@ -39,6 +39,8 @@ public class ClusterPolicyFactory {
             policy = ClusterPolicyFactory.redis(props);
         else if ("jgroups".equalsIgnoreCase(broadcast))
             policy = ClusterPolicyFactory.jgroups(props);//
+        else if ("none".equalsIgnoreCase(broadcast))
+            policy = new NoneClusterPolicy();
         else
             policy = ClusterPolicyFactory.custom(broadcast, props);
         return policy;

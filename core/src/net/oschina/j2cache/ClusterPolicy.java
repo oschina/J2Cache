@@ -15,7 +15,6 @@
  */
 package net.oschina.j2cache;
 
-import java.io.IOException;
 import java.util.Properties;
 
 /**
