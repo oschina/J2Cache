@@ -1,8 +1,9 @@
 # J2Cache 版本更新记录
 
-**J2Cache 2.3.13-release (2018-5-xx)**
+**J2Cache 2.3.14-release (2018-5-3)**
 
 * 允许通过 j2cache.broadcast = none 来关闭集群节点关于缓存数据的失效通知
+* 修复了 json 反序列化失败的问题
 
 
 **J2Cache 2.3.13-release (2018-5-1)**
