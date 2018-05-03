@@ -51,6 +51,8 @@ public class Command {
 		return (int)(rnd_seed.nextInt(10000) * 1000 + ct % 1000);
 	}
 
+	public Command(){}//just for json deserialize , dont remove it.
+
 	public Command(byte o, String r, String...keys){
 		this.operator = o;
 		this.region = r;
