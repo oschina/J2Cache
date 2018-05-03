@@ -96,4 +96,25 @@ public class Command {
 		return src;
 	}
 
+    public void setSrc(int src) {
+        this.src = src;
+    }
+
+    public void setOperator(int operator) {
+        this.operator = operator;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public void setKeys(String[] keys) {
+        this.keys = keys;
+    }
+
+    @Override
+	public String toString(){
+		return JSON.toJSONString(this);
+	}
+
 }
