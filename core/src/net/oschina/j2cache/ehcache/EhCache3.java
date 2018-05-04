@@ -49,6 +49,8 @@ public class EhCache3 implements Level1Cache, CacheEventListener {
     @Override
     public long ttl() {
         Duration dur = this.cache.getRuntimeConfiguration().getExpiry().getExpiryForCreation(null,null);
+        if (dur.isInfinite())
+            return 0L;
         return dur.getTimeUnit().toSeconds(dur.getLength());
     }
 
