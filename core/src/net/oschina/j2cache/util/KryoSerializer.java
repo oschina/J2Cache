@@ -30,9 +30,6 @@ import java.io.IOException;
  */
 public class KryoSerializer implements Serializer {
 
-	private final static Kryo kryo = new Kryo();
-
-
     @Override
 	public String name() {
 		return "kryo";
@@ -42,7 +39,7 @@ public class KryoSerializer implements Serializer {
 	public byte[] serialize(Object obj) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try (Output output = new Output(baos);){
-			kryo.writeClassAndObject(output, obj);
+			new Kryo().writeClassAndObject(output, obj);
 			output.flush();
 			return baos.toByteArray();
 		}
@@ -53,7 +50,7 @@ public class KryoSerializer implements Serializer {
 		if(bits == null || bits.length == 0)
 			return null;
 		try (Input ois = new Input(new ByteArrayInputStream(bits))){
-			return kryo.readClassAndObject(ois);
+			return new Kryo().readClassAndObject(ois);
 		}
 	}
 	
