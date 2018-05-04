@@ -36,7 +36,7 @@ public class KryoSerializer implements Serializer {
 	}
 
 	@Override
-	public byte[] serialize(Object obj) throws IOException {
+	public byte[] serialize(Object obj) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try (Output output = new Output(baos);){
 			new Kryo().writeClassAndObject(output, obj);
@@ -46,7 +46,7 @@ public class KryoSerializer implements Serializer {
 	}
 
 	@Override
-	public Object deserialize(byte[] bits) throws IOException {
+	public Object deserialize(byte[] bits) {
 		if(bits == null || bits.length == 0)
 			return null;
 		try (Input ois = new Input(new ByteArrayInputStream(bits))){
