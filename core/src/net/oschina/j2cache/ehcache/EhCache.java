@@ -74,8 +74,8 @@ public class EhCache implements Level1Cache, CacheEventListener {
 		if ( key == null )
 			return null;
 		Element elem = cache.get( key );
-		Object obj = elem.getObjectValue();
-		return (elem == null || obj.getClass().equals(Object.class))?null:(Serializable)elem.getObjectValue();
+		Object obj = (elem != null)?elem.getObjectValue() : null;
+		return (elem == null || obj == null || obj.getClass().equals(Object.class))?null:(Serializable)elem.getObjectValue();
 	}
 
 	/**
