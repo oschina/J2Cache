@@ -36,11 +36,13 @@ L2： Redis 集中式缓存
 
 配置文件位于 core/resources 目录下，包含三个文件：
 
+* j2cache.properties J2Cache 核心配置文件，可配置两级的缓存，以及 Redis 服务器、连接池以及缓存广播的方式
+* caffeine.properties  如果一级缓存选用 Caffeine ，那么该文件用来配置缓存信息
 * ehcache.xml Ehcache 的配置文件，配置说明请参考 Ehcache 文档
-* j2cache.properties J2Cache 核心配置文件，可配置 Redis 服务器、连接池以及缓存广播的方式
+* ehcache3.xml Ehcache3 的配置文件，配置说明请参考 Ehcache 文档
 * network.xml JGroups 网络配置，如果使用 JGroups 组播的话需要这个文件，一般无需修改
 
-实际使用过程需要将这三个文件复制到应用类路径中，如 WEB-INF/classes 目录。
+实际使用过程需要将所需的配置文件复制到应用类路径中，如 WEB-INF/classes 目录。
 
 J2Cache 运行时所需 jar 包请查看 core/pom.xml
 
