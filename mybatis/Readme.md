@@ -13,6 +13,6 @@ Maven:
 <dependency>
     <groupId>net.oschina.j2cache</groupId>
     <artifactId>j2cache-mybatis</artifactId>
-    <version>2.3.16-release</version>
+    <version>2.3.17-release</version>
 </dependency>
 ```
