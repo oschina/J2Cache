@@ -55,9 +55,7 @@ public class J2CacheAdapter implements Cache {
 
     @Override
     public Object getObject(Object key) {
-        Object obj = this.cache.get(this.id, key.toString()).getValue();
-        System.out.printf("id=%s,obj=%s%n",id,key);
-        return obj;
+        return this.cache.get(this.id, key.toString()).getValue();
     }
 
     @Override

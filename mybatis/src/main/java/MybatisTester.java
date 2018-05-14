@@ -1,4 +1,3 @@
-import net.oschina.j2cache.mybatis.Blog;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;

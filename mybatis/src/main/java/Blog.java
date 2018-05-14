@@ -1,5 +1,3 @@
-package net.oschina.j2cache.mybatis;
-
 import java.io.Serializable;
 
 /**
