@@ -130,7 +130,8 @@
         <module>hibernate4</module>
         <module>spring-boot-starter</module>
     	<module>spring-boot2-starter</module>
-  </modules>
+        <module>mybatis</module>
+    </modules>
 
     <dependencies>
         <!-- https://mvnrepository.com/artifact/junit/junit -->
