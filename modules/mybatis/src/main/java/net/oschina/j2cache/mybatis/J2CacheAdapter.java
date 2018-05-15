@@ -29,17 +29,21 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class J2CacheAdapter implements Cache {
 
+    private static final String DEFAULT_REGION = "default";
+
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private CacheChannel cache = J2Cache.getChannel();
     private String id;
 
     public J2CacheAdapter(String id) {
         if (id == null)
-            throw new IllegalArgumentException("J2CacheAdapter require an id (cache region)");
+            id = DEFAULT_REGION;
         this.id = id;
     }
 
     public void setId(String id) {
+        if (id == null)
+            id = DEFAULT_REGION;
         this.id = id;
     }
 
