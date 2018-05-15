@@ -62,7 +62,7 @@ public class J2CacheAdapter implements Cache {
     public Object removeObject(Object o) {
         Object obj = this.cache.get(this.id, o.toString()).getValue();
         if (obj != null)
-            this.cache.evict(this.id, (String)o);
+            this.cache.evict(this.id, o.toString());
         return obj;
     }
 
