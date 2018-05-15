@@ -126,11 +126,11 @@
     <!-- 包含模块 -->
     <modules>
         <module>core</module>
-        <module>hibernate3</module>
-        <module>hibernate4</module>
-        <module>spring-boot-starter</module>
-    	<module>spring-boot2-starter</module>
-        <module>mybatis</module>
+        <module>modules/hibernate3</module>
+        <module>modules/hibernate4</module>
+        <module>modules/spring-boot-starter</module>
+    	<module>modules/spring-boot2-starter</module>
+        <module>modules/mybatis</module>
     </modules>
 
     <dependencies>
