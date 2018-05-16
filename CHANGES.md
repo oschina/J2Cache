@@ -1,5 +1,9 @@
 # J2Cache 版本更新记录
 
+**J2Cache 2.3.17-release (2018-5-16)**
+
+* [#IJTFT](https://gitee.com/ld/J2Cache/issues/IJTFT) 修复CacheChannel的get接口的cacheNullObject参数并不生效的问题
+* 对仓库进行重构，将扩展模块移入 modules 目录
 
 **J2Cache 2.3.16-release (2018-5-4)**
 
