@@ -95,11 +95,9 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 
 			try {
 				Object obj = loader.apply(key);
-				if (obj != null) {
-					boolean cacheNull = (cacheNullObject.length>0)?cacheNullObject[0]:DEFAULT_CACHE_NULL_OBJECT;
-					set(region, key, obj, cacheNull);
-					cache = new CacheObject(region, key, CacheObject.LEVEL_OUTER, obj);
-				}
+				boolean cacheNull = (cacheNullObject.length>0)?cacheNullObject[0]:DEFAULT_CACHE_NULL_OBJECT;
+				set(region, key, obj, cacheNull);
+				cache = new CacheObject(region, key, CacheObject.LEVEL_OUTER, obj);
 			} finally {
 				_g_keyLocks.remove(lock_key);
 			}
@@ -149,12 +147,10 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 				if(cache == null) {
 					try {
 						Object obj = loader.apply(e.getKey());
-						if (obj != null) {
-							boolean cacheNull = (cacheNullObject.length>0)?cacheNullObject[0]:DEFAULT_CACHE_NULL_OBJECT;
-							set(region, e.getKey(), obj, cacheNull);
-							e.getValue().setValue(obj);
-							e.getValue().setLevel(CacheObject.LEVEL_OUTER);
-						}
+						boolean cacheNull = (cacheNullObject.length>0)?cacheNullObject[0]:DEFAULT_CACHE_NULL_OBJECT;
+						set(region, e.getKey(), obj, cacheNull);
+						e.getValue().setValue(obj);
+						e.getValue().setLevel(CacheObject.LEVEL_OUTER);
 					} finally {
 						_g_keyLocks.remove(lock_key);
 					}
@@ -211,6 +207,9 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param cacheNullObject if allow cache null object
 	 */
 	public void set(String region, String key, Object value, boolean cacheNullObject) {
+		if (!cacheNullObject && value == null)
+			return ;
+
 		try {
 			Level1Cache level1 = CacheProviderHolder.getLevel1Cache(region);
 			level1.put(key, (value==null && cacheNullObject)?new Object():value);
@@ -251,6 +250,9 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param cacheNullObject if allow cache null object
 	 */
     public void set(String region, String key, Object value, long timeToLiveInSeconds, boolean cacheNullObject) {
+		if (!cacheNullObject && value == null)
+			return ;
+
     	if(timeToLiveInSeconds <= 0)
     		set(region, key, value, cacheNullObject);
     	else {
