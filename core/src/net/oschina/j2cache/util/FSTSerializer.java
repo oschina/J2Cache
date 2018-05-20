@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import net.oschina.j2cache.CacheException;
+import org.nustaq.serialization.FSTConfiguration;
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
 
@@ -30,6 +31,13 @@ import org.nustaq.serialization.FSTObjectOutput;
  */
 public class FSTSerializer implements Serializer {
 
+	private FSTConfiguration fstConfiguration ;
+
+	public FSTSerializer() {
+		fstConfiguration = FSTConfiguration.getDefaultConfiguration();
+		fstConfiguration.setClassLoader(Thread.currentThread().getContextClassLoader());
+	}
+
 	@Override
 	public String name() {
 		return "fst";
@@ -38,7 +46,7 @@ public class FSTSerializer implements Serializer {
 	@Override
 	public byte[] serialize(Object obj) throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		try (FSTObjectOutput fOut = new FSTObjectOutput(out)) {
+		try (FSTObjectOutput fOut = new FSTObjectOutput(out, fstConfiguration)) {
 			fOut.writeObject(obj);
 			fOut.flush();
 			return out.toByteArray();
@@ -49,7 +57,7 @@ public class FSTSerializer implements Serializer {
 	public Object deserialize(byte[] bytes) throws IOException {
 		if(bytes == null || bytes.length == 0)
 			return null;
-		try (FSTObjectInput in = new FSTObjectInput(new ByteArrayInputStream(bytes))){
+		try (FSTObjectInput in = new FSTObjectInput(new ByteArrayInputStream(bytes), fstConfiguration)){
 			return in.readObject();
 		} catch (ClassNotFoundException e) {
 			throw new CacheException(e);
