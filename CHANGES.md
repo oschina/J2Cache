@@ -1,5 +1,10 @@
 # J2Cache 版本更新记录
 
+**J2Cache 2.3.18-release (2018-5-21)**
+
+* 解决了使用 spring boot devtool 时 ClassCastException 异常的问题
+* 调整第三方包的依赖关系，不强制依赖，需要开发者自行加入依赖
+
 **J2Cache 2.3.17-release (2018-5-16)**
 
 * [#IJTFT](https://gitee.com/ld/J2Cache/issues/IJTFT) 修复CacheChannel的get接口的cacheNullObject参数并不生效的问题

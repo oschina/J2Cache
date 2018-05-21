@@ -3,7 +3,7 @@
     <parent>
         <groupId>net.oschina.j2cache</groupId>
         <artifactId>j2cache</artifactId>
-        <version>2.3.17-release</version>
+        <version>2.3.18-release</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -15,77 +15,84 @@
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
             <version>2.6.2</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
             <version>2.9.0</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>de.ruedigermoeller</groupId>
             <artifactId>fst</artifactId>
             <version>2.57</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.7.25</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.25</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>1.2.46</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>jline</groupId>
             <artifactId>jline</artifactId>
             <version>2.14.2</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
             <version>2.10.4</version>
-            <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.ehcache</groupId>
             <artifactId>ehcache</artifactId>
             <version>3.4.0</version>
-            <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jgroups</groupId>
             <artifactId>jgroups</artifactId>
             <version>3.6.15.Final</version>
-            <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.esotericsoftware</groupId>
             <artifactId>kryo-shaded</artifactId>
             <version>4.0.1</version>
-            <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.xerial.snappy</groupId>
             <artifactId>snappy-java</artifactId>
             <version>1.1.7.1</version>
-            <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>
