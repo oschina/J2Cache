@@ -28,12 +28,13 @@ import java.util.stream.Collectors;
  */
 public abstract class CacheChannel implements Closeable , AutoCloseable {
 
-	private static final boolean DEFAULT_CACHE_NULL_OBJECT = true;
 	private static final Map<String, Object> _g_keyLocks = new ConcurrentHashMap<>();
 	private J2CacheConfig config;
+    private boolean defaultCacheNullObject ;
 
 	public CacheChannel(J2CacheConfig config) {
 		this.config = config;
+		this.defaultCacheNullObject = config.isDefaultCacheNullObject();
 	}
 
 	/**
@@ -59,9 +60,10 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * 读取缓存（用户无需判断返回的对象是否为空）
 	 * @param region Cache region name
 	 * @param key Cache data key
+     * @param cacheNullObject 是否缓存空对象
 	 * @return cache object
 	 */
-	public CacheObject get(String region, String key)  {
+	public CacheObject get(String region, String key, boolean...cacheNullObject)  {
 
 		CacheObject obj = new CacheObject(region, key, CacheObject.LEVEL_1);
 		obj.setValue(CacheProviderHolder.getLevel1Cache(region).get(key));
@@ -75,11 +77,15 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 				return obj;
 
 			try {
-
 				obj.setLevel(CacheObject.LEVEL_2);
 				obj.setValue(CacheProviderHolder.getLevel2Cache(region).get(key));
 				if (obj.rawValue() != null)
 					CacheProviderHolder.getLevel1Cache(region).put(key, obj.rawValue());
+				else {
+                    boolean cacheNull = (cacheNullObject.length>0)?cacheNullObject[0]: defaultCacheNullObject;
+                    if(cacheNull)
+                        set(region, key, new Object(), true);
+                }
 			} finally {
 				_g_keyLocks.remove(lock_key);
 			}
@@ -93,6 +99,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param region Cache region name
 	 * @param key Cache data key
 	 * @param loader data loader
+	 * @param cacheNullObject  true if you need to cache null object
 	 * @return cache object
 	 */
 	public CacheObject get(String region, String key, Function<String, Object> loader, boolean...cacheNullObject) {
@@ -110,7 +117,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 
 			try {
 				Object obj = loader.apply(key);
-				boolean cacheNull = (cacheNullObject.length>0)?cacheNullObject[0]:DEFAULT_CACHE_NULL_OBJECT;
+				boolean cacheNull = (cacheNullObject.length>0)?cacheNullObject[0]: defaultCacheNullObject;
 				set(region, key, obj, cacheNull);
 				cache = new CacheObject(region, key, CacheObject.LEVEL_OUTER, obj);
 			} finally {
@@ -151,7 +158,8 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param region Cache region name
 	 * @param keys cache keys
 	 * @param loader data loader
-	 * @return
+	 * @param cacheNullObject true if you need to cache null object
+	 * @return multiple cache data
 	 */
 	public Map<String, CacheObject> get(String region, Collection<String> keys, Function<String, Object> loader, boolean...cacheNullObject)  {
 		Map<String, CacheObject> results = get(region, keys);
@@ -162,7 +170,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 				if(cache == null) {
 					try {
 						Object obj = loader.apply(e.getKey());
-						boolean cacheNull = (cacheNullObject.length>0)?cacheNullObject[0]:DEFAULT_CACHE_NULL_OBJECT;
+						boolean cacheNull = (cacheNullObject.length>0)?cacheNullObject[0]: defaultCacheNullObject;
 						set(region, e.getKey(), obj, cacheNull);
 						e.getValue().setValue(obj);
 						e.getValue().setLevel(CacheObject.LEVEL_OUTER);
@@ -190,8 +198,8 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 
 	/**
 	 * 判断某个key存在于哪级的缓存中
-	 * @param region
-	 * @param key
+	 * @param region cache region
+	 * @param key cache key
 	 * @return  0(不存在),1(一级),2(二级)
 	 */
 	public int check(String region, String key) {
@@ -210,7 +218,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param value: Cache value
 	 */
 	public void set(String region, String key, Object value) {
-		set(region, key, value, DEFAULT_CACHE_NULL_OBJECT);
+		set(region, key, value, defaultCacheNullObject);
 	}
 
 	/**
@@ -250,7 +258,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param timeToLiveInSeconds cache expired in second
 	 */
 	public void set(String region, String key, Object value, long timeToLiveInSeconds ) {
-		set(region, key, value, timeToLiveInSeconds, DEFAULT_CACHE_NULL_OBJECT);
+		set(region, key, value, timeToLiveInSeconds, defaultCacheNullObject);
 	}
 
 	/**
@@ -290,7 +298,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param elements Cache Elements
 	 */
 	public void set(String region, Map<String, Object> elements){
-    	set(region, elements, DEFAULT_CACHE_NULL_OBJECT);
+    	set(region, elements, defaultCacheNullObject);
 	}
 
 	/**
@@ -340,7 +348,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param timeToLiveInSeconds cache expired in second
 	 */
 	public void set(String region, Map<String, Object> elements, long timeToLiveInSeconds){
-		set(region, elements, timeToLiveInSeconds, DEFAULT_CACHE_NULL_OBJECT);
+		set(region, elements, timeToLiveInSeconds, defaultCacheNullObject);
 	}
 
 	/**
@@ -416,7 +424,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 
 	/**
 	 * 返回所有的缓存区域
-	 * @return
+	 * @return all the regions
 	 */
 	public Collection<Region> regions() {
 		return CacheProviderHolder.regions();
