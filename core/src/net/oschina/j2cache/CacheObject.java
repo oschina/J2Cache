@@ -56,7 +56,7 @@ public class CacheObject {
 
 	/**
 	 * 获取数据所在的缓存区域
-	 * @return
+	 * @return cache region name
 	 */
 	public String getRegion() {
 		return region;
@@ -64,7 +64,7 @@ public class CacheObject {
 
 	/**
 	 * 缓存数据键值
-	 * @return
+	 * @return cache key
 	 */
 	public String getKey() {
 		return key;
@@ -72,7 +72,7 @@ public class CacheObject {
 
 	/**
 	 * 缓存对象
-	 * @return
+	 * @return cache object include null object
 	 */
 	public Object getValue() {
 		if (value != null && value.getClass().equals(Object.class))
@@ -80,13 +80,17 @@ public class CacheObject {
 		return value;
 	}
 
+	/**
+	 * 返回实际缓存的对象
+	 * @return cache raw object
+	 */
 	Object rawValue() {
 		return value;
 	}
 
 	/**
 	 * 缓存所在的层级
-	 * @return
+	 * @return  cache level
 	 */
 	public byte getLevel() {
 		return level;

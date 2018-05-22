@@ -56,8 +56,8 @@ public class J2CacheBuilder {
 
     /**
      * 初始化 J2Cache，这是一个很重的操作，请勿重复执行
-     * @param config
-     * @return
+     * @param config  j2cache config instance
+     * @return J2CacheBuilder instance
      */
     public final static J2CacheBuilder init(J2CacheConfig config) {
         return new J2CacheBuilder(config);

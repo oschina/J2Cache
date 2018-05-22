@@ -32,7 +32,7 @@ public interface Level2Cache extends Cache {
 
     /**
      * 是否支持缓存 TTL 的设置
-     * @return
+     * @return true/false if cache support ttl setting
      */
     default boolean supportTTL() {
         return false;
@@ -40,36 +40,36 @@ public interface Level2Cache extends Cache {
 
     /**
      * 读取缓存数据字节数组
-     * @param key
-     * @return
+     * @param key  cache key
+     * @return cache data
      */
     byte[] getBytes(String key);
 
     /**
      * 同时读取多个 Key
-     * @param keys
-     * @return
+     * @param keys  multiple cache key
+     * @return cache values
      */
     List<byte[]> getBytes(Collection<String> keys);
 
     /**
      * 设置缓存数据字节数组
-     * @param key
-     * @param bytes
+     * @param key  cache key
+     * @param bytes  cache data
      */
     void setBytes(String key, byte[] bytes);
 
     /**
      * 同时设置多个数据
-     * @param bytes
+     * @param bytes cache data
      */
     void setBytes(Map<String,byte[]> bytes);
 
     /**
      * 设置缓存数据字节数组（带有效期）
-     * @param key
-     * @param bytes
-     * @param timeToLiveInSeconds
+     * @param key  cache key
+     * @param bytes cache data
+     * @param timeToLiveInSeconds cache ttl
      */
     default void setBytes(String key, byte[] bytes, long timeToLiveInSeconds){
         setBytes(key, bytes);
@@ -77,8 +77,8 @@ public interface Level2Cache extends Cache {
 
     /**
      * 批量设置带 TTL 的缓存数据
-     * @param bytes
-     * @param timeToLiveInSeconds
+     * @param bytes  cache data
+     * @param timeToLiveInSeconds cache ttl
      */
     default void setBytes(Map<String,byte[]> bytes, long timeToLiveInSeconds) {
         setBytes(bytes);
@@ -87,7 +87,7 @@ public interface Level2Cache extends Cache {
     /**
      * 判断缓存数据是否存在
      * @param key cache key
-     * @return
+     * @return true if cache key exists in redis
      */
     default boolean exists(String key) {
         return getBytes(key) != null;
@@ -149,9 +149,9 @@ public interface Level2Cache extends Cache {
 
     /**
      * 设置缓存数据的有效期
-     * @param key
-     * @param value
-     * @param timeToLiveInSeconds
+     * @param key  cache key
+     * @param value cache value
+     * @param timeToLiveInSeconds cache ttl
      */
     default void put(String key, Object value, long timeToLiveInSeconds) {
         try {

@@ -8,8 +8,9 @@ public class RedisUtils {
 
     /**
      * 初始化 Redis 连接池
-     * @param props
-     * @return
+     * @param props j2cache.properties
+     * @param prefix configuration prefix
+     * @return redis connection pool configuration object
      */
     public final static JedisPoolConfig newPoolConfig(Properties props, String prefix) {
         JedisPoolConfig cfg = new JedisPoolConfig();

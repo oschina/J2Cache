@@ -33,7 +33,7 @@ public class SerializationUtils {
 
     /**
      * 初始化序列化器
-     * @param ser
+     * @param ser  serialization method
      */
     public static void init(String ser) {
         if (ser == null || "".equals(ser.trim()))

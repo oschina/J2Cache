@@ -32,7 +32,7 @@ public interface CacheProvider {
 
 	/**
 	 * 缓存的层级
-	 * @return
+	 * @return current provider level
 	 */
 	int level();
 
@@ -60,7 +60,7 @@ public interface CacheProvider {
 
 	/**
 	 * Return all channels defined in first level cache
-	 * @return
+	 * @return all regions name
 	 */
 	Collection<CacheChannel.Region> regions();
 

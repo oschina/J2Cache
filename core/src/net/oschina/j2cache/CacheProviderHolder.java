@@ -41,6 +41,7 @@ public class CacheProviderHolder {
 
 	/**
 	 * Initialize Cache Provider
+	 * @param config j2cache config instance
 	 * @param listener cache listener
 	 */
 	public static void init(J2CacheConfig config, CacheExpiredListener listener){
@@ -96,8 +97,8 @@ public class CacheProviderHolder {
 
 	/**
 	 * 一级缓存实例
-	 * @param region
-	 * @return
+	 * @param region  cache region
+	 * @return level 1 cache instance
 	 */
 	public final static Level1Cache getLevel1Cache(String region) {
 		return (Level1Cache)l1_provider.buildCache(region, listener);
@@ -105,9 +106,9 @@ public class CacheProviderHolder {
 
 	/**
 	 * 一级缓存实例
-	 * @param region
-	 * @param timeToLiveSeconds
-	 * @return
+	 * @param region  cache region
+	 * @param timeToLiveSeconds  cache ttl
+	 * @return level 1 cache instance
 	 */
 	public final static Level1Cache getLevel1Cache(String region, long timeToLiveSeconds) {
 		return (Level1Cache)l1_provider.buildCache(region, timeToLiveSeconds, listener);
@@ -115,13 +116,17 @@ public class CacheProviderHolder {
 
 	/**
 	 * 二级缓存实例
-	 * @param region
-	 * @return
+	 * @param region cache region
+	 * @return level 2 cache instance
 	 */
 	public final static Level2Cache getLevel2Cache(String region) {
 		return (Level2Cache)l2_provider.buildCache(region, listener);
 	}
 
+	/**
+	 * return all regions
+	 * @return all regions
+	 */
 	public final static Collection<CacheChannel.Region> regions() {
 		return l1_provider.regions();
 	}

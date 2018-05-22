@@ -130,7 +130,7 @@ public class RedisCacheProvider implements CacheProvider {
 
     /**
      * 获取 Redis 客户端实例
-     * @return
+     * @return redis client interface instance
      */
     public RedisClient getRedisClient() {
         return redisClient;

@@ -37,6 +37,7 @@ public class J2CacheConfig {
     private String l2CacheName;
     private String serialization;
     private boolean syncTtlToRedis;
+    private boolean defaultCacheNullObject;
     private Properties broadcastProperties = new Properties();
     private Properties l1CacheProperties = new Properties();
     private Properties l2CacheProperties = new Properties();
@@ -51,6 +52,7 @@ public class J2CacheConfig {
             config.l1CacheName = config.properties.getProperty("j2cache.L1.provider_class");
             config.l2CacheName = config.properties.getProperty("j2cache.L2.provider_class");
             config.syncTtlToRedis = !"false".equalsIgnoreCase(config.properties.getProperty("j2cache.sync_ttl_to_redis"));
+            config.defaultCacheNullObject = "true".equalsIgnoreCase(config.properties.getProperty("j2cache.default_cache_null_object"));
 
             String l2_config_section = config.properties.getProperty("j2cache.L2.config_section");
             if(l2_config_section == null || l2_config_section.trim().equals(""))
@@ -114,6 +116,14 @@ public class J2CacheConfig {
 
     public void setSyncTtlToRedis(boolean syncTtlToRedis) {
         this.syncTtlToRedis = syncTtlToRedis;
+    }
+
+    public boolean isDefaultCacheNullObject() {
+        return defaultCacheNullObject;
+    }
+
+    public void setDefaultCacheNullObject(boolean defaultCacheNullObject) {
+        this.defaultCacheNullObject = defaultCacheNullObject;
     }
 
     public String getL1CacheName() {

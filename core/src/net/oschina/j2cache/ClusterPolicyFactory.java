@@ -29,9 +29,9 @@ public class ClusterPolicyFactory {
 
     /**
      * 初始化集群消息通知机制
-     * @param broadcast
-     * @param props
-     * @return
+     * @param broadcast  j2cache.broadcast value
+     * @param props  broadcast configuations
+     * @return ClusterPolicy instance
      */
     public final static ClusterPolicy init(String broadcast, Properties props) {
         ClusterPolicy policy;
