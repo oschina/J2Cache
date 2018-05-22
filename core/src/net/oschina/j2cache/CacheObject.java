@@ -114,7 +114,7 @@ public class CacheObject {
 
 	@Override
 	public String toString() {
-		return String.format("[%s,%s,L%d]=>%s", region, key, level, value);
+		return String.format("[%s,%s,L%d]=>%s", region, key, level, getValue());
 	}
 
 }
