@@ -9,7 +9,7 @@
         <key-type>java.lang.String</key-type>
         <value-type>java.io.Serializable</value-type>
         <expiry>
-            <ttl unit="seconds">3600</ttl>
+            <ttl unit="seconds">1800</ttl>
         </expiry>
         <resources>
             <heap>1000</heap>
