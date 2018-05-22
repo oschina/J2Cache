@@ -1,5 +1,10 @@
 # J2Cache 版本更新记录
 
+**J2Cache 2.3.19-release (2018-5-22)**
+
+* 优化多线程同时读取同一个region同一个key情况下只读取一次L2数据，进一步降低redis的压力（实际100个线程测试性能提升30%左右，Redis 读取次数从 100 降低到 1）
+* 可通过 `j2cache.default_cache_null_object` 配置 J2Cache 是否默认启用 null 对象缓存
+
 **J2Cache 2.3.18-release (2018-5-21)**
 
 * 解决了使用 spring boot devtool 时 ClassCastException 异常的问题
