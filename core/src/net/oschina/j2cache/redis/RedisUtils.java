@@ -16,7 +16,7 @@ public class RedisUtils {
         JedisPoolConfig cfg = new JedisPoolConfig();
         cfg.setMaxTotal(Integer.valueOf((String)props.getOrDefault(key(prefix,"maxTotal"), "-1")));
         cfg.setMaxIdle(Integer.valueOf((String)props.getOrDefault(key(prefix,"maxIdle"), "100")));
-        cfg.setMaxWaitMillis(Integer.valueOf((String)props.getOrDefault(key(prefix,"maxWaitMillis"), 100)));
+        cfg.setMaxWaitMillis(Integer.valueOf((String)props.getOrDefault(key(prefix,"maxWaitMillis"), "100")));
         cfg.setMinEvictableIdleTimeMillis(Integer.valueOf((String)props.getOrDefault(key(prefix,"minEvictableIdleTimeMillis"), "864000000")));
         cfg.setMinIdle(Integer.valueOf((String)props.getOrDefault(key(prefix,"minIdle"), "10")));
         cfg.setNumTestsPerEvictionRun(Integer.valueOf((String)props.getOrDefault(key(prefix,"numTestsPerEvictionRun"), "10")));
