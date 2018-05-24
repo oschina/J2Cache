@@ -10,24 +10,21 @@ J2Cache 是 OSChina 目前正在使用的两级缓存框架（要求至少 Java 
 
 J2Cache 已经有 Python 语言版本了，详情请看 [https://gitee.com/ld/Py3Cache](https://gitee.com/ld/Py3Cache)
 
-J2Cache 从 1.3.0 版本开始支持 JGroups 和 Redis Subscribe 两种方式进行缓存事件的通知。在某些云平台上可能无法使用 JGroups 组播方式，可以采用 Redis 发布订阅的方式。详情请看 j2cache.properties 配置文件的说明。
+J2Cache 从 1.3.0 版本开始支持 JGroups 和 Redis Pub/Sub 两种方式进行缓存事件的通知。在某些云平台上可能无法使用 JGroups 组播方式，可以采用 Redis 发布订阅的方式。详情请看 j2cache.properties 配置文件的说明。
 
 视频介绍：http://v.youku.com/v_show/id_XNzAzMTY5MjUy.html  
-该项目提供付费咨询服务，详情请看：https://zb.oschina.net/market/opus/12_277
 
 J2Cache 的两级缓存结构
 
-L1： 进程内缓存(ehcache)   
+L1： 进程内缓存(caffeine\ehcache)   
 L2： Redis 集中式缓存
-
-由于大量的缓存读取会导致 L2 的网络带宽成为整个系统的瓶颈，因此 L1 的目标是降低对 L2 的读取次数
 
 		 
 ## 数据读取
 
 1. 读取顺序  -> L1 -> L2 -> DB
 
-2. 数据更新
+2. 数据更新  
 
     1 从数据库中读取最新数据，依次更新 L1 -> L2 ，发送广播清除某个缓存信息  
     2 接收到广播（手工清除缓存 & 一级缓存自动失效），从 L1 中清除指定的缓存信息
@@ -36,7 +33,7 @@ L2： Redis 集中式缓存
 
 配置文件位于 core/resources 目录下，包含三个文件：
 
-* j2cache.properties J2Cache 核心配置文件，可配置两级的缓存，以及 Redis 服务器、连接池以及缓存广播的方式
+* j2cache.properties J2Cache 核心配置文件，可配置两级的缓存，Redis 服务器、连接池以及缓存广播的方式
 * caffeine.properties  如果一级缓存选用 Caffeine ，那么该文件用来配置缓存信息
 * ehcache.xml Ehcache 的配置文件，配置说明请参考 Ehcache 文档
 * ehcache3.xml Ehcache3 的配置文件，配置说明请参考 Ehcache 文档
@@ -84,7 +81,7 @@ J2Cache 默认使用 [Caffeine](https://www.oschina.net/p/ben-manes-caffeine) �
 
 使用你喜欢的文本编辑器打开 `j2cache.properties` 并找到 `redis.hosts` 项，将其信息改成你的 Redis 服务器所在的地址和端口。
 
-我们建议缓存在使用之前都需要预先设定好缓存大小以及有效时间，使用文本编辑器打开 caffeine.properties 进行缓存配置，配置方法请参考文件中的注释内容。
+我们建议缓存在使用之前都需要预先设定好缓存大小及有效时间，使用文本编辑器打开 caffeine.properties 进行缓存配置，配置方法请参考文件中的注释内容。
 
 例如：default = 1000,30m #定义缓存名 default ，对象大小 1000，缓存数据有效时间 30 分钟。 你可以定义多个不同名称的缓存。
 
@@ -128,9 +125,11 @@ channel.close();
 ## 常见问题
 
 1. **J2Cache 的使用场景是什么？**  
-首先你的应用是允许在集群环境，使用 J2Cache 可以有效降低节点间的数据传输量；其次单节点使用 J2Cache 可以避免应用重启后对后端业务系统的冲击
+首先你的应用是运行在集群环境，使用 J2Cache 可以有效降低节点间的数据传输量；其次单节点使用 J2Cache 可以避免应用重启后对后端业务系统的冲击
+
 2. **为什么不能在程序中设置缓存的有效期**  
 在程序中定义缓存数据的有效期会导致缓存不可控，一旦数据出问题无从查起，因此 J2Cache 的所有缓存的有效期都必须在 `一级缓存` 的配置中预设好再使用
+
 3. **如何使用 JGroups 组播方式（无法在云主机中使用）**  
 首先修改 `j2cache.properties` 中的 `j2cache.broadcast` 值为 `jgroups`，然后在 maven 中引入
 	
@@ -141,6 +140,7 @@ channel.close();
 	    <version>3.6.13.Final</version>
 	</dependency>
 	```
+
 4. **如何使用 ehcache 作为一级缓存**  
 首先修改 `j2cache.properties` 中的 `j2cache.L1.provider_class` 为 ehcache 或者 ehcache3，然后拷贝 ehcache.xml 或者 ehcache3.xml 到类路径，并配置好缓存，需要在项目中引入对 ehcache 的支持：  
 
@@ -160,7 +160,8 @@ channel.close();
     </dependency>
 
 	```
-5. **为什么 J2Cache 初始化时，连接 Redis 非常慢，要 5 秒以上？**
+
+5. **为什么 J2Cache 初始化时，连接本机的 Redis 非常慢，要 5 秒以上？**
 
     如果出现这种情况，请在系统 hosts 里配置机器名和IP地址的对应关系，例如：  
 
