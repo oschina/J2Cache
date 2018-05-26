@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.StringUtils;
@@ -84,21 +82,14 @@ public class SpringRedisCache implements Level2Cache {
 
 	@Override
 	public byte[] getBytes(String key) {
-		return redisTemplate.opsForHash().getOperations().execute(new RedisCallback<byte[]>() {
-			public byte[] doInRedis(RedisConnection redis) {
-				return redis.hGet(region.getBytes(), key.getBytes());
-			}
-		});
+		return redisTemplate.opsForHash().getOperations().execute((RedisCallback<byte[]>) redis -> redis.hGet(region.getBytes(), key.getBytes()));
 	}
 
 	@Override
 	public List<byte[]> getBytes(Collection<String> keys) {
-		return redisTemplate.opsForHash().getOperations().execute(new RedisCallback<List<byte[]>>() {
-			@Override
-			public List<byte[]> doInRedis(RedisConnection redis) throws DataAccessException {
-				byte[][] bytes = keys.stream().map(k -> k.getBytes()).toArray(byte[][]::new);
-				return redis.hMGet(region.getBytes(), bytes);
-			}
+		return redisTemplate.opsForHash().getOperations().execute((RedisCallback<List<byte[]>>) redis -> {
+			byte[][] bytes = keys.stream().map(k -> k.getBytes()).toArray(byte[][]::new);
+			return redis.hMGet(region.getBytes(), bytes);
 		});
 	}
 
