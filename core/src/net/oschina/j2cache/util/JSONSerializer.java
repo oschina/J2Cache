@@ -15,38 +15,16 @@
  */
 package net.oschina.j2cache.util;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import java.util.*;
+import org.nustaq.serialization.FSTConfiguration;
 
 /**
  * 为了实现跨语言的支持，有必要支持 JSON 的序列化
- *
- * 需要支持的数据类型包括：
- *
- * 1. 原生类型
- * 2. 数组类型
- * 3. 集合类型
- * 4. 对象类型
- * 5. 对象数据
- * 6. 对象集合
- *
- * 输出格式：
- *
- * {
- *     "type": "int",
- *     "value": "123"
- * }
  *
  * @author Winter Lau(javayou@gmail.com)
  */
 public class JSONSerializer implements Serializer {
 
-    private static final List<Class> primitiveClasses = new ArrayList(){{
-        add(Number.class);
-        add(Character.class);
-        add(CharSequence.class);
-    }};
+    private static final FSTConfiguration conf = FSTConfiguration.createJsonConfiguration();
 
     @Override
     public String name() {
@@ -55,58 +33,12 @@ public class JSONSerializer implements Serializer {
 
     @Override
     public byte[] serialize(Object obj) {
-        JSONObject json = new JSONObject();
-        json.put("type", obj.getClass().getName());
-        json.put("value", obj);
-        String jsonStr = JSON.toJSONString(json);
-        return jsonStr.getBytes();
+        return conf.asByteArray(obj);
     }
 
     @Override
     public Object deserialize(byte[] bytes) {
-        Object obj = JSON.parse(new String(bytes));
-        if(obj instanceof JSONObject){
-
-        }
-        return obj;
+        return conf.asObject(bytes);
     }
 
-    public static void main(String[] args) throws Exception {
-        JSONSerializer json = new JSONSerializer();
-        int[] obj = {10,11,12};
-        List<Person> persons = Arrays.asList(new Person("Winter Lau", 19));
-
-        String result = new String(json.serialize(persons));
-
-        System.out.println(result);
-
-    }
-
-    public static class Person {
-        private String name;
-        private int age;
-
-        public Person(){}
-
-        public Person(String name, int age) {
-            this.name = name;
-            this.age = age;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public int getAge() {
-            return age;
-        }
-
-        public void setAge(int age) {
-            this.age = age;
-        }
-    }
 }
