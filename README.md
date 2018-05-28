@@ -4,6 +4,8 @@
 
 专用QQ群: `379110351`
 
+JavaDoc [https://apidoc.gitee.com/ld/J2Cache/](https://apidoc.gitee.com/ld/J2Cache/)
+
 J2Cache 是 OSChina 目前正在使用的两级缓存框架（要求至少 Java 8）。第一级缓存使用内存(同时支持 Ehcache 2.x、Ehcache 3.x 和 Caffeine)，第二级缓存使用 Redis 。
 由于大量的缓存读取会导致 L2 的网络成为整个系统的瓶颈，因此 L1 的目标是降低对 L2 的读取次数。
 该缓存框架主要用于集群环境中。单机也可使用，用于避免应用重启导致的缓存冷启动后对后端业务的冲击。
