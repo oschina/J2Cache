@@ -185,6 +185,8 @@ public class CaffeineProvider implements CacheProvider {
 
     @Override
     public void stop() {
+        caches.clear();
+        cacheConfigs.clear();
     }
 
     /**
