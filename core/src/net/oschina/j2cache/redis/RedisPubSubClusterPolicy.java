@@ -72,7 +72,7 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
             jedis.publish(channel, Command.join().json());   //Join Cluster
         }
 
-        new Thread(()-> {
+        Thread thread = new Thread(()-> {
             //当 Redis 重启会导致订阅线程断开连接，需要进行重连
             while(true) {
                 try (Jedis jedis = client.getResource()){
@@ -88,7 +88,10 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
                     }
                 }
             }
-        }, "RedisSubscribeThread").start();
+        }, "RedisSubscribeThread");
+        thread.setDaemon(true);
+        thread.start();
+
         log.info("Connected to redis channel:" + channel + ", time " + (System.currentTimeMillis()-ct) + " ms.");
     }
 
