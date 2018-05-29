@@ -9,6 +9,7 @@ import redis.clients.jedis.BinaryJedisCommands;
 import redis.clients.jedis.MultiKeyBinaryCommands;
 import redis.clients.jedis.MultiKeyCommands;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -61,7 +62,11 @@ public class RedisGenericCache implements Level2Cache {
     }
 
     private byte[] _key(String key) {
-        return (this.region + ":" + key).getBytes();
+        try {
+            return (this.region + ":" + key).getBytes("utf-8");
+        } catch (UnsupportedEncodingException e) {
+            return (this.region + ":" + key).getBytes();
+        }
     }
 
     @Override
