@@ -101,9 +101,10 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
     @Override
     public void disconnect() {
         try (Jedis jedis = client.getResource()) {
-            this.unsubscribe();
             jedis.publish(channel, Command.quit().json()); //Quit Cluster
         }
+        this.unsubscribe();
+        this.client.close();
     }
 
     /**
