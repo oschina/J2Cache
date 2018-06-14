@@ -16,6 +16,7 @@
 package net.oschina.j2cache;
 
 import java.io.Closeable;
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -35,6 +36,10 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	public CacheChannel(J2CacheConfig config) {
 		this.config = config;
 		this.defaultCacheNullObject = config.isDefaultCacheNullObject();
+	}
+
+	private NullObject newNullObject() {
+		return new NullObject();
 	}
 
 	/**
@@ -84,7 +89,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 				else {
                     boolean cacheNull = (cacheNullObject.length>0)?cacheNullObject[0]: defaultCacheNullObject;
                     if(cacheNull)
-                        set(region, key, new Object(), true);
+                        set(region, key, newNullObject(), true);
                 }
 			} finally {
 				_g_keyLocks.remove(lock_key);
@@ -235,12 +240,12 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 
 		try {
 			Level1Cache level1 = CacheProviderHolder.getLevel1Cache(region);
-			level1.put(key, (value==null && cacheNullObject)?new Object():value);
+			level1.put(key, (value==null && cacheNullObject)?newNullObject():value);
 			Level2Cache level2 = CacheProviderHolder.getLevel2Cache(region);
 			if(config.isSyncTtlToRedis())
-				level2.put(key, (value==null && cacheNullObject)?new Object():value, level1.ttl());
+				level2.put(key, (value==null && cacheNullObject)?newNullObject():value, level1.ttl());
 			else
-				level2.put(key, (value==null && cacheNullObject)?new Object():value);
+				level2.put(key, (value==null && cacheNullObject)?newNullObject():value);
 		} finally {
 			this.sendEvictCmd(region, key);//清除原有的一级缓存的内容
 		}
@@ -280,12 +285,12 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
     		set(region, key, value, cacheNullObject);
     	else {
 			try {
-				CacheProviderHolder.getLevel1Cache(region, timeToLiveInSeconds).put(key, (value==null && cacheNullObject)?new Object():value);
+				CacheProviderHolder.getLevel1Cache(region, timeToLiveInSeconds).put(key, (value==null && cacheNullObject)?newNullObject():value);
 				Level2Cache level2 = CacheProviderHolder.getLevel2Cache(region);
 				if(config.isSyncTtlToRedis())
-					level2.put(key, (value==null && cacheNullObject)?new Object():value, timeToLiveInSeconds);
+					level2.put(key, (value==null && cacheNullObject)?newNullObject():value, timeToLiveInSeconds);
 				else
-					level2.put(key, (value==null && cacheNullObject)?new Object():value);
+					level2.put(key, (value==null && cacheNullObject)?newNullObject():value);
 			} finally {
 				this.sendEvictCmd(region, key);//清除原有的一级缓存的内容
 			}
@@ -314,7 +319,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 				newElems.putAll(elements);
 				newElems.forEach((k,v) -> {
 					if (v == null)
-						newElems.put(k, new Object());
+						newElems.put(k, newNullObject());
 				});
 				Level1Cache level1 = CacheProviderHolder.getLevel1Cache(region);
 				level1.put(newElems);
@@ -371,7 +376,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 					newElems.putAll(elements);
 					newElems.forEach((k,v) -> {
 						if (v == null)
-							newElems.put(k, new Object());
+							newElems.put(k, newNullObject());
 					});
 					CacheProviderHolder.getLevel1Cache(region, timeToLiveInSeconds).put(newElems);
 					if(config.isSyncTtlToRedis())

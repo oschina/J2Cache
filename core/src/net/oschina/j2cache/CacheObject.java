@@ -75,7 +75,7 @@ public class CacheObject {
 	 * @return cache object include null object
 	 */
 	public Object getValue() {
-		if (value != null && value.getClass().equals(Object.class))
+		if (value != null && (value.getClass().equals(NullObject.class)||value.getClass().equals(Object.class)))
 			return null;
 		return value;
 	}
