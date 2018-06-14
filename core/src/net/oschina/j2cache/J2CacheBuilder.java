@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 使用自定义配置构建 J2Cache
@@ -31,27 +32,11 @@ public class J2CacheBuilder {
 
     private CacheChannel channel;
     private ClusterPolicy policy; //不同的广播策略
+    private AtomicBoolean opened = new AtomicBoolean(false);
+    private J2CacheConfig config;
 
     private J2CacheBuilder(J2CacheConfig config) {
-        this.initFromConfig(config);
-        /* 初始化缓存接口 */
-        this.channel = new CacheChannel(config){
-            @Override
-            public void sendClearCmd(String region) {
-                policy.sendClearCmd(region);
-            }
-
-            @Override
-            public void sendEvictCmd(String region, String...keys) {
-                policy.sendEvictCmd(region, keys);
-            }
-
-            @Override
-            public void close() {
-                policy.disconnect();
-                CacheProviderHolder.shutdown();
-            }
-        };
+        this.config = config;
     }
 
     /**
@@ -68,6 +53,32 @@ public class J2CacheBuilder {
      * @return CacheChannel
      */
     public CacheChannel getChannel(){
+        if(!this.opened.get()) {
+            synchronized (J2CacheBuilder.class) {
+                if(!this.opened.get()) {
+                    this.initFromConfig(config);
+                    /* 初始化缓存接口 */
+                    this.channel = new CacheChannel(config) {
+                        @Override
+                        public void sendClearCmd(String region) {
+                            policy.sendClearCmd(region);
+                        }
+
+                        @Override
+                        public void sendEvictCmd(String region, String... keys) {
+                            policy.sendEvictCmd(region, keys);
+                        }
+
+                        @Override
+                        public void close() {
+                            policy.disconnect();
+                            CacheProviderHolder.shutdown();
+                            opened.set(false);
+                        }
+                    };
+                }
+            }
+        }
         return this.channel;
     }
 
