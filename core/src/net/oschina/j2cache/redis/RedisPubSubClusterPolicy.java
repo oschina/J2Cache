@@ -72,12 +72,12 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
             jedis.publish(channel, Command.join().json());   //Join Cluster
         }
 
-        Thread thread = new Thread(()-> {
+        Thread subscribeThread = new Thread(()-> {
             //当 Redis 重启会导致订阅线程断开连接，需要进行重连
             while(true) {
                 try (Jedis jedis = client.getResource()){
                     jedis.subscribe(this, channel);
-                    log.info("Disconnect to redis channel:" + channel);
+                    log.info("Disconnect to redis channel: " + channel);
                     break;
                 } catch (JedisConnectionException e) {
                     log.error("Failed connect to redis, reconnect it.", e);
@@ -89,8 +89,9 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
                 }
             }
         }, "RedisSubscribeThread");
-        thread.setDaemon(true);
-        thread.start();
+
+        subscribeThread.setDaemon(true);
+        subscribeThread.start();
 
         log.info("Connected to redis channel:" + channel + ", time " + (System.currentTimeMillis()-ct) + " ms.");
     }
@@ -102,9 +103,13 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
     public void disconnect() {
         try (Jedis jedis = client.getResource()) {
             jedis.publish(channel, Command.quit().json()); //Quit Cluster
+
+            if(this.isSubscribed())
+                this.unsubscribe();
+
+        } finally {
+            this.client.close();
         }
-        this.unsubscribe();
-        this.client.close();
     }
 
     /**
