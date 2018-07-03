@@ -108,14 +108,14 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @return cache object
 	 */
 	public CacheObject get(String region, String key, Function<String, Object> loader, boolean...cacheNullObject) {
-		CacheObject cache = get(region, key);
+		CacheObject cache = get(region, key, false);
 
 		if (cache.rawValue() != null)
 			return cache ;
 
 		String lock_key = key + '@' + region;
 		synchronized (_g_keyLocks.computeIfAbsent(lock_key, v -> new Object())) {
-			cache = get(region, key);
+			cache = get(region, key, false);
 
 			if (cache.rawValue() != null)
 				return cache ;
@@ -171,8 +171,8 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 		results.entrySet().stream().filter(e -> e.getValue().rawValue() == null).forEach( e -> {
 			String lock_key = e.getKey() + '@' + region;
 			synchronized (_g_keyLocks.computeIfAbsent(lock_key, v -> new Object())) {
-				CacheObject cache = get(region, e.getKey());
-				if(cache == null) {
+				CacheObject cache = get(region, e.getKey(), false);
+				if(cache.rawValue() == null) {
 					try {
 						Object obj = loader.apply(e.getKey());
 						boolean cacheNull = (cacheNullObject.length>0)?cacheNullObject[0]: defaultCacheNullObject;
