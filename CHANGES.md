@@ -1,5 +1,14 @@
 # J2Cache 版本更新记录
 
+**J2Cache 2.3.22-release (2018-7-3)**
+
+* 增加单元测试代码
+* 修复了使用 loader 加载缓存数据的逻辑错误问题
+
+**J2Cache 2.3.21-release (2018-5-23)**
+
+* 重新打包
+
 **J2Cache 2.3.20-release (2018-5-23)**
 
 * 修复 redis.maxWaitMillis 配置丢失导致的异常信息
