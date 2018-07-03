@@ -4,7 +4,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -31,21 +33,39 @@ public class CacheChannelTest {
         String region = "Users";
         String key = "gitee";
         int[] array = new int[]{1,2,3,4,5};
-        assertNull(channel.get(region,key).getValue());
+        assertNull(channel.get(region,key, true).getValue());
+
+        CacheObject co = channel.get(region, key, true);
+        assertNull(co.getValue());
+        assertEquals(co.getLevel(), CacheObject.LEVEL_1);
+
         channel.set(region, key, array);
         assertArrayEquals((int[])channel.get(region,key).getValue(), array);
     }
 
     @Test
     public void get1() {
+        String region = "Users";
+        String key = "gitee";
+        assertEquals(key, channel.get(region, key, (k) -> k, false).asString());
     }
 
     @Test
     public void get2() {
+        String region = "Users";
+        for(int i=1;i<=5;i++)
+            channel.set(region, String.valueOf(i), String.valueOf(i));
+        Map<String, CacheObject> cos = channel.get(region, Arrays.asList("1","2","3","4"));
+        for(int i=1;i<5;i++)
+            assertEquals(cos.get(String.valueOf(i)).asString(), String.valueOf(i));
     }
 
     @Test
     public void get3() {
+        String region = "Users";
+        Map<String, CacheObject> cos = channel.get(region, Arrays.asList("1","2","3","4"), (k) -> k, false);
+        for(int i=1;i<5;i++)
+            assertEquals(cos.get(String.valueOf(i)).asString(), String.valueOf(i));
     }
 
     @Test
