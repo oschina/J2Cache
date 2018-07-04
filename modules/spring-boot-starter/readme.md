@@ -12,11 +12,11 @@ j2cache.config-location=/j2cache-${spring.profiles.active}.properties
 j2cache.open-spring-cache=true  
 spring.cache.type=GENERIC
 ```
-如下两项配置在application.properties,可以选择缓存清除的模式，     
-* 缓存清除模式，
+如下配置在application.properties,可以选择缓存清除的模式   
+* 缓存清除模式
 * active:主动清除，二级缓存过期主动通知各节点清除，优点在于所有节点可以同时收到缓存清除
 * passive:被动清除，一级缓存过期进行通知各节点清除一二级缓存
-* blend:两种模式一起运作，对于各个节点缓存准确性以及及时性要求高的可以使用，（推荐使用前面两种模式中一种） 
+* blend:两种模式一起运作，对于各个节点缓存准确性以及及时性要求高的可以使用（推荐使用前面两种模式中一种） 
 ```
 j2cache.cache-clean-mode=passive
 ```
