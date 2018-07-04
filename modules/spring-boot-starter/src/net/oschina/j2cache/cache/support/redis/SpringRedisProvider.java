@@ -24,9 +24,11 @@ public class SpringRedisProvider implements CacheProvider {
 
 	private RedisTemplate<String, Serializable> redisTemplate;
 
-	private String namespace = "j2cache";
+	private String namespace;
 
-	protected ConcurrentHashMap<String, SpringRedisCache> caches = new ConcurrentHashMap<>();
+	private String storage;
+	
+	protected ConcurrentHashMap<String, Cache> caches = new ConcurrentHashMap<>();
 
 	@Override
 	public String name() {
@@ -45,12 +47,16 @@ public class SpringRedisProvider implements CacheProvider {
 
 	@Override
 	public Cache buildCache(String region, CacheExpiredListener listener) {
-		SpringRedisCache cache = caches.get(region);
+		Cache cache = caches.get(region);
 		if (cache == null) {
 			synchronized (SpringRedisProvider.class) {
 				cache = caches.get(region);
 				if (cache == null) {
-					cache = new SpringRedisCache(this.namespace, region, redisTemplate);
+	                if("hash".equalsIgnoreCase(this.storage))
+	                    cache = new SpringRedisCache(this.namespace, region, redisTemplate);
+	                else {
+	                	cache = new SpringRedisGenericCache(this.namespace, region, redisTemplate);
+					}
 					caches.put(region, cache);
 				}
 			}
@@ -67,6 +73,7 @@ public class SpringRedisProvider implements CacheProvider {
 	@Override
 	public void start(Properties props) {
 		this.namespace = props.getProperty("namespace");
+		this.storage = props.getProperty("storage");
 		this.redisTemplate = SpringUtil.getBean("j2CacheRedisTemplate", RedisTemplate.class);
 	}
 

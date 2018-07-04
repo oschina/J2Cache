@@ -29,11 +29,16 @@ public class J2CacheAutoConfiguration {
     }
 
     @Bean
-    @DependsOn("springUtil")
-    public CacheChannel cacheChannel() throws IOException {
+    public net.oschina.j2cache.J2CacheConfig j2CacheConfig() throws IOException{
     	net.oschina.j2cache.J2CacheConfig cacheConfig = new net.oschina.j2cache.J2CacheConfig();
     	cacheConfig = net.oschina.j2cache.J2CacheConfig.initFromConfig(j2CacheConfig.getConfigLocation());
-    	J2CacheBuilder builder = J2CacheBuilder.init(cacheConfig);
+    	return cacheConfig;
+    }
+    
+    @Bean
+    @DependsOn({"springUtil","j2CacheConfig"})
+    public CacheChannel cacheChannel(net.oschina.j2cache.J2CacheConfig j2CacheConfig) throws IOException {
+    	J2CacheBuilder builder = J2CacheBuilder.init(j2CacheConfig);
         return builder.getChannel();
     }
 

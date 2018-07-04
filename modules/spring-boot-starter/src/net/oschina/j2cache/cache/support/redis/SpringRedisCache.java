@@ -9,7 +9,6 @@ import java.util.Set;
 
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.util.StringUtils;
 
 import net.oschina.j2cache.Level2Cache;
 
@@ -21,7 +20,7 @@ import net.oschina.j2cache.Level2Cache;
  */
 public class SpringRedisCache implements Level2Cache {
 
-	private String namespace = "j2cache~key";
+	private String namespace;
 
 	private String region;
 
@@ -31,9 +30,7 @@ public class SpringRedisCache implements Level2Cache {
 		if (region == null || region.isEmpty()) {
 			region = "_"; // 缺省region
 		}
-		if(!StringUtils.isEmpty(namespace)) {
-			this.namespace = namespace;
-		}
+		this.namespace = namespace;
 		this.redisTemplate = redisTemplate;
 		this.region = getRegionName(region);
 	}
@@ -50,11 +47,6 @@ public class SpringRedisCache implements Level2Cache {
 	}
 
 	@Override
-	public Object get(String key) {
-		return redisTemplate.boundHashOps(region).get(key);
-	}
-
-	@Override
 	public boolean exists(String key) {
 		return redisTemplate.opsForHash().hasKey(region, key);
 	}
@@ -63,7 +55,7 @@ public class SpringRedisCache implements Level2Cache {
 	public void evict(String... keys) {
 		for (String k : keys) {
 			if (!k.equals("null")) {
-				redisTemplate.opsForHash().delete(region, k);
+				redisTemplate.opsForHash().delete(region, k);		
 			} else {
 				redisTemplate.delete(region);
 			}
@@ -82,7 +74,7 @@ public class SpringRedisCache implements Level2Cache {
 
 	@Override
 	public byte[] getBytes(String key) {
-		return redisTemplate.opsForHash().getOperations().execute((RedisCallback<byte[]>) redis -> redis.hGet(region.getBytes(), key.getBytes()));
+		return redisTemplate.opsForHash().getOperations().execute((RedisCallback<byte[]>) redis -> redis.hGet(region.getBytes(), key.getBytes()));	
 	}
 
 	@Override
@@ -111,14 +103,22 @@ public class SpringRedisCache implements Level2Cache {
 
 	@Override
 	public void setBytes(String key, byte[] bytes) {
-		// TODO Auto-generated method stub
-		
+		redisTemplate.opsForHash().getOperations().execute((RedisCallback<List<byte[]>>) redis -> {
+			redis.set(_key(key).getBytes(), bytes);
+			redis.hSet(region.getBytes(), key.getBytes(), bytes);
+			return null;
+		});
 	}
 
 	@Override
 	public void setBytes(Map<String, byte[]> bytes) {
-		// TODO Auto-generated method stub
-		
+		bytes.forEach((k, v) -> {
+			setBytes(k, v);
+		});
+	}
+	
+	private String _key(String key) {
+		return this.region + ":" + key;
 	}
 	
 }
