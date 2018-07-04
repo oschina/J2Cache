@@ -38,7 +38,7 @@ public class SpringRedisPubSubPolicy implements ClusterPolicy{
 		J2CacheConfig j2config = SpringUtil.getBean(J2CacheConfig.class);
 		this.config =  SpringUtil.getBean(net.oschina.j2cache.autoconfigure.J2CacheConfig.class);
 		this.redisTemplate = SpringUtil.getBean("j2CacheRedisTemplate", RedisTemplate.class);
-		if("active".equals(config.getCacheCleanMode()) || "blend".equals(config.getCacheCleanMode())) {
+		if("active".equals(config.getCacheCleanMode())) {
 			isActive = true;
 		}
 		String channel_name = j2config.getL2CacheProperties().getProperty("channel");
@@ -48,7 +48,7 @@ public class SpringRedisPubSubPolicy implements ClusterPolicy{
 		RedisMessageListenerContainer listenerContainer = SpringUtil.getBean("j2CacheRedisMessageListenerContainer", RedisMessageListenerContainer.class);
 		
 		listenerContainer.addMessageListener(new SpringRedisMessageListener(this, this.channel), new PatternTopic(this.channel));
-		if(isActive) {
+		if(isActive || "blend".equals(config.getCacheCleanMode())) {
 			//设置键值回调
 			ConfigureNotifyKeyspaceEventsAction action = new ConfigureNotifyKeyspaceEventsAction();
 			action.config(listenerContainer.getConnectionFactory().getConnection());
@@ -67,7 +67,7 @@ public class SpringRedisPubSubPolicy implements ClusterPolicy{
 
 	@Override
 	public void sendEvictCmd(String region, String... keys) {
-		if(!isActive) {
+		if(!isActive || "blend".equals(config.getCacheCleanMode())) {
 			String com = new Command(Command.OPT_EVICT_KEY, region, keys).json();
 	        redisTemplate.convertAndSend(this.channel, com);	
 		}
@@ -76,7 +76,7 @@ public class SpringRedisPubSubPolicy implements ClusterPolicy{
 
 	@Override
 	public void sendClearCmd(String region) {
-		if(!isActive) {
+		if(!isActive || "blend".equals(config.getCacheCleanMode())) {
 			String com = new Command(Command.OPT_CLEAR_KEY, region, "").json();
 			redisTemplate.convertAndSend(this.channel, com);	
 		}
