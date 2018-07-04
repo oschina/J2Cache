@@ -12,7 +12,7 @@ j2cache.config-location=/j2cache-${spring.profiles.active}.properties
 j2cache.open-spring-cache=true  
 ```
 ```
-spring.cache.type=none
+spring.cache.type=GENERIC
 ```
 在j2cache.properties中配置,可以使用springRedis进行广播通知缓失效
 ```
@@ -21,5 +21,7 @@ j2cache.broadcast = net.oschina.j2cache.cache.support.redis.SpringRedisPubSubPol
 在j2cache.properties中配置,使用springRedis替换二级缓存
 ```
 j2cache.L2.provider_class = net.oschina.j2cache.cache.support.redis.SpringRedisProvider
+j2cache.L2.config_section = redis
 ```
+
 
