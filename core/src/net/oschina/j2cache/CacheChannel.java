@@ -16,7 +16,6 @@
 package net.oschina.j2cache;
 
 import java.io.Closeable;
-import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
