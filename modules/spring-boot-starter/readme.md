@@ -12,6 +12,11 @@ j2cache.config-location=/j2cache-${spring.profiles.active}.properties
 j2cache.open-spring-cache=true  
 spring.cache.type=GENERIC
 ```
+如下两项配置在application.properties,可以设置spring cache是否缓存null值，默认是true
+```
+j2cache.allow-null-values=true
+```
+
 如下配置在application.properties,可以选择缓存清除的模式   
 * 缓存清除模式
 * active:主动清除，二级缓存过期主动通知各节点清除，优点在于所有节点可以同时收到缓存清除

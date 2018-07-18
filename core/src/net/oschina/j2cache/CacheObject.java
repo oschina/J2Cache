@@ -84,7 +84,7 @@ public class CacheObject {
 	 * 返回实际缓存的对象
 	 * @return cache raw object
 	 */
-	Object rawValue() {
+	public Object rawValue() {
 		return value;
 	}
 
