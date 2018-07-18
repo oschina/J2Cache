@@ -29,9 +29,12 @@ import net.oschina.j2cache.cache.support.J2CacheCacheManger;
 public class J2CacheSpringCacheAutoConfiguration {
 
 	private final CacheProperties cacheProperties;
+	
+	private final J2CacheConfig j2CacheConfig;
 
-	J2CacheSpringCacheAutoConfiguration(CacheProperties cacheProperties) {
+	J2CacheSpringCacheAutoConfiguration(CacheProperties cacheProperties, J2CacheConfig j2CacheConfig) {
 		this.cacheProperties = cacheProperties;
+		this.j2CacheConfig = j2CacheConfig;
 	}
 
 	@Bean
@@ -39,6 +42,7 @@ public class J2CacheSpringCacheAutoConfiguration {
 	public J2CacheCacheManger cacheManager(CacheChannel cacheChannel) {
 		List<String> cacheNames = cacheProperties.getCacheNames();
 		J2CacheCacheManger cacheCacheManger = new J2CacheCacheManger(cacheChannel);
+		cacheCacheManger.setAllowNullValues(j2CacheConfig.isAllowNullValues());
 		cacheCacheManger.setCacheNames(cacheNames);
 		return cacheCacheManger;
 	}

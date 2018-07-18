@@ -22,6 +22,11 @@ public class J2CacheConfig {
      * blend:两种模式一起运作，对于各个节点缓存准确以及及时性要求高的可以使用，正常用前两种模式中一个就可
      */
     private String cacheCleanMode = "passive";
+    
+    /**
+     * 是否允许缓存空值,默认:true
+     */
+    private boolean allowNullValues = true;
 
     public String getConfigLocation() {
         return configLocation;
@@ -45,5 +50,13 @@ public class J2CacheConfig {
 
 	public void setCacheCleanMode(String cacheCleanMode) {
 		this.cacheCleanMode = cacheCleanMode;
+	}
+
+	public boolean isAllowNullValues() {
+		return allowNullValues;
+	}
+
+	public void setAllowNullValues(boolean allowNullValues) {
+		this.allowNullValues = allowNullValues;
 	}
 }

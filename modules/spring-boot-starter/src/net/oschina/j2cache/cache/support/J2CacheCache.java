@@ -4,9 +4,11 @@ import java.util.concurrent.Callable;
 
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.support.AbstractValueAdaptingCache;
+import org.springframework.cache.support.NullValue;
 
 import net.oschina.j2cache.CacheChannel;
 import net.oschina.j2cache.CacheObject;
+import net.oschina.j2cache.NullObject;
 
 /**
  * {@link CacheManager} implementation for J2Cache.
@@ -57,7 +59,7 @@ public class J2CacheCache extends AbstractValueAdaptingCache {
 
 	@Override
 	public void put(Object key, Object value) {
-		cacheChannel.set(j2CacheName, String.valueOf(key), value);
+		cacheChannel.set(j2CacheName, String.valueOf(key), value, super.isAllowNullValues());
 	}
 
 	@Override
@@ -80,7 +82,10 @@ public class J2CacheCache extends AbstractValueAdaptingCache {
 
 	@Override
 	protected Object lookup(Object key) {
-		CacheObject cacheObject = cacheChannel.get(j2CacheName, String.valueOf(key));
+		CacheObject cacheObject = cacheChannel.get(j2CacheName, String.valueOf(key), super.isAllowNullValues());
+		if(cacheObject.rawValue() != null && cacheObject.rawValue().getClass().equals(NullObject.class) && super.isAllowNullValues()) {
+			return NullValue.INSTANCE;
+		}
 		return cacheObject.getValue();
 	}
 
