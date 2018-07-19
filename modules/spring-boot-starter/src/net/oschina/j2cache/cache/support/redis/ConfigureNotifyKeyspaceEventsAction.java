@@ -7,7 +7,6 @@ import org.springframework.data.redis.connection.RedisConnection;
 
 /**
  * 设置redis键值回调
- * @param connection
  */
 public class ConfigureNotifyKeyspaceEventsAction {
 

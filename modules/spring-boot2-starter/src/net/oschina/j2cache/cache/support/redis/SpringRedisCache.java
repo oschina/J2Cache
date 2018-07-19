@@ -92,9 +92,6 @@ public class SpringRedisCache implements Level2Cache {
 
     /**
      * 设置缓存数据的有效期
-     * @param key
-     * @param value
-     * @param timeToLiveInSeconds
      */
 	@Override
 	public void put(String key, Object value, long timeToLiveInSeconds) {
