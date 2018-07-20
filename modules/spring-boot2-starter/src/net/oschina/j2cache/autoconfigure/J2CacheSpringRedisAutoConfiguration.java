@@ -110,6 +110,7 @@ public class J2CacheSpringRedisAutoConfiguration {
 				int port = node.getPort();
 				RedisStandaloneConfiguration single = new RedisStandaloneConfiguration(host, port);
 				single.setDatabase(database);
+				single.setPassword(paw);
 				JedisClientConfigurationBuilder clientConfiguration = JedisClientConfiguration.builder();
 				clientConfiguration.usePooling().poolConfig(config);
 				clientConfiguration.connectTimeout(Duration.ofMillis(CONNECT_TIMEOUT));
