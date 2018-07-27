@@ -151,14 +151,12 @@ channel.close();
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache</artifactId>
         <version>2.10.4</version>
-        <optional>true</optional>
     </dependency>
     
     <dependency><!-- Ehcache 3.x //-->
         <groupId>org.ehcache</groupId>
         <artifactId>ehcache</artifactId>
         <version>3.4.0</version>
-        <optional>true</optional>
     </dependency>
 
 	```
