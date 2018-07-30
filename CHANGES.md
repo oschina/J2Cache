@@ -1,5 +1,10 @@
 # J2Cache 版本更新记录
 
+**J2Cache 2.3.23-release (2018-7-30)**
+
+* 二级缓存增加对 memcached 的支持
+* spring boot 模块的改进
+
 **J2Cache 2.3.22-release (2018-7-3)**
 
 * 增加单元测试代码
