@@ -186,6 +186,7 @@ channel.close();
 * https://gitee.com/nutz/nutzboot
 * https://gitee.com/qingfengtaizi/wxmp
 * https://gitee.com/xchao/j-im
+* https://gitee.com/fuyang_lipengjun/platform
 
 更多项目收集中，如果你的项目用了，请告诉我
 
