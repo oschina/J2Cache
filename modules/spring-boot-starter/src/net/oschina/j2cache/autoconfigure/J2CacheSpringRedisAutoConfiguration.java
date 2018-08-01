@@ -75,6 +75,7 @@ public class J2CacheSpringRedisAutoConfiguration {
 			connectionFactory = new JedisConnectionFactory(sentinel, config);
 			connectionFactory.setPassword(password);
 			connectionFactory.setDatabase(database);
+			connectionFactory.setTimeout(CONNECT_TIMEOUT);
 			break;
 		case "cluster":
 			RedisClusterConfiguration cluster = new RedisClusterConfiguration();
@@ -83,6 +84,7 @@ public class J2CacheSpringRedisAutoConfiguration {
 			connectionFactory = new JedisConnectionFactory(cluster, config);
 			connectionFactory.setPassword(password);
 			connectionFactory.setDatabase(database);
+			connectionFactory.setTimeout(CONNECT_TIMEOUT);
 			break;
 		case "sharded":
 			try {
@@ -90,6 +92,7 @@ public class J2CacheSpringRedisAutoConfiguration {
 					connectionFactory = new JedisConnectionFactory(new JedisShardInfo(new URI(node)));
 					connectionFactory.setDatabase(database);
 					connectionFactory.setPoolConfig(config);
+					connectionFactory.setTimeout(CONNECT_TIMEOUT);
 					break;
 				}
 			} catch (URISyntaxException e) {
@@ -105,6 +108,7 @@ public class J2CacheSpringRedisAutoConfiguration {
 				connectionFactory.setHostName(host);
 				connectionFactory.setPort(port);
 				connectionFactory.setDatabase(database);
+				connectionFactory.setTimeout(CONNECT_TIMEOUT);
 				break;
 			}
 			if (!"single".equalsIgnoreCase(mode))
