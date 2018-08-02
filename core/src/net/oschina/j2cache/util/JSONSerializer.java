@@ -31,6 +31,10 @@ public class JSONSerializer implements Serializer {
 
     private static final FSTConfiguration conf = FSTConfiguration.createJsonConfiguration();
 
+    static {
+        //conf.registerCrossPlatformClassMapping("list", "java.util.Arrays$ArrayList");
+    }
+
     @Override
     public String name() {
         return "json";
