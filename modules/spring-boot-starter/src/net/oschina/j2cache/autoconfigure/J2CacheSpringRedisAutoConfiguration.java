@@ -9,6 +9,7 @@ import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -55,7 +56,7 @@ public class J2CacheSpringRedisAutoConfiguration {
 		String mode = l2CacheProperties.getProperty("mode");
 		String clusterName = l2CacheProperties.getProperty("cluster_name");
 		String password = l2CacheProperties.getProperty("password");
-		int database = Integer.parseInt(l2CacheProperties.getProperty("database"));
+		int database = l2CacheProperties.getProperty("database") == null ? 0 : Integer.parseInt(l2CacheProperties.getProperty("database"));
 		JedisConnectionFactory connectionFactory = null;
 		JedisPoolConfig config = RedisUtils.newPoolConfig(l2CacheProperties, null);
 		List<RedisNode> nodes = new ArrayList<>();
@@ -122,7 +123,7 @@ public class J2CacheSpringRedisAutoConfiguration {
 	@Bean("j2CacheRedisTemplate")
 	@ConditionalOnBean(name = "j2CahceRedisConnectionFactory")
 	public RedisTemplate<String, Serializable> j2CacheRedisTemplate(
-			JedisConnectionFactory j2CahceRedisConnectionFactory) {
+			@Qualifier("j2CahceRedisConnectionFactory") JedisConnectionFactory j2CahceRedisConnectionFactory) {
 		RedisTemplate<String, Serializable> template = new RedisTemplate<String, Serializable>();
 		template.setKeySerializer(new StringRedisSerializer());
 		template.setHashKeySerializer(new StringRedisSerializer());
@@ -133,7 +134,7 @@ public class J2CacheSpringRedisAutoConfiguration {
 
 	@Bean("j2CacheRedisMessageListenerContainer")
 	@ConditionalOnBean(name = "j2CahceRedisConnectionFactory")
-	RedisMessageListenerContainer container(JedisConnectionFactory j2CahceRedisConnectionFactory) {
+	RedisMessageListenerContainer container(@Qualifier("j2CahceRedisConnectionFactory") JedisConnectionFactory j2CahceRedisConnectionFactory) {
 		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
 		container.setConnectionFactory(j2CahceRedisConnectionFactory);
 		return container;

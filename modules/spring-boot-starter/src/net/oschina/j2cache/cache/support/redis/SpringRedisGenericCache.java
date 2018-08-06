@@ -50,13 +50,17 @@ public class SpringRedisGenericCache implements Level2Cache {
 
 	@Override
 	public boolean exists(String key) {
-		return redisTemplate.hasKey(_key(key));
+		return redisTemplate.execute((RedisCallback<Boolean>) redis -> {	
+			return redis.exists(_key(key));
+		});
 	}
 
 	@Override
 	public void evict(String... keys) {
 		for (String k : keys) {
-			redisTemplate.delete(_key(k));
+			redisTemplate.execute((RedisCallback<Long>) redis -> {	
+				return redis.del(_key(k));
+			});
 		}
 	}
 
@@ -72,19 +76,14 @@ public class SpringRedisGenericCache implements Level2Cache {
 
 	@Override
 	public byte[] getBytes(String key) {
-		return redisTemplate.opsForValue().getOperations().execute((RedisCallback<byte[]>) redis -> {
-			try {
-				return redis.get(_key(key).getBytes("utf-8"));
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-				return redis.get(_key(key).getBytes());
-			}
+		return redisTemplate.execute((RedisCallback<byte[]>) redis -> {
+			return redis.get(_key(key));
 		});
 	}
 
 	@Override
 	public List<byte[]> getBytes(Collection<String> keys) {
-		return redisTemplate.opsForValue().getOperations().execute((RedisCallback<List<byte[]>>) redis -> {
+		return redisTemplate.execute((RedisCallback<List<byte[]>>) redis -> {
 			byte[][] bytes = keys.stream().map(k -> _key(k)).toArray(byte[][]::new);
 			return redis.mGet(bytes);
 		});
@@ -97,12 +96,7 @@ public class SpringRedisGenericCache implements Level2Cache {
 			setBytes(key, bytes);
 		} else {
 			redisTemplate.opsForValue().getOperations().execute((RedisCallback<List<byte[]>>) redis -> {
-				try {
-					redis.setEx(_key(key).getBytes("utf-8"), (int) timeToLiveInSeconds, bytes);
-				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
-					redis.setEx(_key(key).getBytes(), (int) timeToLiveInSeconds, bytes);
-				}
+				redis.setEx(_key(key), (int) timeToLiveInSeconds, bytes);
 				return null;
 			});
 		}
@@ -115,13 +109,8 @@ public class SpringRedisGenericCache implements Level2Cache {
 
 	@Override
 	public void setBytes(String key, byte[] bytes) {
-		redisTemplate.opsForValue().getOperations().execute((RedisCallback<byte[]>) redis -> {
-			try {
-				redis.set(_key(key).getBytes("utf-8"), bytes);
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-				redis.set(_key(key).getBytes(), bytes);
-			}
+		redisTemplate.execute((RedisCallback<byte[]>) redis -> {
+			redis.set(_key(key), bytes);
 			return null;
 		});
 	}
@@ -131,7 +120,14 @@ public class SpringRedisGenericCache implements Level2Cache {
 		 bytes.forEach((k,v) -> setBytes(k, v));
 	}
 
-	private String _key(String key) {
-		return this.region + ":" + key;
+	private byte[] _key(String key) {
+		byte[] k;
+		try {
+			k = (this.region + ":" + key).getBytes("utf-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			k = (this.region + ":" + key).getBytes();
+		}
+		return k;
 	}
 }

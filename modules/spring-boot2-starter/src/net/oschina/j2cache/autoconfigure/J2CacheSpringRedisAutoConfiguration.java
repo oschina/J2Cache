@@ -71,7 +71,7 @@ public class J2CacheSpringRedisAutoConfiguration {
 		String mode = l2CacheProperties.getProperty("mode");
 		String clusterName = l2CacheProperties.getProperty("cluster_name");
 		String password = l2CacheProperties.getProperty("password");
-		int database = Integer.parseInt(l2CacheProperties.getProperty("database"));
+		int database = l2CacheProperties.getProperty("database") == null ? 0 : Integer.parseInt(l2CacheProperties.getProperty("database"));
 		JedisConnectionFactory connectionFactory = null;
 		JedisPoolConfig config = RedisUtils.newPoolConfig(l2CacheProperties, null);
 		List<RedisNode> nodes = new ArrayList<>();
@@ -145,7 +145,7 @@ public class J2CacheSpringRedisAutoConfiguration {
 		String mode = l2CacheProperties.getProperty("mode");
 		String clusterName = l2CacheProperties.getProperty("cluster_name");
 		String password = l2CacheProperties.getProperty("password");
-		int database = Integer.parseInt(l2CacheProperties.getProperty("database"));
+		int database = l2CacheProperties.getProperty("database") == null ? 0 : Integer.parseInt(l2CacheProperties.getProperty("database"));
 		LettuceConnectionFactory connectionFactory = null;
 		LettucePoolingClientConfigurationBuilder config = LettucePoolingClientConfiguration.builder();
 		config.commandTimeout(Duration.ofMillis(CONNECT_TIMEOUT));
