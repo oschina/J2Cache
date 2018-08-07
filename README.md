@@ -69,7 +69,7 @@ J2Cache 默认使用 [Caffeine](https://www.oschina.net/p/ben-manes-caffeine) �
 
 **一. 引用 Maven**
 
-```
+```xml
 <dependency>
   <groupId>net.oschina.j2cache</groupId>  
   <artifactId>j2cache-core</artifactId>  
@@ -91,7 +91,7 @@ J2Cache 默认使用 [Caffeine](https://www.oschina.net/p/ben-manes-caffeine) �
 
 Test.java  
 
-```
+```java
 public static void main(String[] args) {
     CacheChannel cache = J2Cache.getChannel();
     
@@ -110,7 +110,7 @@ public static void main(String[] args) {
 
 **四. 动态构建 J2Cache 实例**
 
-```
+```java
 J2CacheConfig config = new J2CacheConfig();
 //填充 config 变量所需的配置信息
 J2CacheBuilder builder = J2CacheBuilder.init(config);
@@ -135,7 +135,7 @@ channel.close();
 3. **如何使用 JGroups 组播方式（无法在云主机中使用）**  
 首先修改 `j2cache.properties` 中的 `j2cache.broadcast` 值为 `jgroups`，然后在 maven 中引入
 	
-	```
+	```xml
 	<dependency>
 	    <groupId>org.jgroups</groupId>
 	    <artifactId>jgroups</artifactId>
@@ -146,7 +146,7 @@ channel.close();
 4. **如何使用 ehcache 作为一级缓存**  
 首先修改 `j2cache.properties` 中的 `j2cache.L1.provider_class` 为 ehcache 或者 ehcache3，然后拷贝 ehcache.xml 或者 ehcache3.xml 到类路径，并配置好缓存，需要在项目中引入对 ehcache 的支持：  
 
-	```
+	```xml
     <dependency><!-- Ehcache 2.x //-->
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache</artifactId>
@@ -166,7 +166,7 @@ channel.close();
 
     需要在项目中引入对 memcached 的支持：   
 
-    ```
+    ```xml
     <dependency>
         <groupId>com.googlecode.xmemcached</groupId>
         <artifactId>xmemcached</artifactId>
