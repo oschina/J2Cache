@@ -50,7 +50,9 @@ public class SerializationUtils {
             } else if("fst-snappy".equals(ser)){
                 g_serializer=new FstSnappySerializer();
             } else if ("json".equals(ser)) {
-                g_serializer = new JSONSerializer();
+                g_serializer = new FstJSONSerializer();
+            } else if ("fastjson".equals(ser)) {
+                g_serializer = new FastjsonSerializer();
             } else {
                 try {
                     g_serializer = (Serializer) Class.forName(ser).newInstance();
