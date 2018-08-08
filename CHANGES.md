@@ -1,5 +1,14 @@
 # J2Cache 版本更新记录
 
+
+**J2Cache 2.4.1-release (2018-8-xx)**
+
+* 修复 Spring Boot 模块的 bug ([#ILUOW](https://gitee.com/ld/J2Cache/issues/ILUOW))
+
+**J2Cache 2.4.0-release (2018-8-4)**
+
+* 增加 JSON 序列化的支持(测试阶段)
+
 **J2Cache 2.3.23-release (2018-7-30)**
 
 * 二级缓存增加对 memcached 的支持
