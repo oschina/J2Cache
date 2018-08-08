@@ -39,7 +39,21 @@
 			<artifactId>spring-data-redis</artifactId>
             <scope>compile</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
     </dependencies>
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <testSourceDirectory>test/src</testSourceDirectory>
+    </build>
 
     <dependencyManagement>
         <dependencies>
