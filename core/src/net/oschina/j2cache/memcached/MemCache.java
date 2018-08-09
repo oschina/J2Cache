@@ -109,7 +109,7 @@ public class MemCache implements Level2Cache {
 
     @Override
     public Collection<String> keys() {
-        return Collections.emptyList();
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -126,6 +126,7 @@ public class MemCache implements Level2Cache {
 
     @Override
     public void clear() {
+        throw new UnsupportedOperationException();
     }
 
     private String _key(String key) {
