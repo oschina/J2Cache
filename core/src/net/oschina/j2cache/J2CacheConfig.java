@@ -58,20 +58,28 @@ public class J2CacheConfig {
             if(l2_config_section == null || l2_config_section.trim().equals(""))
                 l2_config_section = config.l2CacheName;
 
-            final String l2_section = l2_config_section;
+            config.broadcastProperties = config.getSubProperties(config.broadcast);
+            config.l1CacheProperties = config.getSubProperties(config.l1CacheName);
+            config.l2CacheProperties = config.getSubProperties(l2_config_section);
 
-            config.properties.forEach((k,v) -> {
-                String key = (String)k;
-                if(key.startsWith(config.broadcast + "."))
-                    config.broadcastProperties.setProperty(key.substring((config.broadcast + ".").length()), (String)v);
-                if(key.startsWith(config.l1CacheName + "."))
-                    config.l1CacheProperties.setProperty(key.substring((config.l1CacheName + ".").length()), (String)v);
-                if(key.startsWith(l2_section + "."))
-                    config.l2CacheProperties.setProperty(key.substring((l2_section + ".").length()), (String)v);
-
-            });
         }
         return config;
+    }
+
+    /**
+     * read sub properties by prefix
+     * @param i_prefix
+     * @return
+     */
+    public Properties getSubProperties(String i_prefix) {
+        Properties props = new Properties();
+        final String prefix = i_prefix + '.';
+        properties.forEach((k,v) -> {
+            String key = (String)k;
+            if(key.startsWith(prefix))
+                props.setProperty(key.substring(prefix.length()), (String)v);
+        });
+        return props;
     }
 
     /**

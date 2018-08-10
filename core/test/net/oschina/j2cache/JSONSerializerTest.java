@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Properties;
 
 
 import static org.junit.Assert.*;
@@ -17,6 +18,7 @@ import static org.junit.Assert.*;
  */
 public class JSONSerializerTest {
 
+    Properties mapping;
     Person person ;
 
     @Before
@@ -31,17 +33,23 @@ public class JSONSerializerTest {
             put("huateng", 3);
             put("oschina", 8);
         }});
+
+        mapping = new Properties();
+        mapping.setProperty("map.person", "net.oschina.j2cache.Person");
+        mapping.setProperty("map.school", "net.oschina.j2cache.School");
+        mapping.setProperty("map.list", "java.util.Arrays$ArrayList");
     }
 
     @After
     public void tearDown() {
         person = null;
+        mapping = null;
     }
 
     @Test
     public void fst_json() {
 
-        FstJSONSerializer serializer = new FstJSONSerializer();
+        FstJSONSerializer serializer = new FstJSONSerializer(mapping);
 
         byte[] bytes = serializer.serialize(person);
 

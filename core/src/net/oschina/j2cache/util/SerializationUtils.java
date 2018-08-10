@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Properties;
 
 /**
  * 对象序列化工具包
@@ -34,8 +35,9 @@ public class SerializationUtils {
     /**
      * 初始化序列化器
      * @param ser  serialization method
+     * @param props serializer properties
      */
-    public static void init(String ser) {
+    public static void init(String ser, Properties props) {
         if (ser == null || "".equals(ser.trim()))
             g_serializer = new JavaSerializer();
         else {
@@ -50,7 +52,7 @@ public class SerializationUtils {
             } else if("fst-snappy".equals(ser)){
                 g_serializer=new FstSnappySerializer();
             } else if ("json".equals(ser)) {
-                g_serializer = new FstJSONSerializer();
+                g_serializer = new FstJSONSerializer(props);
             } else if ("fastjson".equals(ser)) {
                 g_serializer = new FastjsonSerializer();
             } else {

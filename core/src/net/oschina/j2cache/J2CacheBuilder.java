@@ -95,7 +95,7 @@ public class J2CacheBuilder {
      * @throws IOException
      */
     private void initFromConfig(J2CacheConfig config) {
-        SerializationUtils.init(config.getSerialization());
+        SerializationUtils.init(config.getSerialization(), config.getSubProperties(config.getSerialization()));
         //初始化两级的缓存管理
         CacheProviderHolder.init(config, (region, key)->{
             //当一级缓存中的对象失效时，自动清除二级缓存中的数据
