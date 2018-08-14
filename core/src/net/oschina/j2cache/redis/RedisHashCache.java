@@ -25,9 +25,8 @@ import java.util.stream.Collectors;
  * @author wendal
  * @author Winter Lau(javayou@gmail.com)
  *
- * @deprecated  hash 存储模式并不适合缓存场景，首先无法单独对 key 设置 expire ，此外在大量的数据情况下，性能更差。
+ * 重要提示！！！  hash 存储模式无法单独对 key 设置 expire
  */
-@Deprecated
 public class RedisHashCache implements Level2Cache {
 
     private String namespace;
