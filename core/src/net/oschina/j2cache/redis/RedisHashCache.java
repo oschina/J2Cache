@@ -21,11 +21,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Redis 缓存操作封装，基于 Hashs 实现多个 Region 的缓存（
+ * Redis 缓存操作封装，基于 Hashs 实现多个 Region 的缓存
  * @author wendal
  * @author Winter Lau(javayou@gmail.com)
  *
- * @deprecated  hash 存储模式并适合缓存场景，首先无法单独对 key 设置 expire ，此外在大量的数据情况下，性能更差。
+ * @deprecated  hash 存储模式并不适合缓存场景，首先无法单独对 key 设置 expire ，此外在大量的数据情况下，性能更差。
  */
 @Deprecated
 public class RedisHashCache implements Level2Cache {
