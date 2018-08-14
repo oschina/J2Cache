@@ -15,9 +15,9 @@
  */
 package net.oschina.j2cache.util;
 
-import java.io.*;
+import net.oschina.j2cache.CacheException;
 
-import net.sf.ehcache.CacheException;
+import java.io.*;
 
 /**
  * 标准的 Java 序列化
