@@ -61,7 +61,13 @@ public class FSTSerializer implements Serializer {
 			return in.readObject();
 		} catch (ClassNotFoundException e) {
 			throw new CacheException(e);
+		} catch (RuntimeException e) {
+			if (e.getMessage().indexOf("unable to find class for code") >= 0) {
+				throw new DeserializeException(e.getMessage());
+			}
 		}
+
+		return null;
 	}
 
 }

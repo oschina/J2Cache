@@ -15,7 +15,10 @@
  */
 package net.oschina.j2cache;
 
+import net.oschina.j2cache.util.DeserializeException;
 import net.oschina.j2cache.util.SerializationUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -29,6 +32,8 @@ import java.util.stream.Collectors;
  * @author Winter Lau(javayou@gmail.com)
  */
 public interface Level2Cache extends Cache {
+
+    Logger log = LoggerFactory.getLogger(Level2Cache.class);
 
     /**
      * 是否支持缓存 TTL 的设置
@@ -117,6 +122,10 @@ public interface Level2Cache extends Cache {
         byte[] bytes = getBytes(key);
         try {
             return SerializationUtils.deserialize(bytes);
+        } catch (DeserializeException e) {
+            log.warn("Failed to deserialize object with key:" + key + ",message: " + e.getMessage());
+            evict(key);
+            return null;
         } catch (IOException e) {
             throw new CacheException(e);
         }
