@@ -137,11 +137,16 @@ public interface Level2Cache extends Cache {
         if(keys.size() > 0) {
             List<byte[]> bytes = getBytes(keys);
             int i = 0;
-            try {
-                for (String key : keys)
+            for (String key : keys) {
+                try {
                     results.put(key, SerializationUtils.deserialize(bytes.get(i++)));
-            } catch (IOException e) {
-                throw new CacheException(e);
+                } catch (DeserializeException e) {
+                    log.warn("Failed to deserialize object with key:" + key + ",message: " + e.getMessage());
+                    evict(key);
+                    return null;
+                } catch (IOException e) {
+                    throw new CacheException(e);
+                }
             }
         }
         return results;
