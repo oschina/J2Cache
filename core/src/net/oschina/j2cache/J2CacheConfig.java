@@ -31,21 +31,21 @@ public class J2CacheConfig {
 
     private final static Logger log = LoggerFactory.getLogger(J2CacheConfig.class);
 
-    private Properties properties;
+    private Properties properties = new Properties();
+    private Properties broadcastProperties = new Properties();
+    private Properties l1CacheProperties = new Properties();
+    private Properties l2CacheProperties = new Properties();
+
     private String broadcast;
     private String l1CacheName;
     private String l2CacheName;
     private String serialization;
     private boolean syncTtlToRedis;
     private boolean defaultCacheNullObject;
-    private Properties broadcastProperties = new Properties();
-    private Properties l1CacheProperties = new Properties();
-    private Properties l2CacheProperties = new Properties();
 
     public final static J2CacheConfig initFromConfig(String configResource) throws IOException {
         J2CacheConfig config = new J2CacheConfig();
         try (InputStream stream = getConfigStream(configResource)){
-            config.properties = new Properties();
             config.properties.load(stream);
             config.serialization = config.properties.getProperty("j2cache.serialization");
             config.broadcast = config.properties.getProperty("j2cache.broadcast");
