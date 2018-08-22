@@ -62,29 +62,33 @@ public class CaffeineProvider implements CacheProvider {
 
     @Override
     public Cache buildCache(String region, CacheExpiredListener listener) {
+
         CaffeineCache cache = caches.get(region);
-        if(cache != null)
-            return cache ;
 
-        synchronized (CaffeineProvider.class) {
-            cache = caches.get(region);
-            if(cache != null)
-                return cache;
+        if(cache == null) {
 
-            CacheConfig config = cacheConfigs.get(region);
-            if(config == null) {
-                config = cacheConfigs.get(DEFAULT_REGION);
-                if(config == null)
-                    throw new CacheException(String.format("Undefined caffeine cache region name = %s", region));
+            synchronized (CaffeineProvider.class) {
+                cache = caches.get(region);
+                if (cache != null)
+                    return cache;
 
-                log.info(String.format("Caffeine cache [%s] not defined, using default.", region));
+                CacheConfig config = cacheConfigs.get(region);
+                if (config == null) {
+                    config = cacheConfigs.get(DEFAULT_REGION);
+                    if (config == null)
+                        throw new CacheException(String.format("Undefined caffeine cache region name = %s", region));
+
+                    log.warn(String.format("Caffeine cache [%s] not defined, using default.", region));
+                }
+
+                cache = buildCache(region, config.size, config.expire, listener);
+                caches.put(region, cache);
             }
 
-            cache = buildCache(region, config.size, config.expire, listener);
-            caches.put(region, cache);
         }
 
         return cache;
+
     }
 
     @Override
