@@ -22,12 +22,6 @@ import com.alibaba.fastjson.annotation.JSONField;
 
 /**
  * 命令消息封装
- * 格式：
- * 第1个字节为命令代码，长度1 [OPT]
- * 第2、3个字节为region长度，长度2 [R_LEN]
- * 第4、N 为 region 值，长度为 [R_LEN]
- * 第N+1、N+2 为 key 长度，长度2 [K_LEN]
- * 第N+3、M为 key值，长度为 [K_LEN]
  * 
  * @author Winter Lau(javayou@gmail.com)
  */
@@ -57,6 +51,14 @@ public class Command {
 		this.operator = o;
 		this.region = r;
 		this.keys = keys;
+	}
+
+	/**
+	 * 返回本地的专有标识
+	 * @return
+	 */
+	public static final int LocalID() {
+		return SRC_ID;
 	}
 
 	public static Command join() {
