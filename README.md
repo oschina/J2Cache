@@ -161,7 +161,20 @@ channel.close();
 
 	```
 
-5. **如何使用 memcached 作为二级缓存**  
+5. **如何使用 RabbitMQ 作为消息通知**  
+首先修改 `j2cache.properties` 中的 `j2cache.broadcast` 为 rabbitmq，然后在 j2cache.properties 中配置 rabbitmq.xxx 相关信息。
+
+    需要在项目中引入对 rabbitmq 的支持：   
+
+    ```xml
+    <dependency>
+        <groupId>com.rabbitmq</groupId>
+        <artifactId>amqp-client</artifactId>
+        <version>5.3.0</version>
+    </dependency>
+    ```
+
+6. **如何使用 memcached 作为二级缓存**  
 首先修改 `j2cache.properties` 中的 `j2cache.L2.provider_class` 为 memcached，然后在 j2cache.properties 中配置 memcached.xxx 相关信息。
 
     需要在项目中引入对 memcached 的支持：   
@@ -174,7 +187,7 @@ channel.close();
     </dependency>
     ```
 
-6. **为什么 J2Cache 初始化时，连接本机的 Redis 非常慢，要 5 秒以上？**
+7. **为什么 J2Cache 初始化时，连接本机的 Redis 非常慢，要 5 秒以上？**
 
     如果出现这种情况，请在系统 hosts 里配置机器名和IP地址的对应关系，例如：  
 
@@ -206,4 +219,6 @@ channel.close();
 ## TODO ##
 
 1. 当 ehcache 配置模板为永久时的处理
-2. 欢迎大家给 J2Cache 提建议
+2. 应用重启，从 Redis 获取数据后，一级缓存的有效期大于预设值
+3. 多节点强一致性？
+4. 欢迎大家给 J2Cache 提建议

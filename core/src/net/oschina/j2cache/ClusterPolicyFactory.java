@@ -38,7 +38,9 @@ public class ClusterPolicyFactory {
         if ("redis".equalsIgnoreCase(broadcast))
             policy = ClusterPolicyFactory.redis(props);
         else if ("jgroups".equalsIgnoreCase(broadcast))
-            policy = ClusterPolicyFactory.jgroups(props);//
+            policy = ClusterPolicyFactory.jgroups(props);
+        else if ("rabbitmq".equalsIgnoreCase(broadcast))
+            policy = ClusterPolicyFactory.rabbitmq(props);
         else if ("none".equalsIgnoreCase(broadcast))
             policy = new NoneClusterPolicy();
         else
@@ -66,6 +68,17 @@ public class ClusterPolicyFactory {
     private final static ClusterPolicy jgroups(Properties props) {
         String name = props.getProperty("channel.name");
         JGroupsClusterPolicy policy = new JGroupsClusterPolicy(name, props);
+        policy.connect(props);
+        return policy;
+    }
+
+    /**
+     * 使用 RabbitMQ 消息机制
+     * @param props 框架配置
+     * @return 返回 RabbitMQ 集群策略的实例
+     */
+    private final static ClusterPolicy rabbitmq(Properties props) {
+        RabbitMQClusterPolicy policy = new RabbitMQClusterPolicy(props);
         policy.connect(props);
         return policy;
     }
