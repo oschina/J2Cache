@@ -131,6 +131,7 @@
         <module>modules/spring-boot-starter</module>
     	<module>modules/spring-boot2-starter</module>
         <module>modules/mybatis</module>
+        <module>modules/springcache</module>
     </modules>
 
     <dependencies>
