@@ -405,8 +405,9 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 */
 	public void evict(String region, String...keys)  {
 		try {
-			CacheProviderHolder.getLevel1Cache(region).evict(keys);
+			//先清比较耗时的二级缓存，再清一级缓存
 			CacheProviderHolder.getLevel2Cache(region).evict(keys);
+			CacheProviderHolder.getLevel1Cache(region).evict(keys);
 		} finally {
 			this.sendEvictCmd(region, keys); //发送广播
 		}
@@ -419,8 +420,9 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 */
 	public void clear(String region)  {
 		try {
-			CacheProviderHolder.getLevel1Cache(region).clear();
+			//先清比较耗时的二级缓存，再清一级缓存
 			CacheProviderHolder.getLevel2Cache(region).clear();
+			CacheProviderHolder.getLevel1Cache(region).clear();
 		}finally {
 			this.sendClearCmd(region);
 		}
