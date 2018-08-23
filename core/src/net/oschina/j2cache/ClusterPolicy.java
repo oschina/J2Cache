@@ -15,6 +15,9 @@
  */
 package net.oschina.j2cache;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Properties;
 
 /**
@@ -22,6 +25,8 @@ import java.util.Properties;
  * @author Winter Lau(javayou@gmail.com)
  */
 public interface ClusterPolicy {
+
+    Logger log = LoggerFactory.getLogger(ClusterPolicy.class);
 
     /**
      * 连接到集群
@@ -62,5 +67,37 @@ public interface ClusterPolicy {
      */
     default void clear(String region) {
         CacheProviderHolder.getLevel1Cache(region).clear();
+    }
+
+    /**
+     * 处理缓存事件逻辑
+     * @param cmd
+     */
+    default void handleCommand(Command cmd) {
+        try {
+            if (cmd == null || cmd.isLocal())
+                return;
+
+            switch (cmd.getOperator()) {
+                case Command.OPT_JOIN:
+                    log.info("Node-"+cmd.getSrc() + " joined !");
+                    break;
+                case Command.OPT_EVICT_KEY:
+                    this.evict(cmd.getRegion(), cmd.getKeys());
+                    log.debug("Received cache evict message, region=" + cmd.getRegion() + ",key=" + String.join(",", cmd.getKeys()));
+                    break;
+                case Command.OPT_CLEAR_KEY:
+                    this.clear(cmd.getRegion());
+                    log.debug("Received cache clear message, region=" + cmd.getRegion());
+                    break;
+                case Command.OPT_QUIT:
+                    log.info("Node-"+cmd.getSrc() + " quit !");
+                    break;
+                default:
+                    log.warn("Unknown message type = " + cmd.getOperator());
+            }
+        } catch (Exception e) {
+            log.error("Failed to handle received msg", e);
+        }
     }
 }

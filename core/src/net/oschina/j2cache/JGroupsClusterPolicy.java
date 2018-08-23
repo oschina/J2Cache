@@ -86,31 +86,8 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
         //无效消息
         String msgJson = (String)msg.getObject();
 
-        try{
-            Command cmd = Command.parse(msgJson);
-
-            if(cmd == null || cmd.isLocal())
-                return;
-
-            switch(cmd.getOperator()){
-                case Command.OPT_JOIN:
-                    log.info("Node-"+cmd.getSrc()+" joined to " + name);
-                    break;
-                case Command.OPT_EVICT_KEY:
-                    this.evict(cmd.getRegion(),cmd.getKeys());
-                    break;
-                case Command.OPT_CLEAR_KEY:
-                    this.clear(cmd.getRegion());
-                    break;
-                case Command.OPT_QUIT:
-                    log.info("Node-"+cmd.getSrc()+" quit to " + name);
-                    break;
-                default:
-                    log.warn("Unknown message type = " + cmd.getOperator());
-            }
-        }catch(Exception e){
-            log.error("Failed to handle received msg" , e);
-        }
+        Command cmd = Command.parse(msgJson);
+        handleCommand(cmd);
     }
 
     /**

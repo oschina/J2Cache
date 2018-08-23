@@ -25,6 +25,7 @@ import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
+import java.util.HashSet;
 import java.util.Properties;
 
 /**
@@ -35,6 +36,8 @@ import java.util.Properties;
 public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPolicy {
 
     private final static Logger log = LoggerFactory.getLogger(RedisPubSubClusterPolicy.class);
+
+    private HashSet<Integer> nodes = new HashSet(); //当前集群中的节点
 
     private JedisPool client;
     private String channel;
@@ -70,6 +73,7 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
 
         try (Jedis jedis = client.getResource()) {
             jedis.publish(channel, Command.join().json());   //Join Cluster
+            nodes.add(Command.LocalID());
         }
 
         Thread subscribeThread = new Thread(()-> {
@@ -144,33 +148,8 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
      */
     @Override
     public void onMessage(String channel, String message) {
-        try {
-            Command cmd = Command.parse(message);
-
-            if (cmd == null || cmd.isLocal())
-                return;
-
-            switch (cmd.getOperator()) {
-                case Command.OPT_JOIN:
-                    log.info("Node-"+cmd.getSrc()+" joined to " + this.channel);
-                    break;
-                case Command.OPT_EVICT_KEY:
-                    this.evict(cmd.getRegion(), cmd.getKeys());
-                    log.debug("Received cache evict message, region=" + cmd.getRegion() + ",key=" + String.join(",", cmd.getKeys()));
-                    break;
-                case Command.OPT_CLEAR_KEY:
-                    this.clear(cmd.getRegion());
-                    log.debug("Received cache clear message, region=" + cmd.getRegion());
-                    break;
-                case Command.OPT_QUIT:
-                    log.info("Node-"+cmd.getSrc()+" quit to " + this.channel);
-                    break;
-                default:
-                    log.warn("Unknown message type = " + cmd.getOperator());
-            }
-        } catch (Exception e) {
-            log.error("Failed to handle received msg", e);
-        }
+        Command cmd = Command.parse(message);
+        handleCommand(cmd);
     }
 
 }
