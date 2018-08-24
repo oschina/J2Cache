@@ -21,7 +21,7 @@
         <dependency>
             <groupId>net.oschina.j2cache</groupId>
             <artifactId>j2cache-core</artifactId>
-            <version>2.4.3-release</version>
+            <version>${j2cache-version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
