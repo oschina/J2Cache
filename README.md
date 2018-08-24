@@ -57,7 +57,8 @@ J2Cache 运行时所需 jar 包请查看 core/pom.xml
 ## 示例代码
 
 详细的使用方法请看 [J2CacheCmd.java](https://gitee.com/ld/J2Cache/blob/master/core/src/net/oschina/j2cache/J2CacheCmd.java)
-
+ 
+与spring cache 集成  [SpringCache 集成 J2Cache 配置案例](./modules/springcache/j2cache-springcache.md)
 ## 使用方法
 
 J2Cache 默认使用 [Caffeine](https://www.oschina.net/p/ben-manes-caffeine) 作为一级缓存，使用 Redis 作为二级缓存。你还可以选择 Ehcache2 和 Ehcache3 作为一级缓存。
