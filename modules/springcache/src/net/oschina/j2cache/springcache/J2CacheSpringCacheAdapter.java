@@ -1,12 +1,9 @@
 package net.oschina.j2cache.springcache;
 
 import net.oschina.j2cache.CacheChannel;
-import net.oschina.j2cache.util.SerializationUtils;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.support.AbstractValueAdaptingCache;
 
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.concurrent.Callable;
 
 /**
@@ -42,7 +39,7 @@ public class J2CacheSpringCacheAdapter extends AbstractValueAdaptingCache {
 
     @Override
     protected Object lookup(Object key) {
-        return j2Cache.get(name, getKey(key));
+        return j2Cache.get(name, getKey(key)).getValue();
     }
 
     /**

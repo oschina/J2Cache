@@ -27,11 +27,10 @@ public class J2CacheSpringCacheManageAdapter extends AbstractTransactionSupporti
     private boolean allowNullValues = true;
 
     /**
-     *
-     * @param j2CacheBuilder 可选参数，不传则用  J2Cache.getChannel() 获取 CacheChannel
+     * @param j2CacheBuilder  可选参数，不传则用  J2Cache.getChannel() 获取 CacheChannel
      * @param allowNullValues 默认 true
      */
-    J2CacheSpringCacheManageAdapter(J2CacheBuilder j2CacheBuilder, boolean allowNullValues) {
+    public J2CacheSpringCacheManageAdapter(J2CacheBuilder j2CacheBuilder, boolean allowNullValues) {
         this.j2CacheBuilder = j2CacheBuilder;
         this.allowNullValues = allowNullValues;
     }
@@ -39,7 +38,11 @@ public class J2CacheSpringCacheManageAdapter extends AbstractTransactionSupporti
     public J2CacheSpringCacheManageAdapter() {
     }
 
-    J2CacheSpringCacheManageAdapter(J2CacheBuilder j2CacheBuilder) {
+    public J2CacheSpringCacheManageAdapter(boolean allowNullValues) {
+        this.allowNullValues = allowNullValues;
+    }
+
+    public J2CacheSpringCacheManageAdapter(J2CacheBuilder j2CacheBuilder) {
         this.j2CacheBuilder = j2CacheBuilder;
     }
 
