@@ -1,7 +1,7 @@
 package net.oschina.j2cache.springcache;
+
 import net.oschina.j2cache.J2CacheBuilder;
 import net.oschina.j2cache.J2CacheConfig;
-import net.oschina.j2cache.springcache.J2CacheSpringCacheManageAdapter;
 import net.oschina.j2cache.util.SerializationUtils;
 import org.junit.Assert;
 import org.junit.Test;
