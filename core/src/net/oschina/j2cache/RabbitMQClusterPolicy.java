@@ -29,25 +29,51 @@ import java.util.concurrent.TimeoutException;
  */
 public class RabbitMQClusterPolicy implements ClusterPolicy, Consumer {
 
-    private final static Logger log = LoggerFactory.getLogger(RabbitMQClusterPolicy.class);
+    private static final Logger log = LoggerFactory.getLogger(RabbitMQClusterPolicy.class);
+
+    private static final String EXCHANGE_TYPE = "fanout";
 
     private ConnectionFactory factory;
-    private Connection connection;
-    private Channel channel;
-    private String queue;
-    private String exchange = "";
+    private Connection conn_publisher;
+    private Connection conn_consumer;
+    private Channel channel_publisher;
+    private Channel channel_consumer;
+    private String exchange;
 
     /**
      * @param props RabbitMQ 配置信息
      */
     public RabbitMQClusterPolicy(Properties props){
-        this.queue = (String)props.getOrDefault("queue_name", "j2cache");
+        this.exchange = (String)props.getOrDefault("exchange", "j2cache");
         factory = new ConnectionFactory();
         factory.setHost((String)props.getOrDefault("host" , "127.0.0.1"));
         factory.setPort(Integer.valueOf((String)props.getOrDefault("port", "5672")));
         factory.setUsername((String)props.getOrDefault("username" , null));
         factory.setPassword((String)props.getOrDefault("password" , null));
         //TODO 更多的 RabbitMQ 配置
+    }
+
+    @Override
+    public void connect(Properties props) {
+        try {
+            long ct = System.currentTimeMillis();
+            conn_publisher = factory.newConnection();
+            channel_publisher = conn_publisher.createChannel();
+            channel_publisher.exchangeDeclare(exchange, EXCHANGE_TYPE);
+            publish(Command.join().json().getBytes());
+
+            conn_consumer = factory.newConnection();
+            channel_consumer = conn_consumer.createChannel();
+            channel_consumer.exchangeDeclare(exchange, EXCHANGE_TYPE);
+            String queueName = channel_consumer.queueDeclare().getQueue();
+            channel_consumer.queueBind(queueName, exchange, "");
+
+            channel_consumer.basicConsume(queueName, true, this);
+
+            log.info("Connected to RabbitMQ:" + conn_consumer + ", time " + (System.currentTimeMillis()-ct) + " ms.");
+        } catch (Exception e) {
+            throw new CacheException(String.format("Failed to connect to RabbitMQ (%s:%d)", factory.getHost(), factory.getPort()), e);
+        }
     }
 
     /**
@@ -57,37 +83,19 @@ public class RabbitMQClusterPolicy implements ClusterPolicy, Consumer {
      */
     private void publish(byte[] data) throws IOException {
         //失败重连
-        if(!channel.isOpen() || !connection.isOpen()) {
+        if(!channel_publisher.isOpen() || !conn_publisher.isOpen()) {
             synchronized (RabbitMQClusterPolicy.class) {
-                if(!channel.isOpen() || !connection.isOpen()) {
+                if(!channel_publisher.isOpen() || !conn_publisher.isOpen()) {
                     try {
-                        connection = factory.newConnection();
-                        channel = connection.createChannel();
+                        conn_publisher = factory.newConnection();
+                        channel_publisher = conn_publisher.createChannel();
                     } catch(TimeoutException e) {
                         throw new CacheException("Failed to connect to RabbitMQ!", e);
                     }
                 }
             }
         }
-        channel.basicPublish(this.exchange, this.queue, null, data);
-    }
-
-    @Override
-    public void connect(Properties props) {
-        try {
-            long ct = System.currentTimeMillis();
-            connection = factory.newConnection();
-            channel = connection.createChannel();
-
-            channel.queueDeclare(this.queue, false, false, false, null);
-            publish(Command.join().json().getBytes());
-
-            channel.basicConsume(this.queue, true, this);
-
-            log.info("Connected to RabbitMQ:" + channel + ", time " + (System.currentTimeMillis()-ct) + " ms.");
-        } catch (Exception e) {
-            log.error(String.format("Failed to connect to RabbitMQ (%s:%d)", factory.getHost(), factory.getPort()), e);
-        }
+        channel_publisher.basicPublish(exchange, "", null, data);
     }
 
     @Override
@@ -118,8 +126,13 @@ public class RabbitMQClusterPolicy implements ClusterPolicy, Consumer {
             log.error("Failed to send QUIT cmd to RabbitMQ", e);
         } finally {
             try {
-                channel.close();
-                connection.close();
+                channel_publisher.close();
+                conn_publisher.close();
+            } catch(Exception e){}
+
+            try {
+                channel_consumer.close();
+                conn_consumer.close();
             } catch(Exception e){}
         }
     }
