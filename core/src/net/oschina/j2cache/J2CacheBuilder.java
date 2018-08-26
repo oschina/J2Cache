@@ -15,6 +15,8 @@
  */
 package net.oschina.j2cache;
 
+import net.oschina.j2cache.cluster.ClusterPolicy;
+import net.oschina.j2cache.cluster.ClusterPolicyFactory;
 import net.oschina.j2cache.util.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

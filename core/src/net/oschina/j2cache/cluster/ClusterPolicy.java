@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oschina.j2cache;
+package net.oschina.j2cache.cluster;
 
+import net.oschina.j2cache.CacheProviderHolder;
+import net.oschina.j2cache.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Properties;
 
 /**
@@ -34,18 +37,41 @@ public interface ClusterPolicy {
      */
     void connect(Properties props);
 
+
+    /**
+     * 发送消息
+     * @param data
+     * @throws IOException
+     */
+    default void publish(byte[] data) throws IOException {
+    }
+
     /**
      * 发送清除缓存的命令
      * @param region 区域名称
      * @param keys   缓存键值
      */
-    void sendEvictCmd(String region, String...keys);
+    default void sendEvictCmd(String region, String...keys) {
+        Command cmd = new Command(Command.OPT_EVICT_KEY, region, keys);
+        try {
+            publish(cmd.json().getBytes());
+        } catch ( IOException e ) {
+            log.error("Failed to send EVICT cmd", e);
+        }
+    }
 
     /**
      * 发送清除整个缓存区域的命令
      * @param region 区域名称
      */
-    void sendClearCmd(String region);
+    default void sendClearCmd(String region) {
+        Command cmd = new Command(Command.OPT_CLEAR_KEY, region);
+        try {
+            publish(cmd.json().getBytes());
+        } catch ( IOException e ) {
+            log.error("Failed to send CLEAR cmd", e);
+        }
+    }
 
     /**
      * 断开集群连接

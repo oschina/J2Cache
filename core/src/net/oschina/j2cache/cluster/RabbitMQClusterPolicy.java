@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oschina.j2cache;
+package net.oschina.j2cache.cluster;
 
 import com.rabbitmq.client.*;
+import net.oschina.j2cache.CacheException;
+import net.oschina.j2cache.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,12 +46,12 @@ public class RabbitMQClusterPolicy implements ClusterPolicy, Consumer {
      * @param props RabbitMQ 配置信息
      */
     public RabbitMQClusterPolicy(Properties props){
-        this.exchange = (String)props.getOrDefault("exchange", "j2cache");
+        this.exchange = props.getProperty("exchange", "j2cache");
         factory = new ConnectionFactory();
-        factory.setHost((String)props.getOrDefault("host" , "127.0.0.1"));
-        factory.setPort(Integer.valueOf((String)props.getOrDefault("port", "5672")));
-        factory.setUsername((String)props.getOrDefault("username" , null));
-        factory.setPassword((String)props.getOrDefault("password" , null));
+        factory.setHost(props.getProperty("host" , "127.0.0.1"));
+        factory.setPort(Integer.valueOf(props.getProperty("port", "5672")));
+        factory.setUsername(props.getProperty("username" , null));
+        factory.setPassword(props.getProperty("password" , null));
         //TODO 更多的 RabbitMQ 配置
     }
 
@@ -81,7 +83,8 @@ public class RabbitMQClusterPolicy implements ClusterPolicy, Consumer {
      * @param data 消息数据
      * @throws IOException
      */
-    private void publish(byte[] data) throws IOException {
+    @Override
+    public void publish(byte[] data) throws IOException {
         //失败重连
         if(!channel_publisher.isOpen() || !conn_publisher.isOpen()) {
             synchronized (RabbitMQClusterPolicy.class) {
@@ -96,26 +99,6 @@ public class RabbitMQClusterPolicy implements ClusterPolicy, Consumer {
             }
         }
         channel_publisher.basicPublish(exchange, "", null, data);
-    }
-
-    @Override
-    public void sendEvictCmd(String region, String... keys) {
-        Command cmd = new Command(Command.OPT_EVICT_KEY, region, keys);
-        try {
-            publish(cmd.json().getBytes());
-        } catch ( IOException e ) {
-            log.error("Failed to send EVICT cmd to RabbitMQ", e);
-        }
-    }
-
-    @Override
-    public void sendClearCmd(String region) {
-        Command cmd = new Command(Command.OPT_CLEAR_KEY, region);
-        try {
-            publish(cmd.json().getBytes());
-        } catch ( IOException e ) {
-            log.error("Failed to send CLEAR cmd to RabbitMQ", e);
-        }
     }
 
     @Override

@@ -1,5 +1,6 @@
 package net.oschina.j2cache.cache.support.redis;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +10,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 
-import net.oschina.j2cache.ClusterPolicy;
+import net.oschina.j2cache.cluster.ClusterPolicy;
 import net.oschina.j2cache.Command;
 import net.oschina.j2cache.J2CacheConfig;
 import net.oschina.j2cache.cache.support.util.SpringUtil;

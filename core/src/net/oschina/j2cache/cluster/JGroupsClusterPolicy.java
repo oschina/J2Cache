@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oschina.j2cache;
+package net.oschina.j2cache.cluster;
 
+import net.oschina.j2cache.CacheChannel;
+import net.oschina.j2cache.CacheException;
+import net.oschina.j2cache.Command;
 import org.jgroups.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +65,7 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
             channel.setReceiver(this);
             channel.connect(name);
 
-            this.sendMessage(Command.join());
+            this.publish(Command.join().json().getBytes());
             log.info("Connected to jgroups channel:" + name + ", time " + (System.currentTimeMillis()-ct) + " ms.");
 
         }catch(Exception e){
@@ -72,43 +75,16 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
 
     @Override
     public void disconnect() {
-        this.sendMessage(Command.quit());
+        this.publish(Command.quit().json().getBytes());
         channel.close();
     }
 
     @Override
     public void receive(Message msg) {
-
         //不处理发送给自己的消息
         if(msg.getSrc().equals(channel.getAddress()))
             return ;
-
-        //无效消息
-        String msgJson = (String)msg.getObject();
-
-        Command cmd = Command.parse(msgJson);
-        handleCommand(cmd);
-    }
-
-    /**
-     * 发送清除缓存的广播命令
-     *
-     * @param region : Cache region name
-     * @param keys    : cache key
-     */
-    @Override
-    public void sendEvictCmd(String region, String...keys) {
-        sendMessage(new Command(Command.OPT_EVICT_KEY, region, keys));
-    }
-
-    /**
-     * 发送清除缓存的广播命令
-     *
-     * @param region: Cache region name
-     */
-    @Override
-    public void sendClearCmd(String region) {
-        sendMessage(new Command(Command.OPT_CLEAR_KEY, region, ""));
+        handleCommand(Command.parse(new String(msg.getBuffer())));
     }
 
     @Override
@@ -118,13 +94,13 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
         );
     }
 
-    private void sendMessage(Command cmd) {
+    @Override
+    public void publish(byte[] data) {
         try {
-            Message msg = new Message(null, cmd.json());
+            Message msg = new Message(null, data);
             channel.send(msg);
         } catch (Exception e) {
-            log.error("Failed to send message to jgroups -> " + cmd.json(), e);
+            log.error("Failed to send message to jgroups -> " + new String(data), e);
         }
     }
-
 }

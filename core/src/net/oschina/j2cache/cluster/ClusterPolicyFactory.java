@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oschina.j2cache;
+package net.oschina.j2cache.cluster;
 
+import net.oschina.j2cache.CacheException;
 import net.oschina.j2cache.redis.RedisPubSubClusterPolicy;
 
 import java.util.Properties;
@@ -41,6 +42,8 @@ public class ClusterPolicyFactory {
             policy = ClusterPolicyFactory.jgroups(props);
         else if ("rabbitmq".equalsIgnoreCase(broadcast))
             policy = ClusterPolicyFactory.rabbitmq(props);
+        else if ("rocketmq".equalsIgnoreCase(broadcast))
+            policy = new RocketMQClusterPolicy(props);
         else if ("none".equalsIgnoreCase(broadcast))
             policy = new NoneClusterPolicy();
         else

@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 
-import net.oschina.j2cache.ClusterPolicy;
+import net.oschina.j2cache.cluster.ClusterPolicy;
 
 /**
  * 监听二缓key失效，主动清除本地缓存

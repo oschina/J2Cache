@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oschina.j2cache;
+package net.oschina.j2cache.cluster;
 
 import java.util.Properties;
 
@@ -25,16 +25,6 @@ public class NoneClusterPolicy implements ClusterPolicy {
 
     @Override
     public void connect(Properties props) {
-
-    }
-
-    @Override
-    public void sendEvictCmd(String region, String... keys) {
-
-    }
-
-    @Override
-    public void sendClearCmd(String region) {
 
     }
 

@@ -15,7 +15,7 @@
  */
 package net.oschina.j2cache.redis;
 
-import net.oschina.j2cache.ClusterPolicy;
+import net.oschina.j2cache.cluster.ClusterPolicy;
 import net.oschina.j2cache.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,6 @@ import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
-import java.util.HashSet;
 import java.util.Properties;
 
 /**
@@ -36,8 +35,6 @@ import java.util.Properties;
 public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPolicy {
 
     private final static Logger log = LoggerFactory.getLogger(RedisPubSubClusterPolicy.class);
-
-    private HashSet<Integer> nodes = new HashSet(); //当前集群中的节点
 
     private JedisPool client;
     private String channel;
@@ -71,10 +68,7 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
     public void connect(Properties props) {
         long ct = System.currentTimeMillis();
 
-        try (Jedis jedis = client.getResource()) {
-            jedis.publish(channel, Command.join().json());   //Join Cluster
-            nodes.add(Command.LocalID());
-        }
+        this.publish(Command.join().json().getBytes());
 
         Thread subscribeThread = new Thread(()-> {
             //当 Redis 重启会导致订阅线程断开连接，需要进行重连
@@ -105,39 +99,19 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
      */
     @Override
     public void disconnect() {
-        try (Jedis jedis = client.getResource()) {
-            jedis.publish(channel, Command.quit().json()); //Quit Cluster
-
+        try {
+            this.publish(Command.quit().json().getBytes());
             if(this.isSubscribed())
                 this.unsubscribe();
-
         } finally {
             this.client.close();
         }
     }
 
-    /**
-     * 发送清除缓存的广播命令
-     *
-     * @param region : Cache region name
-     * @param keys    : cache key
-     */
     @Override
-    public void sendEvictCmd(String region, String...keys) {
+    public void publish(byte[] data) {
         try (Jedis jedis = client.getResource()) {
-            jedis.publish(channel, new Command(Command.OPT_EVICT_KEY, region, keys).json());
-        }
-    }
-
-    /**
-     * 发送清除缓存的广播命令
-     *
-     * @param region: Cache region name
-     */
-    @Override
-    public void sendClearCmd(String region) {
-        try (Jedis jedis = client.getResource()) {
-            jedis.publish(channel, new Command(Command.OPT_CLEAR_KEY, region, "").json());
+            jedis.publish(channel, new String(data));
         }
     }
 
