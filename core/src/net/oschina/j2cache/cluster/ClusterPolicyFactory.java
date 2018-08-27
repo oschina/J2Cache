@@ -43,7 +43,7 @@ public class ClusterPolicyFactory {
         else if ("rabbitmq".equalsIgnoreCase(broadcast))
             policy = ClusterPolicyFactory.rabbitmq(props);
         else if ("rocketmq".equalsIgnoreCase(broadcast))
-            policy = new RocketMQClusterPolicy(props);
+            policy = ClusterPolicyFactory.rocketmq(props);
         else if ("none".equalsIgnoreCase(broadcast))
             policy = new NoneClusterPolicy();
         else
@@ -82,6 +82,12 @@ public class ClusterPolicyFactory {
      */
     private final static ClusterPolicy rabbitmq(Properties props) {
         RabbitMQClusterPolicy policy = new RabbitMQClusterPolicy(props);
+        policy.connect(props);
+        return policy;
+    }
+
+    private final static ClusterPolicy rocketmq(Properties props) {
+        RocketMQClusterPolicy policy = new RocketMQClusterPolicy(props);
         policy.connect(props);
         return policy;
     }
