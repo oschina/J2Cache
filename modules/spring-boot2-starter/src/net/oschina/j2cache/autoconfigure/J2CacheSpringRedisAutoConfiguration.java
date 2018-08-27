@@ -71,17 +71,23 @@ public class J2CacheSpringRedisAutoConfiguration {
 		String mode = l2CacheProperties.getProperty("mode");
 		String clusterName = l2CacheProperties.getProperty("cluster_name");
 		String password = l2CacheProperties.getProperty("password");
-		int database = l2CacheProperties.getProperty("database") == null ? 0 : Integer.parseInt(l2CacheProperties.getProperty("database"));
+		int database = l2CacheProperties.getProperty("database") == null ? 0
+				: Integer.parseInt(l2CacheProperties.getProperty("database"));
 		JedisConnectionFactory connectionFactory = null;
 		JedisPoolConfig config = RedisUtils.newPoolConfig(l2CacheProperties, null);
 		List<RedisNode> nodes = new ArrayList<>();
-		for (String node : hosts.split(",")) {
-			String[] s = node.split(":");
-			String host = s[0];
-			int port = (s.length > 1) ? Integer.parseInt(s[1]) : 6379;
-			RedisNode n = new RedisNode(host, port);
-			nodes.add(n);
+		if (hosts != null && !"".equals(hosts)) {
+			for (String node : hosts.split(",")) {
+				String[] s = node.split(":");
+				String host = s[0];
+				int port = (s.length > 1) ? Integer.parseInt(s[1]) : 6379;
+				RedisNode n = new RedisNode(host, port);
+				nodes.add(n);
+			}
+		} else {
+			throw new IllegalArgumentException("j2cache中的redis配置缺少hosts！！");
 		}
+
 		RedisPassword paw = RedisPassword.none();
 		if (!StringUtils.isEmpty(password)) {
 			paw = RedisPassword.of(password);
@@ -134,7 +140,7 @@ public class J2CacheSpringRedisAutoConfiguration {
 		}
 		return connectionFactory;
 	}
-	
+
 	@Primary
 	@Bean("j2CahceRedisConnectionFactory")
 	@ConditionalOnMissingBean(name = "j2CahceRedisConnectionFactory")
@@ -145,18 +151,23 @@ public class J2CacheSpringRedisAutoConfiguration {
 		String mode = l2CacheProperties.getProperty("mode");
 		String clusterName = l2CacheProperties.getProperty("cluster_name");
 		String password = l2CacheProperties.getProperty("password");
-		int database = l2CacheProperties.getProperty("database") == null ? 0 : Integer.parseInt(l2CacheProperties.getProperty("database"));
+		int database = l2CacheProperties.getProperty("database") == null ? 0
+				: Integer.parseInt(l2CacheProperties.getProperty("database"));
 		LettuceConnectionFactory connectionFactory = null;
 		LettucePoolingClientConfigurationBuilder config = LettucePoolingClientConfiguration.builder();
 		config.commandTimeout(Duration.ofMillis(CONNECT_TIMEOUT));
 		config.poolConfig(getGenericRedisPool(l2CacheProperties, null));
 		List<RedisNode> nodes = new ArrayList<>();
-		for (String node : hosts.split(",")) {
-			String[] s = node.split(":");
-			String host = s[0];
-			int port = (s.length > 1) ? Integer.parseInt(s[1]) : 6379;
-			RedisNode n = new RedisNode(host, port);
-			nodes.add(n);
+		if (hosts != null && !"".equals(hosts)) {
+			for (String node : hosts.split(",")) {
+				String[] s = node.split(":");
+				String host = s[0];
+				int port = (s.length > 1) ? Integer.parseInt(s[1]) : 6379;
+				RedisNode n = new RedisNode(host, port);
+				nodes.add(n);
+			}
+		} else {
+			throw new IllegalArgumentException("j2cache中的redis配置缺少hosts！！");
 		}
 		RedisPassword paw = RedisPassword.none();
 		if (!StringUtils.isEmpty(password)) {
@@ -199,7 +210,8 @@ public class J2CacheSpringRedisAutoConfiguration {
 
 	@Bean("j2CacheRedisTemplate")
 	public RedisTemplate<String, Serializable> j2CacheRedisTemplate(
-			@Qualifier("j2CahceRedisConnectionFactory") RedisConnectionFactory j2CahceRedisConnectionFactory, @Qualifier("j2CacheValueSerializer") RedisSerializer<Object> j2CacheSerializer) {
+			@Qualifier("j2CahceRedisConnectionFactory") RedisConnectionFactory j2CahceRedisConnectionFactory,
+			@Qualifier("j2CacheValueSerializer") RedisSerializer<Object> j2CacheSerializer) {
 		RedisTemplate<String, Serializable> template = new RedisTemplate<String, Serializable>();
 		template.setKeySerializer(new StringRedisSerializer());
 		template.setHashKeySerializer(new StringRedisSerializer());
@@ -213,7 +225,7 @@ public class J2CacheSpringRedisAutoConfiguration {
 	public RedisSerializer<Object> j2CacheValueSerializer() {
 		return new J2CacheSerializer();
 	}
-	
+
 	@Bean("j2CacheRedisMessageListenerContainer")
 	RedisMessageListenerContainer container(
 			@Qualifier("j2CahceRedisConnectionFactory") RedisConnectionFactory j2CahceRedisConnectionFactory) {
