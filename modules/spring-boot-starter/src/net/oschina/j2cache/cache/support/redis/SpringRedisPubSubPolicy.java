@@ -66,22 +66,28 @@ public class SpringRedisPubSubPolicy implements ClusterPolicy{
 
 	}
 
-	@Override
-	public void sendEvictCmd(String region, String... keys) {
-		if(!isActive || "blend".equals(config.getCacheCleanMode())) {
-			String com = new Command(Command.OPT_EVICT_KEY, region, keys).json();
-	        redisTemplate.convertAndSend(this.channel, com);	
-		}
+//	@Override
+//	public void sendEvictCmd(String region, String... keys) {
+//		if(!isActive || "blend".equals(config.getCacheCleanMode())) {
+//			String com = new Command(Command.OPT_EVICT_KEY, region, keys).json();
+//	        redisTemplate.convertAndSend(this.channel, com);	
+//		}
+//
+//	}
 
-	}
-
-	@Override
-	public void sendClearCmd(String region) {
+//	@Override
+//	public void sendClearCmd(String region) {
+//		if(!isActive || "blend".equals(config.getCacheCleanMode())) {
+//			String com = new Command(Command.OPT_CLEAR_KEY, region, "").json();
+//			redisTemplate.convertAndSend(this.channel, com);	
+//		}
+//	}
+	
+    public void publish(byte[] data) throws IOException {
 		if(!isActive || "blend".equals(config.getCacheCleanMode())) {
-			String com = new Command(Command.OPT_CLEAR_KEY, region, "").json();
-			redisTemplate.convertAndSend(this.channel, com);	
+			redisTemplate.convertAndSend(this.channel, data);	
 		}
-	}
+    }
 
 	@Override
 	public void disconnect() {

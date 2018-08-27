@@ -60,14 +60,17 @@ public class J2CacheSpringRedisAutoConfiguration {
 		JedisConnectionFactory connectionFactory = null;
 		JedisPoolConfig config = RedisUtils.newPoolConfig(l2CacheProperties, null);
 		List<RedisNode> nodes = new ArrayList<>();
-		for (String node : hosts.split(",")) {
-			String[] s = node.split(":");
-			String host = s[0];
-			int port = (s.length > 1) ? Integer.parseInt(s[1]) : 6379;
-			RedisNode n = new RedisNode(host, port);
-			nodes.add(n);
+		if (hosts != null && !"".equals(hosts)) {
+			for (String node : hosts.split(",")) {
+				String[] s = node.split(":");
+				String host = s[0];
+				int port = (s.length > 1) ? Integer.parseInt(s[1]) : 6379;
+				RedisNode n = new RedisNode(host, port);
+				nodes.add(n);
+			}
+		} else {
+			throw new IllegalArgumentException("j2cache中的redis配置缺少hosts！！");
 		}
-
 		switch (mode) {
 		case "sentinel":
 			RedisSentinelConfiguration sentinel = new RedisSentinelConfiguration();
