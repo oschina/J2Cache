@@ -84,7 +84,7 @@ public class SpringRedisPubSubPolicy implements ClusterPolicy{
 	
     public void publish(byte[] data) throws IOException {
 		if(!isActive || "blend".equals(config.getCacheCleanMode())) {
-			redisTemplate.convertAndSend(this.channel, data);	
+			redisTemplate.convertAndSend(this.channel, new String(data));	
 		}
     }
 	

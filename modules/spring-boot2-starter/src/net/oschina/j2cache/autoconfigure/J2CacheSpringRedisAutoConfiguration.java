@@ -85,7 +85,8 @@ public class J2CacheSpringRedisAutoConfiguration {
 				nodes.add(n);
 			}
 		} else {
-			throw new IllegalArgumentException("j2cache中的redis配置缺少hosts！！");
+			log.error("j2cache中的redis配置缺少hosts！！");
+			throw new IllegalArgumentException();
 		}
 
 		RedisPassword paw = RedisPassword.none();
@@ -167,7 +168,8 @@ public class J2CacheSpringRedisAutoConfiguration {
 				nodes.add(n);
 			}
 		} else {
-			throw new IllegalArgumentException("j2cache中的redis配置缺少hosts！！");
+			log.error("j2cache中的redis配置缺少hosts！！");
+			throw new IllegalArgumentException();
 		}
 		RedisPassword paw = RedisPassword.none();
 		if (!StringUtils.isEmpty(password)) {
