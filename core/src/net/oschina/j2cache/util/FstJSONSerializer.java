@@ -17,7 +17,9 @@ package net.oschina.j2cache.util;
 
 import org.nustaq.serialization.FSTConfiguration;
 import org.nustaq.serialization.coders.FSTJsonFieldNames;
+import org.nustaq.serialization.serializers.FSTDateSerializer;
 
+import java.sql.Timestamp;
 import java.util.Properties;
 
 /**
@@ -38,6 +40,7 @@ public class FstJSONSerializer implements Serializer {
     public FstJSONSerializer(Properties props) {
         conf.setJsonFieldNames(new FSTJsonFieldNames("@type", "@object", "@stype", "@seq", "@enum", "@value", "@ref"));
         conf.registerCrossPlatformClassMapping("list", "java.util.Arrays$ArrayList");
+        conf.registerSerializer(Timestamp.class, new FSTDateSerializer(), true);
         if(props != null)
             props.forEach((k,v) -> {
                 String key = (String)k;
