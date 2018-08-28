@@ -1,6 +1,7 @@
 package net.oschina.j2cache;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 
@@ -13,6 +14,16 @@ public class Person implements Serializable {
     private int age;
     private List<School> schoolList;
     private HashMap<String, Integer> jobs;
+
+    public Timestamp getCreate_time() {
+        return create_time;
+    }
+
+    public void setCreate_time(Timestamp create_time) {
+        this.create_time = create_time;
+    }
+
+    private Timestamp create_time = new Timestamp(System.currentTimeMillis());
 
     public String getName() {
         return name;
