@@ -63,7 +63,7 @@ public class RocketMQClusterPolicy implements ClusterPolicy, MessageListenerConc
     public void connect(Properties props) {
         try {
             this.producer.start();
-            publish(Command.join().json().getBytes());
+            publish(Command.join());
 
             this.consumer.subscribe(this.topic, "*");
             this.consumer.registerMessageListener(this);
@@ -74,12 +74,12 @@ public class RocketMQClusterPolicy implements ClusterPolicy, MessageListenerConc
     }
 
     @Override
-    public void publish(byte[] bytes) {
-        Message msg = new Message(topic,"","", bytes);
+    public void publish(Command cmd) {
+        Message msg = new Message(topic,"","", cmd.json().getBytes());
         try {
             this.producer.send(msg);
         } catch (Exception e) {
-            log.error(String.format("Failed to publish %s to RocketMQ", new String(bytes)), e);
+            log.error(String.format("Failed to publish %s to RocketMQ", cmd.json()), e);
         }
     }
 
@@ -94,7 +94,7 @@ public class RocketMQClusterPolicy implements ClusterPolicy, MessageListenerConc
     @Override
     public void disconnect() {
         try {
-            publish(Command.quit().json().getBytes());
+            publish(Command.quit());
         } finally {
             this.producer.shutdown();
             this.consumer.shutdown();

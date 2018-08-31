@@ -15,7 +15,6 @@
  */
 package net.oschina.j2cache.cluster;
 
-import net.oschina.j2cache.CacheChannel;
 import net.oschina.j2cache.CacheException;
 import net.oschina.j2cache.Command;
 import org.jgroups.*;
@@ -48,8 +47,10 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
      */
     public JGroupsClusterPolicy(String name, Properties props) {
         this.name = name;
+        if(this.name == null || this.name.trim().equalsIgnoreCase(""))
+            this.name = "j2cache";
         this.configXml = props.getProperty("configXml");
-        if(configXml != null && configXml.trim().length() > 0)
+        if(configXml == null || configXml.trim().length() == 0)
             this.configXml = "/network.xml";
     }
 
@@ -58,24 +59,24 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
         try{
             long ct = System.currentTimeMillis();
 
-            URL xml = CacheChannel.class.getResource(configXml);
+            URL xml = getClass().getResource(configXml);
             if(xml == null)
                 xml = getClass().getClassLoader().getParent().getResource(configXml);
             channel = new JChannel(xml);
             channel.setReceiver(this);
             channel.connect(name);
 
-            this.publish(Command.join().json().getBytes());
+            this.publish(Command.join());
             log.info("Connected to jgroups channel:" + name + ", time " + (System.currentTimeMillis()-ct) + " ms.");
 
-        }catch(Exception e){
+        } catch (Exception e){
             throw new CacheException(e);
         }
     }
 
     @Override
     public void disconnect() {
-        this.publish(Command.quit().json().getBytes());
+        this.publish(Command.quit());
         channel.close();
     }
 
@@ -84,7 +85,7 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
         //不处理发送给自己的消息
         if(msg.getSrc().equals(channel.getAddress()))
             return ;
-        handleCommand(Command.parse(new String(msg.getBuffer())));
+        handleCommand(Command.parse((String)msg.getObject()));
     }
 
     @Override
@@ -95,12 +96,12 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
     }
 
     @Override
-    public void publish(byte[] data) {
+    public void publish(Command cmd) {
         try {
-            Message msg = new Message(null, data);
+            Message msg = new Message(null, cmd.json());
             channel.send(msg);
         } catch (Exception e) {
-            log.error("Failed to send message to jgroups -> " + new String(data), e);
+            log.error("Failed to send message to jgroups -> " + cmd, e);
         }
     }
 }

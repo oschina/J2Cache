@@ -40,11 +40,9 @@ public interface ClusterPolicy {
 
     /**
      * 发送消息
-     * @param data
-     * @throws IOException
+     * @param cmd
      */
-    default void publish(byte[] data) throws IOException {
-    }
+    void publish(Command cmd);
 
     /**
      * 发送清除缓存的命令
@@ -52,12 +50,7 @@ public interface ClusterPolicy {
      * @param keys   缓存键值
      */
     default void sendEvictCmd(String region, String...keys) {
-        Command cmd = new Command(Command.OPT_EVICT_KEY, region, keys);
-        try {
-            publish(cmd.json().getBytes());
-        } catch ( IOException e ) {
-            log.error("Failed to send EVICT cmd", e);
-        }
+        publish(new Command(Command.OPT_EVICT_KEY, region, keys));
     }
 
     /**
@@ -65,12 +58,7 @@ public interface ClusterPolicy {
      * @param region 区域名称
      */
     default void sendClearCmd(String region) {
-        Command cmd = new Command(Command.OPT_CLEAR_KEY, region);
-        try {
-            publish(cmd.json().getBytes());
-        } catch ( IOException e ) {
-            log.error("Failed to send CLEAR cmd", e);
-        }
+        publish(new Command(Command.OPT_CLEAR_KEY, region));
     }
 
     /**

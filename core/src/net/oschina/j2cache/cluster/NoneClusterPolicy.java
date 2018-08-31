@@ -15,6 +15,8 @@
  */
 package net.oschina.j2cache.cluster;
 
+import net.oschina.j2cache.Command;
+
 import java.util.Properties;
 
 /**
@@ -33,4 +35,8 @@ public class NoneClusterPolicy implements ClusterPolicy {
 
     }
 
+    @Override
+    public void publish(Command cmd) {
+
+    }
 }

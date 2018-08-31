@@ -68,7 +68,7 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
     public void connect(Properties props) {
         long ct = System.currentTimeMillis();
 
-        this.publish(Command.join().json().getBytes());
+        this.publish(Command.join());
 
         Thread subscribeThread = new Thread(()-> {
             //当 Redis 重启会导致订阅线程断开连接，需要进行重连
@@ -100,7 +100,7 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
     @Override
     public void disconnect() {
         try {
-            this.publish(Command.quit().json().getBytes());
+            this.publish(Command.quit());
             if(this.isSubscribed())
                 this.unsubscribe();
         } finally {
@@ -109,9 +109,9 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
     }
 
     @Override
-    public void publish(byte[] data) {
+    public void publish(Command cmd) {
         try (Jedis jedis = client.getResource()) {
-            jedis.publish(channel, new String(data));
+            jedis.publish(channel, cmd.json());
         }
     }
 

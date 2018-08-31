@@ -116,7 +116,7 @@ public class Command {
 
     @Override
 	public String toString(){
-		return JSON.toJSONString(this);
+		return json();
 	}
 
 }

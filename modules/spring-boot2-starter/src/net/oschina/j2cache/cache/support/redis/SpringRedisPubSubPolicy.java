@@ -1,6 +1,5 @@
 package net.oschina.j2cache.cache.support.redis;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,9 +17,8 @@ import net.oschina.j2cache.cache.support.util.SpringUtil;
 /**
  * 使用spring redis实现订阅功能
  * @author zhangsaizz
- *
  */
-public class SpringRedisPubSubPolicy implements ClusterPolicy{
+public class SpringRedisPubSubPolicy implements ClusterPolicy {
 	
 	private RedisTemplate<String, Serializable> redisTemplate;
 	
@@ -81,10 +79,11 @@ public class SpringRedisPubSubPolicy implements ClusterPolicy{
 //			redisTemplate.convertAndSend(this.channel, com);	
 //		}
 //	}
-	
-    public void publish(byte[] data) throws IOException {
+
+	@Override
+    public void publish(Command cmd) {
 		if(!isActive || "blend".equals(config.getCacheCleanMode())) {
-			redisTemplate.convertAndSend(this.channel, new String(data));	
+			redisTemplate.convertAndSend(this.channel, cmd.json());
 		}
     }
 	

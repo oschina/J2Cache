@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Properties;
-import java.util.concurrent.TimeoutException;
 
 /**
  * 使用 RabbitMQ 实现集群内节点的数据通知（用于对数据一致性要求特别严格的场景）
@@ -62,7 +61,7 @@ public class RabbitMQClusterPolicy implements ClusterPolicy, Consumer {
             conn_publisher = factory.newConnection();
             channel_publisher = conn_publisher.createChannel();
             channel_publisher.exchangeDeclare(exchange, EXCHANGE_TYPE);
-            publish(Command.join().json().getBytes());
+            publish(Command.join());
 
             conn_consumer = factory.newConnection();
             channel_consumer = conn_consumer.createChannel();
@@ -80,11 +79,10 @@ public class RabbitMQClusterPolicy implements ClusterPolicy, Consumer {
 
     /**
      * 发布消息
-     * @param data 消息数据
-     * @throws IOException
+     * @param cmd 消息数据
      */
     @Override
-    public void publish(byte[] data) throws IOException {
+    public void publish(Command cmd) {
         //失败重连
         if(!channel_publisher.isOpen() || !conn_publisher.isOpen()) {
             synchronized (RabbitMQClusterPolicy.class) {
@@ -92,21 +90,23 @@ public class RabbitMQClusterPolicy implements ClusterPolicy, Consumer {
                     try {
                         conn_publisher = factory.newConnection();
                         channel_publisher = conn_publisher.createChannel();
-                    } catch(TimeoutException e) {
+                    } catch(Exception e) {
                         throw new CacheException("Failed to connect to RabbitMQ!", e);
                     }
                 }
             }
         }
-        channel_publisher.basicPublish(exchange, "", null, data);
+        try {
+            channel_publisher.basicPublish(exchange, "", null, cmd.json().getBytes());
+        } catch (IOException e ) {
+            throw new CacheException("Failed to publish cmd to RabbitMQ!", e);
+        }
     }
 
     @Override
     public void disconnect() {
         try {
-            publish(Command.quit().json().getBytes());
-        } catch ( IOException e ) {
-            log.error("Failed to send QUIT cmd to RabbitMQ", e);
+            publish(Command.quit());
         } finally {
             try {
                 channel_publisher.close();
