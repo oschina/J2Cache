@@ -19,13 +19,14 @@ import net.oschina.j2cache.cluster.ClusterPolicy;
 import net.oschina.j2cache.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
-import redis.clients.jedis.JedisPubSub;
+import redis.clients.jedis.*;
 import redis.clients.jedis.exceptions.JedisConnectionException;
+import redis.clients.util.Pool;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * 使用 Redis 的订阅和发布进行集群中的节点通知
@@ -36,29 +37,37 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
 
     private final static Logger log = LoggerFactory.getLogger(RedisPubSubClusterPolicy.class);
 
-    private JedisPool client;
+    private Pool<Jedis> client;
     private String channel;
 
-    private String host;
-    private int port;
     private int timeout;
     private String password;
 
     public RedisPubSubClusterPolicy(String channel, Properties props){
         this.channel = channel;
-        String node = props.getProperty("channel.host");
-        if(node == null || node.trim().length() == 0)
-            node = props.getProperty("hosts").split(",")[0];
-        String[] infos = node.split(":");
-        this.host = infos[0];
-        this.port = (infos.length > 1)?Integer.parseInt(infos[1]):6379;
         this.timeout = Integer.parseInt((String)props.getOrDefault("timeout", "2000"));
         this.password = props.getProperty("password");
         if(this.password != null && this.password.trim().length() == 0)
             this.password = null;
 
         JedisPoolConfig config = RedisUtils.newPoolConfig(props, null);
-        this.client = new JedisPool(config, host, port, timeout, password);
+
+        String node = props.getProperty("channel.host");
+        if(node == null || node.trim().length() == 0)
+            node = props.getProperty("hosts");
+
+        if("sentinel".equalsIgnoreCase(props.getProperty("mode"))){
+            Set<String> hosts = new HashSet();
+            hosts.addAll(Arrays.asList(node.split(",")));
+            this.client = new JedisSentinelPool("j2cache", hosts, config);
+        }
+        else {
+            node = node.split(",")[0]; //取第一台主机
+            String[] infos = node.split(":");
+            String host = infos[0];
+            int port = (infos.length > 1)?Integer.parseInt(infos[1]):6379;
+            this.client = new JedisPool(config, host, port, timeout, password);
+        }
     }
 
     /**
