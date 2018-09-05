@@ -50,6 +50,8 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
         if(this.password != null && this.password.trim().length() == 0)
             this.password = null;
 
+        int database = Integer.parseInt(props.getProperty("database", "0"));
+
         JedisPoolConfig config = RedisUtils.newPoolConfig(props, null);
 
         String node = props.getProperty("channel.host");
@@ -59,14 +61,15 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
         if("sentinel".equalsIgnoreCase(props.getProperty("mode"))){
             Set<String> hosts = new HashSet();
             hosts.addAll(Arrays.asList(node.split(",")));
-            this.client = new JedisSentinelPool("j2cache", hosts, config);
+            String masterName = props.getProperty("cluster_name", "j2cache");
+            this.client = new JedisSentinelPool(masterName, hosts, config, timeout, password, database);
         }
         else {
             node = node.split(",")[0]; //取第一台主机
             String[] infos = node.split(":");
             String host = infos[0];
             int port = (infos.length > 1)?Integer.parseInt(infos[1]):6379;
-            this.client = new JedisPool(config, host, port, timeout, password);
+            this.client = new JedisPool(config, host, port, timeout, password, database);
         }
     }
 
