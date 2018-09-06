@@ -18,9 +18,7 @@ package net.oschina.j2cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.Properties;
 
 /**
@@ -44,25 +42,34 @@ public class J2CacheConfig {
     private boolean defaultCacheNullObject;
 
     public final static J2CacheConfig initFromConfig(String configResource) throws IOException {
-        J2CacheConfig config = new J2CacheConfig();
         try (InputStream stream = getConfigStream(configResource)){
-            config.properties.load(stream);
-            config.serialization = config.properties.getProperty("j2cache.serialization");
-            config.broadcast = config.properties.getProperty("j2cache.broadcast");
-            config.l1CacheName = config.properties.getProperty("j2cache.L1.provider_class");
-            config.l2CacheName = config.properties.getProperty("j2cache.L2.provider_class");
-            config.syncTtlToRedis = !"false".equalsIgnoreCase(config.properties.getProperty("j2cache.sync_ttl_to_redis"));
-            config.defaultCacheNullObject = "true".equalsIgnoreCase(config.properties.getProperty("j2cache.default_cache_null_object"));
-
-            String l2_config_section = config.properties.getProperty("j2cache.L2.config_section");
-            if(l2_config_section == null || l2_config_section.trim().equals(""))
-                l2_config_section = config.l2CacheName;
-
-            config.broadcastProperties = config.getSubProperties(config.broadcast);
-            config.l1CacheProperties = config.getSubProperties(config.l1CacheName);
-            config.l2CacheProperties = config.getSubProperties(l2_config_section);
-
+            return initFromConfig(stream);
         }
+    }
+
+    public final static J2CacheConfig initFromConfig(File configFile) throws IOException {
+        try (FileInputStream stream = new FileInputStream(configFile)) {
+            return initFromConfig(stream);
+        }
+    }
+
+    public final static J2CacheConfig initFromConfig(InputStream stream) throws IOException {
+        J2CacheConfig config = new J2CacheConfig();
+        config.properties.load(stream);
+        config.serialization = config.properties.getProperty("j2cache.serialization");
+        config.broadcast = config.properties.getProperty("j2cache.broadcast");
+        config.l1CacheName = config.properties.getProperty("j2cache.L1.provider_class");
+        config.l2CacheName = config.properties.getProperty("j2cache.L2.provider_class");
+        config.syncTtlToRedis = !"false".equalsIgnoreCase(config.properties.getProperty("j2cache.sync_ttl_to_redis"));
+        config.defaultCacheNullObject = "true".equalsIgnoreCase(config.properties.getProperty("j2cache.default_cache_null_object"));
+
+        String l2_config_section = config.properties.getProperty("j2cache.L2.config_section");
+        if (l2_config_section == null || l2_config_section.trim().equals(""))
+            l2_config_section = config.l2CacheName;
+
+        config.broadcastProperties = config.getSubProperties(config.broadcast);
+        config.l1CacheProperties = config.getSubProperties(config.l1CacheName);
+        config.l2CacheProperties = config.getSubProperties(l2_config_section);
         return config;
     }
 
