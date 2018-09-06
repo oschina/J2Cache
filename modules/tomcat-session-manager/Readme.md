@@ -3,7 +3,7 @@
 
 该模块是为了让 tomcat 支持用 J2Cache 管理 session。
 
-使用方法：
+#### 使用方法：
 
 1. 拷贝 tomcat-j2cache-session-mananger-xxxx.jar 到 {tomcat}/lib 目录
 2. 拷贝以下依赖包到 {tomcat}/lib 目录
@@ -31,3 +31,8 @@
     </Context>
     ```
 5. 启动 tomcat 并检查 catalina.out 日志看是否启动正常
+
+#### 注意事项
+
+1. 支持 Tomcat 8.0 以及以上版本（低版本未进行测试，可能可用）
+2. 建议使用 hash 模式的 j2cache 的 Redis 配置
