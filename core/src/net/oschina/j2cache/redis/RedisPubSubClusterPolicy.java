@@ -40,15 +40,12 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
     private Pool<Jedis> client;
     private String channel;
 
-    private int timeout;
-    private String password;
-
     public RedisPubSubClusterPolicy(String channel, Properties props){
         this.channel = channel;
-        this.timeout = Integer.parseInt((String)props.getOrDefault("timeout", "2000"));
-        this.password = props.getProperty("password");
-        if(this.password != null && this.password.trim().length() == 0)
-            this.password = null;
+        int timeout = Integer.parseInt((String)props.getOrDefault("timeout", "2000"));
+        String password = props.getProperty("password");
+        if(password != null && password.trim().length() == 0)
+            password = null;
 
         int database = Integer.parseInt(props.getProperty("database", "0"));
 
@@ -117,6 +114,7 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
                 this.unsubscribe();
         } finally {
             this.client.close();
+            //subscribeThread will auto terminate
         }
     }
 
