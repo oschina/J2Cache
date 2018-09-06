@@ -122,6 +122,12 @@ public class CaffeineProvider implements CacheProvider {
         return cache;
     }
 
+    @Override
+    public void removeCache(String region) {
+        cacheConfigs.remove(region);
+        caches.remove(region);
+    }
+
     /**
      * 返回对 Caffeine cache 的 封装
      * @param region region name

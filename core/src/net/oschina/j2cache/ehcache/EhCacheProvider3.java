@@ -122,6 +122,12 @@ public class EhCacheProvider3 implements CacheProvider {
     }
 
     @Override
+    public void removeCache(String region) {
+        caches.remove(region);
+        manager.removeCache(region);
+    }
+
+    @Override
     public void start(Properties props) {
         String sDefaultHeapSize = props.getProperty("defaultHeapSize");
         try {

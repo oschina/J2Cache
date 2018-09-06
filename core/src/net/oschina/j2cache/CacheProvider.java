@@ -63,6 +63,12 @@ public interface CacheProvider {
 	Cache buildCache(String region, long timeToLiveInSeconds, CacheExpiredListener listener);
 
 	/**
+	 * Remove a cache region
+	 * @param region cache region name
+	 */
+	default void removeCache(String region) {}
+
+	/**
 	 * Return all channels defined in first level cache
 	 * @return all regions name
 	 */

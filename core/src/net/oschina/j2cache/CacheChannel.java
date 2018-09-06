@@ -437,6 +437,14 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	}
 
 	/**
+	 * 删除缓存 Region
+	 * @param region Cache Region Name
+	 */
+	public void removeRegion(String region) {
+		CacheProviderHolder.getL1Provider().removeCache(region);
+	}
+
+	/**
 	 * <p>Get cache region keys</p>
 	 * <p><strong>Notice: ehcache3 not support keys</strong></p>
 	 *

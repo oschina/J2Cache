@@ -129,6 +129,12 @@ public class EhCacheProvider implements CacheProvider {
 		return ehcache;
 	}
 
+	@Override
+	public void removeCache(String region) {
+		caches.remove(region);
+		manager.removeCache(region);
+	}
+
 	/**
 	 * init ehcache config
 	 *
