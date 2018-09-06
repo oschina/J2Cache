@@ -75,19 +75,23 @@ public class EhCacheProvider implements CacheProvider {
     public EhCache buildCache(String regionName, CacheExpiredListener listener) {
     	EhCache ehcache = caches.get(regionName);
     	if(ehcache == null){
-			synchronized(EhCacheProvider.class){
+			synchronized (_g_keyLocks.computeIfAbsent(regionName, v -> new Object())) {
 				ehcache = caches.get(regionName);
 				if(ehcache == null){
-					net.sf.ehcache.Cache cache = manager.getCache(regionName);
-					if (cache == null) {
-						log.warn("Could not find configuration [" + regionName + "]; using defaults.");
-						manager.addCache(regionName);
-						cache = manager.getCache(regionName);
-						log.info("started Ehcache region: " + regionName);
-					}
+					try {
+						net.sf.ehcache.Cache cache = manager.getCache(regionName);
+						if (cache == null) {
+							log.warn("Could not find configuration [" + regionName + "]; using defaults.");
+							manager.addCache(regionName);
+							cache = manager.getCache(regionName);
+							log.info("started Ehcache region: " + regionName);
+						}
 
-					ehcache = new EhCache(cache, listener);
-					caches.put(regionName, ehcache);
+						ehcache = new EhCache(cache, listener);
+						caches.put(regionName, ehcache);
+					} finally {
+						_g_keyLocks.remove(regionName);
+					}
 				}
 			}
     	}

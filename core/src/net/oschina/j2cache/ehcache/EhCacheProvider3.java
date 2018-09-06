@@ -74,15 +74,19 @@ public class EhCacheProvider3 implements CacheProvider {
     public EhCache3 buildCache(String region, CacheExpiredListener listener) {
         EhCache3 ehcache = caches.get(region);
         if(ehcache == null){
-            synchronized(EhCacheProvider3.class){
+            synchronized (_g_keyLocks.computeIfAbsent(region, v -> new Object())) {
                 ehcache = caches.get(region);
                 if(ehcache == null){
                     org.ehcache.Cache cache = manager.getCache(region, String.class, Serializable.class);
                     if (cache == null) {
-                        CacheConfiguration defaultCacheConfig = manager.getRuntimeConfiguration().getCacheConfigurations().get(DEFAULT_TPL);
-                        CacheConfiguration<String, Serializable> cacheCfg = CacheConfigurationBuilder.newCacheConfigurationBuilder(defaultCacheConfig).build();
-                        cache = manager.createCache(region, cacheCfg);
-                        log.info("Could not find configuration [" + region + "]; using defaults.");
+                        try {
+                            CacheConfiguration defaultCacheConfig = manager.getRuntimeConfiguration().getCacheConfigurations().get(DEFAULT_TPL);
+                            CacheConfiguration<String, Serializable> cacheCfg = CacheConfigurationBuilder.newCacheConfigurationBuilder(defaultCacheConfig).build();
+                            cache = manager.createCache(region, cacheCfg);
+                            log.info("Could not find configuration [" + region + "]; using defaults.");
+                        } finally {
+                            _g_keyLocks.remove(region);
+                        }
                     }
                     ehcache = new EhCache3(region, cache, listener);
                     caches.put(region, ehcache);

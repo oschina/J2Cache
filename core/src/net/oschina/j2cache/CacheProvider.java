@@ -16,13 +16,17 @@
 package net.oschina.j2cache;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Support for pluggable caches.
  * @author Winter Lau(javayou@gmail.com)
  */
 public interface CacheProvider {
+
+	Map<String, Object> _g_keyLocks = new ConcurrentHashMap<>();
 
 	/**
 	 * 缓存的标识名称
