@@ -30,27 +30,27 @@ public class CacheObject {
 	private Object value;
 	private byte level;
 
-	CacheObject(String region, String key, byte level) {
+	public CacheObject(String region, String key, byte level) {
 		this(region, key, level, null);
 	}
 
-	CacheObject(String region, String key, byte level, Object value) {
+	public CacheObject(String region, String key, byte level, Object value) {
 		this.region =  region;
 		this.key = key;
 		this.level = level;
 		this.value = value;
 	}
 
-	void setLevel(byte level) {
+	public void setLevel(byte level) {
 		this.level = level;
 	}
-	void setRegion(String region) {
+	public void setRegion(String region) {
 		this.region = region;
 	}
-	void setKey(String key) {
+	public void setKey(String key) {
 		this.key = key;
 	}
-	void setValue(Object value) {
+	public void setValue(Object value) {
 		this.value = value;
 	}
 
