@@ -16,10 +16,10 @@
 package net.oschina.j2cache.tomcat;
 
 import net.oschina.j2cache.*;
-import org.apache.catalina.LifecycleException;
-import org.apache.catalina.LifecycleState;
-import org.apache.catalina.Session;
+import org.apache.catalina.*;
 import org.apache.catalina.session.ManagerBase;
+import org.apache.juli.logging.Log;
+import org.apache.juli.logging.LogFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +29,8 @@ import java.io.IOException;
  * @author Winter Lau (javayou@gmail.com)
  */
 public class J2CacheSessionManager extends ManagerBase {
+
+    private static final Log log = LogFactory.getLog(J2CacheSessionManager.class);
 
     private String config;
     private CacheChannel j2cache;
@@ -107,6 +109,9 @@ public class J2CacheSessionManager extends ManagerBase {
                     session.setAuthType(authType);
                 session.setNew(false);
             }
+        }
+        else {
+
         }
         return session;
     }

@@ -18,6 +18,10 @@ package net.oschina.j2cache.tomcat;
 import net.oschina.j2cache.CacheChannel;
 import org.apache.catalina.session.StandardSession;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -44,11 +48,7 @@ public class J2CacheSession extends StandardSession {
 
     @Override
     public Enumeration<String> getAttributeNames() {
-        Vector<String> names = new Vector();
-        names.addAll(j2cache.keys(this.getId()));
-        names.remove(KEY_AUTH_TYPE);
-        names.remove(KEY_CREATE_TIME);
-        return names.elements();
+        return Collections.enumeration(j2cache.keys(this.getId()));
     }
 
     @Override
@@ -67,4 +67,15 @@ public class J2CacheSession extends StandardSession {
         super.removeAttribute(name);
     }
 
+    @Override
+    public void readObjectData(ObjectInputStream stream) throws ClassNotFoundException, IOException {
+        System.out.println("readObjectData");
+        super.readObjectData(stream);
+    }
+
+    @Override
+    public void writeObjectData(ObjectOutputStream stream) throws IOException {
+        System.out.println("writeObjectData");
+        super.writeObjectData(stream);
+    }
 }
