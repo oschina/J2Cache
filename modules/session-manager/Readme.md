@@ -14,7 +14,7 @@
     </dependency>
     ```
 2. 配置 web.xml
-    ```
+    ```xml
     <filter>
         <filter-name>j2cache-session-filter</filter-name>
         <filter-class>net.oschina.j2cache.session.J2CacheSessionFilter</filter-class>
