@@ -5,14 +5,15 @@
     <parent>
         <artifactId>j2cache</artifactId>
         <groupId>net.oschina.j2cache</groupId>
-        <version>2.6.0-release</version>
+        <version>2.5.5-release</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
+
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>j2cache-session-manager</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.0</version>
+    <version>1.0.0-alpha</version>
 
     <dependencies>
 
