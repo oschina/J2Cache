@@ -26,21 +26,28 @@ import java.util.*;
  */
 public class J2CacheSession implements HttpSession {
 
-    private SessionObject session = new SessionObject();
-    private int maxInactiveInterval;
+    private SessionObject session;
     private boolean newSession = true;
 
     private final ServletContext servletContext;
-    private String region;
+    private CacheFacade cache;
 
     private volatile boolean invalid;
 
-    public J2CacheSession(ServletContext servletContext, String region, String id) {
+    public J2CacheSession(ServletContext servletContext, String id, CacheFacade cache) {
         this.servletContext = servletContext;
-        this.region = region;
-
+        this.cache = cache;
+        this.session = new SessionObject();
         this.session.setId(id);
         this.session.setCreated_at(System.currentTimeMillis());
+    }
+
+    public SessionObject getSessionObject() {
+        return session;
+    }
+
+    public void setSessionObject(SessionObject session) {
+        this.session = session;
     }
 
     @Override
@@ -65,41 +72,45 @@ public class J2CacheSession implements HttpSession {
 
     @Override
     public void setMaxInactiveInterval(int interval) {
-        this.maxInactiveInterval = interval;
+        this.session.setMaxInactiveInterval(interval);
     }
 
     @Override
     public int getMaxInactiveInterval() {
-        return maxInactiveInterval;
+        return this.session.getMaxInactiveInterval();
     }
 
     @Override
     public Enumeration<String> getAttributeNames() {
         this.checkValid();
-        return null;
+        return session.getAttributes().keys();
     }
 
     @Override
     public Object getAttribute(String name) {
         checkValid();
-        return null;
+        return session.get(name);
     }
 
     @Override
     public void setAttribute(String name, Object value) {
         this.checkValid();
+        this.session.put(name, value);
+        cache.setSessionAttribute(session, name);
     }
 
     @Override
     public void removeAttribute(String name) {
         this.checkValid();
+        this.session.remove(name);
+        cache.removeSessionAttribute(session, name);
     }
 
     @Override
     public void invalidate() {
         invalid = true;
-        //TODO delete all attributes of this session
-
+        this.session.getAttributes().clear();
+        cache.deleteSession(getId());
     }
 
     public boolean isNew() {
@@ -138,7 +149,7 @@ public class J2CacheSession implements HttpSession {
     @Override
     public String[] getValueNames() {
         this.checkValid();
-        return null;
+        return Collections.list(session.getAttributes().keys()).stream().toArray(String[]::new);
     }
 
     @Deprecated

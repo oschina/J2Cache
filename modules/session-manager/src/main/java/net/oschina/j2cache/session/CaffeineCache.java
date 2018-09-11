@@ -29,14 +29,13 @@ import java.util.concurrent.TimeUnit;
 public class CaffeineCache {
 
     private Cache<String, Object> cache;
-    private String region ;
-    private long size ;
-    private long expire ;
+    private int size ;
+    private int expire ;
 
-    public CaffeineCache(String region, long size, long expire, CacheExpiredListener listener) {
+    public CaffeineCache(int size, int expire, CacheExpiredListener listener) {
         cache = Caffeine.newBuilder()
                 .maximumSize(size)
-                .expireAfterWrite(expire, TimeUnit.SECONDS)
+                .expireAfterAccess(expire, TimeUnit.SECONDS)
                 .removalListener((k,v, cause) -> {
                     //程序删除的缓存不做通知处理，因为上层已经做了处理
                     if(cause != RemovalCause.EXPLICIT && cause != RemovalCause.REPLACED)
@@ -44,7 +43,6 @@ public class CaffeineCache {
                 })
                 .build();
 
-        this.region = region;
         this.size = size;
         this.expire = expire;
     }
@@ -64,4 +62,11 @@ public class CaffeineCache {
     public void close() {
     }
 
+    public int getSize() {
+        return size;
+    }
+
+    public int getExpire() {
+        return expire;
+    }
 }

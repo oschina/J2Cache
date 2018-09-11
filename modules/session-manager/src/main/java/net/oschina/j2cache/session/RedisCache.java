@@ -15,6 +15,8 @@
  */
 package net.oschina.j2cache.session;
 
+import redis.clients.jedis.BinaryJedisCommands;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -81,12 +83,23 @@ public class RedisCache {
         }
     }
 
-    public void setBytes(String session_id, Map<String,byte[]> bytes) {
+    public void setBytes(String session_id, Map<String,byte[]> bytes, int expireInSeconds) {
         try {
             Map<byte[], byte[]> data = new HashMap<>();
             bytes.forEach((k,v) -> data.put(k.getBytes(), v));
             byte[] regionBytes = getRegionName(session_id).getBytes();
-            client.get().hmset(regionBytes, data);
+            BinaryJedisCommands jedis = client.get();
+            jedis.hmset(regionBytes, data);
+            jedis.expire(regionBytes, expireInSeconds);
+        } finally {
+            client.release();
+        }
+    }
+
+    public boolean exists(String session_id) {
+        try {
+            byte[] regionBytes = getRegionName(session_id).getBytes();
+            return client.get().exists(regionBytes);
         } finally {
             client.release();
         }
@@ -113,16 +126,16 @@ public class RedisCache {
         }
     }
 
-    public long ttl(String session_id, long ttl) {
+    public long ttl(String session_id, int ttl) {
         try {
             byte[] regionBytes = getRegionName(session_id).getBytes();
-            return client.get().expireAt(regionBytes, ttl);
+            return client.get().expire(regionBytes, ttl);
         } finally {
             client.release();
         }
     }
 
-    public Collection<String> keys(String session_id) {
+    public List<String> keys(String session_id) {
         try {
             byte[] regionBytes = getRegionName(session_id).getBytes();
             return client.get().hkeys(regionBytes).stream().map(bs -> new String(bs)).collect(Collectors.toList());

@@ -18,6 +18,8 @@ package net.oschina.j2cache.session;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Properties;
 import java.util.UUID;
 
 /**
@@ -26,9 +28,8 @@ import java.util.UUID;
  */
 public class J2CacheSessionFilter implements Filter {
 
-    private CacheFacade cache;
+    private CacheFacade g_cache;
 
-    private String region;
     private String cookieName;
     private String cookiePath;
     private String cookieDomain;
@@ -36,24 +37,38 @@ public class J2CacheSessionFilter implements Filter {
 
     @Override
     public void init(FilterConfig config) {
-        this.region         = config.getInitParameter("j2cache.region");
         this.cookieName     = config.getInitParameter("cookie.name");
         this.cookieDomain   = config.getInitParameter("cookie.domain");
         this.cookiePath     = config.getInitParameter("cookie.path");
-        this.cookieMaxAge = Integer.parseInt(config.getInitParameter("cookie.maxAge"));
+        this.cookieMaxAge   = Integer.parseInt(config.getInitParameter("session.maxAge"));
 
-        this.cache = new CacheFacade(this.region, 2000, 30, null);
+        Properties redisConf = new Properties();
+        for(String name : Collections.list(config.getInitParameterNames())) {
+            if(name.startsWith("redis.")) {
+                redisConf.setProperty(name.substring(6), config.getInitParameter(name));
+            }
+        }
+
+        int maxSizeInMemory = Integer.parseInt(config.getInitParameter("session.maxSizeInMemory"));
+
+        this.g_cache = new CacheFacade(maxSizeInMemory, this.cookieMaxAge, redisConf);
     }
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest j2cacheRequest = new J2CacheRequestWrapper(req, res);
-        chain.doFilter(j2cacheRequest, res);
+        try {
+            chain.doFilter(j2cacheRequest, res);
+        } finally {
+            J2CacheSession session = (J2CacheSession)j2cacheRequest.getSession(false);
+            if(session != null)
+                g_cache.updateSessionAccessTime(session.getSessionObject());
+        }
     }
 
     @Override
     public void destroy() {
-        cache.close();
+        g_cache.close();
     }
 
 
@@ -62,9 +77,10 @@ public class J2CacheSessionFilter implements Filter {
      * request 封装，用于重新处理 session 的实现
      *
      *************************************************/
-    private class J2CacheRequestWrapper extends HttpServletRequestWrapper {
+    public class J2CacheRequestWrapper extends HttpServletRequestWrapper {
 
         private HttpServletResponse response;
+        private J2CacheSession session;
 
         public J2CacheRequestWrapper(ServletRequest req, ServletResponse res) {
             super((HttpServletRequest)req);
@@ -73,17 +89,26 @@ public class J2CacheSessionFilter implements Filter {
 
         @Override
         public HttpSession getSession(boolean create) {
-            Cookie ssnCookie = getCookie(cookieName);
-            J2CacheSession session = null;
-            if (ssnCookie != null) {
-                String session_id = ssnCookie.getValue();
-                //read session from j2cache
-                session.setNew(false);
-            }
-            else if(create) {
-                String session_id = UUID.randomUUID().toString().replaceAll("-", "");
-                //save session to j2cache
-                //write session to cookie
+            if(session == null){
+                Cookie ssnCookie = getCookie(cookieName);
+
+                if (ssnCookie != null) {
+                    String session_id = ssnCookie.getValue();
+                    SessionObject ssnObject = g_cache.getSession(session_id);
+                    if(ssnObject != null) {
+                        session = new J2CacheSession(getServletContext(), session_id, g_cache);
+                        session.setSessionObject(ssnObject);
+                        session.setNew(false);
+                        g_cache.updateSessionAccessTime(ssnObject);
+                    }
+                }
+
+                if(session == null && create) {
+                    String session_id = UUID.randomUUID().toString().replaceAll("-", "");
+                    session = new J2CacheSession(getServletContext(), session_id, g_cache);
+                    g_cache.saveSession(session.getSessionObject());
+                    setCookie(cookieName, session_id);
+                }
             }
             return session;
         }
@@ -92,6 +117,7 @@ public class J2CacheSessionFilter implements Filter {
         public HttpSession getSession() {
             return this.getSession(true);
         }
+
         /**
          * Get cookie object by cookie name.
          */
@@ -107,13 +133,12 @@ public class J2CacheSessionFilter implements Filter {
         /**
          * @param name
          * @param value
-         * @param maxAgeInSeconds
          */
-        private void setCookie(String name, String value, int maxAgeInSeconds) {
+        private void setCookie(String name, String value) {
             Cookie cookie = new Cookie(name, value);
-            cookie.setMaxAge(maxAgeInSeconds);
+            cookie.setMaxAge(-1);
             cookie.setPath(cookiePath);
-            if (cookieDomain != null) {
+            if (cookieDomain != null && cookieDomain.trim().length() > 0) {
                 cookie.setDomain(cookieDomain);
             }
             cookie.setHttpOnly(true);

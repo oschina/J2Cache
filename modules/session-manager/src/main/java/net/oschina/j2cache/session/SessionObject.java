@@ -15,8 +15,10 @@
  */
 package net.oschina.j2cache.session;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -25,18 +27,36 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SessionObject implements Serializable {
 
+    public static final String KEY_CREATE_AT = "CREATED_AT";
+    public static final String KEY_ACCESS_AT = "ACCESS_AT" ;
+
     private String id;
     private long created_at;
     private long access_at;
+    private int maxInactiveInterval;
     private ConcurrentHashMap<String, Object> attributes = new ConcurrentHashMap<>();
 
     public SessionObject(){}
 
-    public Object get(Object key) {
+    public SessionObject(String session_id, List<String> keys, List<byte[]> datas) throws IOException, ClassNotFoundException {
+        this.id = session_id;
+        for(int i=0;i<keys.size();i++) {
+            String key = keys.get(i);
+            if(KEY_CREATE_AT.equals(key))
+                this.created_at = Long.parseLong(new String(datas.get(i)));
+            else if(KEY_ACCESS_AT.equals(key))
+                this.access_at = Long.parseLong(new String(datas.get(i)));
+            else {
+                attributes.put(key, FSTSerializer.read(datas.get(i)));
+            }
+        }
+    }
+
+    public Object get(String key) {
         return attributes.get(key);
     }
 
-    public boolean containsKey(Object key) {
+    public boolean containsKey(String key) {
         return attributes.containsKey(key);
     }
 
@@ -44,7 +64,7 @@ public class SessionObject implements Serializable {
         return attributes.put(key, value);
     }
 
-    public Object remove(Object key) {
+    public Object remove(String key) {
         return attributes.remove(key);
     }
 
@@ -75,6 +95,14 @@ public class SessionObject implements Serializable {
 
     public void setLastAccess_at(long access_at) {
         this.access_at = access_at;
+    }
+
+    public int getMaxInactiveInterval() {
+        return maxInactiveInterval;
+    }
+
+    public void setMaxInactiveInterval(int maxInactiveInterval) {
+        this.maxInactiveInterval = maxInactiveInterval;
     }
 
     public ConcurrentHashMap<String, Object> getAttributes() {
