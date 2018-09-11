@@ -1,38 +1,90 @@
 
 ## tomcat-session-manager
 
-该模块是为了让 tomcat 支持用 J2Cache 管理 session。
+该模块是为了让 java 的 web 应用支持用 J2Cache 管理 session。
 
 #### 使用方法：
 
-1. 拷贝 tomcat-j2cache-session-mananger-xxxx.jar 到 {tomcat}/lib 目录
-2. 拷贝以下依赖包到 {tomcat}/lib 目录
-   * j2cache-core-2.6.0-release.jar
-   * caffeine-2.6.2.jar
-   * commons-pool2-2.5.0.jar
-   * fastjson-1.2.49.jar
-   * fst-2.57.jar
-   * jackson-core-2.9.5.jar
-   * jedis-2.9.0.jar
-   * objenesis-2.6.jar
-   * slf4j-api-1.7.25.jar
-   * slf4j-simple-1.7.25.jar
-   
-3. 拷贝 j2cache.properties 到 {tomcat}/conf 目录，并进行配置调整
-4. 修复 server.xml 配置文件，增加如下信息： 
+1. 引入 maven 依赖
+    ```xml
+    <dependency>
+      <groupId>net.oschina.j2cache</groupId>  
+      <artifactId>j2cache-session-manager</artifactId>  
+      <version>1.0.0</version>  
+    </dependency>
     ```
-    <Context>
-        ...
-        <Manager       
-                className="net.oschina.j2cache.tomcat.J2CacheSessionManager" 
-                config="j2cache.properties"
-        />
-        ...
-    </Context>
+2. 配置 web.xml
     ```
-5. 启动 tomcat 并检查 catalina.out 日志看是否启动正常
+    <filter>
+        <filter-name>j2cache-session-filter</filter-name>
+        <filter-class>net.oschina.j2cache.session.J2CacheSessionFilter</filter-class>
+        <init-param><!-- 内存中存放会话数 -->
+            <param-name>session.maxSizeInMemory</param-name>
+            <param-value>2000</param-value>
+        </init-param>
+        <init-param><!-- 会话有效期，单位：秒钟 -->
+            <param-name>session.maxAge</param-name>
+            <param-value>1800</param-value>
+        </init-param>
+        <!-- cookie configuration -->
+        <init-param>
+            <param-name>cookie.name</param-name>
+            <param-value>J2CACHE_SESSION_ID</param-value>
+        </init-param>
+        <init-param>
+            <param-name>cookie.path</param-name>
+            <param-value>/</param-value>
+        </init-param>
+        <init-param>
+            <param-name>cookie.domain</param-name>
+            <param-value></param-value>
+        </init-param>
+        <!-- redis configuration -->
+        <init-param>
+            <param-name>redis.mode</param-name>
+            <param-value>single</param-value>
+        </init-param>
+        <init-param>
+            <param-name>redis.hosts</param-name>
+            <param-value>127.0.0.1:6379</param-value>
+        </init-param>
+        <init-param>
+            <param-name>redis.channel</param-name>
+            <param-value>j2cache</param-value>
+        </init-param>
+        <init-param>
+            <param-name>redis.cluster_name</param-name>
+            <param-value>j2cache</param-value>
+        </init-param>
+        <init-param>
+            <param-name>redis.timeout</param-name>
+            <param-value>2000</param-value>
+        </init-param>
+        <init-param>
+            <param-name>redis.password</param-name>
+            <param-value></param-value>
+        </init-param>
+        <init-param>
+            <param-name>redis.database</param-name>
+            <param-value>0</param-value>
+        </init-param>
+        <init-param>
+            <param-name>redis.maxTotal</param-name>
+            <param-value>100</param-value>
+        </init-param>
+        <init-param>
+            <param-name>redis.maxIdle</param-name>
+            <param-value>10</param-value>
+        </init-param>
+        <init-param>
+            <param-name>redis.minIdle</param-name>
+            <param-value>1</param-value>
+        </init-param>
+    </filter>
 
-#### 注意事项
-
-1. 支持 Tomcat 8.0 以及以上版本（低版本未进行测试，可能可用）
-2. 建议使用 hash 模式的 j2cache 的 Redis 配置
+    <filter-mapping>
+        <filter-name>j2cache-session-filter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    ```
+5. 启动应用并检查 catalina.out 日志看是否启动正常
