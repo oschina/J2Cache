@@ -40,11 +40,11 @@
         </init-param>
         <init-param>
             <param-name>redis.channel</param-name>
-            <param-value>j2cache</param-value>
+            <param-value>j2cache-session</param-value>
         </init-param>
         <init-param>
             <param-name>redis.cluster_name</param-name>
-            <param-value>j2cache</param-value>
+            <param-value>j2cache-session</param-value>
         </init-param>
         <init-param>
             <param-name>redis.timeout</param-name>
