@@ -56,14 +56,14 @@ public class J2CacheConfig {
     public final static J2CacheConfig initFromConfig(InputStream stream) throws IOException {
         J2CacheConfig config = new J2CacheConfig();
         config.properties.load(stream);
-        config.serialization = config.properties.getProperty("j2cache.serialization");
-        config.broadcast = config.properties.getProperty("j2cache.broadcast");
-        config.l1CacheName = config.properties.getProperty("j2cache.L1.provider_class");
-        config.l2CacheName = config.properties.getProperty("j2cache.L2.provider_class");
-        config.syncTtlToRedis = !"false".equalsIgnoreCase(config.properties.getProperty("j2cache.sync_ttl_to_redis"));
-        config.defaultCacheNullObject = "true".equalsIgnoreCase(config.properties.getProperty("j2cache.default_cache_null_object"));
+        config.serialization = trim(config.properties.getProperty("j2cache.serialization"));
+        config.broadcast = trim(config.properties.getProperty("j2cache.broadcast"));
+        config.l1CacheName = trim(config.properties.getProperty("j2cache.L1.provider_class"));
+        config.l2CacheName = trim(config.properties.getProperty("j2cache.L2.provider_class"));
+        config.syncTtlToRedis = !"false".equalsIgnoreCase(trim(config.properties.getProperty("j2cache.sync_ttl_to_redis")));
+        config.defaultCacheNullObject = "true".equalsIgnoreCase(trim(config.properties.getProperty("j2cache.default_cache_null_object")));
 
-        String l2_config_section = config.properties.getProperty("j2cache.L2.config_section");
+        String l2_config_section = trim(config.properties.getProperty("j2cache.L2.config_section"));
         if (l2_config_section == null || l2_config_section.trim().equals(""))
             l2_config_section = config.l2CacheName;
 
@@ -84,7 +84,7 @@ public class J2CacheConfig {
         properties.forEach((k,v) -> {
             String key = (String)k;
             if(key.startsWith(prefix))
-                props.setProperty(key.substring(prefix.length()), (String)v);
+                props.setProperty(key.substring(prefix.length()), trim((String)v));
         });
         return props;
     }
@@ -187,5 +187,9 @@ public class J2CacheConfig {
 
     public void setL2CacheProperties(Properties l2CacheProperties) {
         this.l2CacheProperties = l2CacheProperties;
+    }
+
+    private static String trim(String str) {
+        return (str != null) ? str.trim() : null;
     }
 }
