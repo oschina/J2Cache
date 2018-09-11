@@ -61,7 +61,7 @@ public class J2CacheSessionFilter implements Filter {
             chain.doFilter(j2cacheRequest, res);
         } finally {
             J2CacheSession session = (J2CacheSession)j2cacheRequest.getSession(false);
-            if(session != null)
+            if(session != null && !session.isNew())
                 g_cache.updateSessionAccessTime(session.getSessionObject());
         }
     }
@@ -99,7 +99,6 @@ public class J2CacheSessionFilter implements Filter {
                         session = new J2CacheSession(getServletContext(), session_id, g_cache);
                         session.setSessionObject(ssnObject);
                         session.setNew(false);
-                        g_cache.updateSessionAccessTime(ssnObject);
                     }
                 }
 
