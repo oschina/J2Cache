@@ -83,6 +83,7 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
     public void start(Properties props) {
         this.namespace = props.getProperty("namespace");
         this.storage = props.getProperty("storage", "generic");
+        this.channel = props.getProperty("channel", "j2cache");
 
         String scheme = props.getProperty("scheme", "redis");
         String hosts = props.getProperty("hosts", "127.0.0.1:6379");
@@ -103,9 +104,9 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
     @Override
     public void connect(Properties props) {
         long ct = System.currentTimeMillis();
-        this.publish(Command.join());
 
         this.channel = props.getProperty("channel", "j2cache");
+        this.publish(Command.join());
 
         this.pubsub = redisClient.connectPubSub();
         this.pubsub.addListener(this);
