@@ -60,6 +60,7 @@ public class J2CacheSessionFilter implements Filter {
         try {
             chain.doFilter(j2cacheRequest, res);
         } finally {
+            //更新 session 的有效时间
             J2CacheSession session = (J2CacheSession)j2cacheRequest.getSession(false);
             if(session != null && !session.isNew())
                 g_cache.updateSessionAccessTime(session.getSessionObject());
@@ -73,9 +74,7 @@ public class J2CacheSessionFilter implements Filter {
 
 
     /*************************************************
-     *
      * request 封装，用于重新处理 session 的实现
-     *
      *************************************************/
     public class J2CacheRequestWrapper extends HttpServletRequestWrapper {
 

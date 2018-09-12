@@ -10,5 +10,5 @@ NAME: <%=session.getAttribute("name")%>
 
 
 <%
-//session.setAttribute("name","Winter Lau");
+session.setAttribute("name","Winter Lau");
 %>

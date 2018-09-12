@@ -87,4 +87,4 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
     ```
-5. 启动应用并检查 catalina.out 日志看是否启动正常
+3. 启动应用并检查日志看是否启动正常
