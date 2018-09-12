@@ -71,7 +71,7 @@ public class RedisGenericCache implements Level2Cache {
      * @return
      */
     private String _regionName(String region) {
-        if (namespace != null && !namespace.isEmpty())
+        if (namespace != null && !namespace.trim().isEmpty())
             region = namespace + ":" + region;
         return region;
     }
