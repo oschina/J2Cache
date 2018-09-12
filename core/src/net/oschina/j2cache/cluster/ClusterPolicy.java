@@ -40,7 +40,7 @@ public interface ClusterPolicy {
 
     /**
      * 发送消息
-     * @param cmd
+     * @param cmd command to send
      */
     void publish(Command cmd);
 
@@ -85,7 +85,7 @@ public interface ClusterPolicy {
 
     /**
      * 处理缓存事件逻辑
-     * @param cmd
+     * @param cmd the received command
      */
     default void handleCommand(Command cmd) {
         try {

@@ -17,6 +17,7 @@ package net.oschina.j2cache;
 
 import net.oschina.j2cache.caffeine.CaffeineProvider;
 import net.oschina.j2cache.ehcache.EhCacheProvider3;
+import net.oschina.j2cache.lettuce.LettuceCacheProvider;
 import net.oschina.j2cache.memcached.XmemcachedCacheProvider;
 import net.oschina.j2cache.redis.ReadonlyRedisCacheProvider;
 import org.slf4j.Logger;
@@ -81,6 +82,8 @@ public class CacheProviderHolder {
 			return new ReadonlyRedisCacheProvider();
 		if("memcached".equalsIgnoreCase(cacheIdent))
 			return new XmemcachedCacheProvider();
+		if("lettuce".equalsIgnoreCase(cacheIdent))
+			return new LettuceCacheProvider();
 		if("none".equalsIgnoreCase(cacheIdent))
 			return new NullCacheProvider();
 		try {

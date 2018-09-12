@@ -16,6 +16,7 @@
 package net.oschina.j2cache.cluster;
 
 import net.oschina.j2cache.CacheException;
+import net.oschina.j2cache.lettuce.LettuceCacheProvider;
 import net.oschina.j2cache.redis.RedisPubSubClusterPolicy;
 
 import java.util.Properties;
@@ -44,6 +45,8 @@ public class ClusterPolicyFactory {
             policy = ClusterPolicyFactory.rabbitmq(props);
         else if ("rocketmq".equalsIgnoreCase(broadcast))
             policy = ClusterPolicyFactory.rocketmq(props);
+        else if ("lettuce".equalsIgnoreCase(broadcast))
+            policy = ClusterPolicyFactory.lettuce(props);
         else if ("none".equalsIgnoreCase(broadcast))
             policy = new NoneClusterPolicy();
         else
@@ -88,6 +91,12 @@ public class ClusterPolicyFactory {
 
     private final static ClusterPolicy rocketmq(Properties props) {
         RocketMQClusterPolicy policy = new RocketMQClusterPolicy(props);
+        policy.connect(props);
+        return policy;
+    }
+
+    private final static ClusterPolicy lettuce(Properties props) {
+        LettuceCacheProvider policy = new LettuceCacheProvider();
         policy.connect(props);
         return policy;
     }
