@@ -55,7 +55,7 @@ public class Command {
 
 	/**
 	 * 返回本地的专有标识
-	 * @return
+	 * @return 节点标识
 	 */
 	public static final int LocalID() {
 		return SRC_ID;
