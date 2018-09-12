@@ -46,9 +46,10 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
 
     private static RedisClient redisClient;
     private StatefulRedisPubSubConnection<String, String> pubsub;
+    private String storage;
+
     private String channel;
     private String namespace;
-    private String storage;
 
     @Override
     public String name() {
@@ -82,7 +83,6 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
     public void start(Properties props) {
         this.namespace = props.getProperty("namespace");
         this.storage = props.getProperty("storage", "generic");
-        this.channel = props.getProperty("channel", "j2cache");
 
         String scheme = props.getProperty("scheme", "redis");
         String hosts = props.getProperty("hosts", "127.0.0.1:6379");
@@ -92,13 +92,12 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
 
         String redis_url = String.format("%s://%s@%s/%d#%s", scheme, password, hosts, database, sentinelMasterId);
 
-        this.redisClient = RedisClient.create(redis_url);
+        redisClient = RedisClient.create(redis_url);
     }
 
     @Override
     public void stop() {
-        this.pubsub.close();
-        this.redisClient.shutdown();
+        redisClient.shutdown();
     }
 
     @Override
@@ -106,12 +105,14 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
         long ct = System.currentTimeMillis();
         this.publish(Command.join());
 
+        this.channel = props.getProperty("channel", "j2cache");
+
         this.pubsub = redisClient.connectPubSub();
         this.pubsub.addListener(this);
         RedisPubSubAsyncCommands<String, String> async = this.pubsub.async();
         async.subscribe(this.channel);
 
-        log.info("Connected to redis channel:" + channel + ", time " + (System.currentTimeMillis()-ct) + " ms.");
+        log.info("Connected to redis channel:" + this.channel + ", time " + (System.currentTimeMillis()-ct) + " ms.");
     }
 
     @Override
@@ -130,6 +131,11 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
 
     @Override
     public void disconnect() {
-        super.unsubscribed(this.channel, 1);
+        this.publish(Command.quit());
+        try {
+            super.unsubscribed(this.channel, 1);
+        } finally {
+            this.pubsub.close();
+        }
     }
 }
