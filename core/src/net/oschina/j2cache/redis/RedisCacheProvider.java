@@ -39,7 +39,6 @@ public class RedisCacheProvider implements CacheProvider {
     private RedisClient redisClient;
     private String namespace;
     private String storage;
-    protected ConcurrentHashMap<String, Cache> caches = new ConcurrentHashMap<>();
 
     @Override
     public String name() {
@@ -89,7 +88,6 @@ public class RedisCacheProvider implements CacheProvider {
 
     @Override
     public void stop() {
-        caches.clear();
         try {
             redisClient.close();
         } catch (IOException e) {
@@ -99,23 +97,10 @@ public class RedisCacheProvider implements CacheProvider {
 
     @Override
     public Cache buildCache(String region, CacheExpiredListener listener) {
-        Cache cache = caches.get(region);
-        if (cache != null)
-            return cache;
-
-        synchronized(RedisCacheProvider.class) {
-            cache = caches.get(region);
-            if(cache == null) {
-                if("hash".equalsIgnoreCase(this.storage))
-                    cache = new RedisHashCache(this.namespace, region, redisClient);
-                else
-                    cache = new RedisGenericCache(this.namespace, region, redisClient);
-
-                caches.put(region, cache);
-            }
-        }
-
-        return cache;
+        if("hash".equalsIgnoreCase(this.storage))
+            return new RedisHashCache(this.namespace, region, redisClient);
+        else
+            return new RedisGenericCache(this.namespace, region, redisClient);
     }
 
     @Override
