@@ -26,6 +26,7 @@ import net.oschina.j2cache.cluster.ClusterPolicy;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *  使用 Lettuce 进行 Redis 的操作
@@ -51,6 +52,8 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
     private String channel;
     private String namespace;
 
+    private static final ConcurrentHashMap<String, Level2Cache> regions = new ConcurrentHashMap();
+
     @Override
     public String name() {
         return "lettuce";
@@ -63,10 +66,7 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
 
     @Override
     public Cache buildCache(String region, CacheExpiredListener listener) {
-        if("hash".equalsIgnoreCase(this.storage))
-            return new LettuceHashCache(this.namespace, region, redisClient);
-        else
-            return new LettuceGenericCache(this.namespace, region, redisClient);
+        return regions.computeIfAbsent(region, v -> "hash".equalsIgnoreCase("hash")?new LettuceHashCache(this.namespace, region, redisClient):new LettuceGenericCache(this.namespace, region, redisClient));
     }
 
     @Override
@@ -98,6 +98,7 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
 
     @Override
     public void stop() {
+        regions.clear();
         redisClient.shutdown();
     }
 

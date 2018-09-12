@@ -40,6 +40,8 @@ public class RedisCacheProvider implements CacheProvider {
     private String namespace;
     private String storage;
 
+    private static final ConcurrentHashMap<String, Level2Cache> regions = new ConcurrentHashMap();
+
     @Override
     public String name() {
         return "redis";
@@ -97,10 +99,7 @@ public class RedisCacheProvider implements CacheProvider {
 
     @Override
     public Cache buildCache(String region, CacheExpiredListener listener) {
-        if("hash".equalsIgnoreCase(this.storage))
-            return new RedisHashCache(this.namespace, region, redisClient);
-        else
-            return new RedisGenericCache(this.namespace, region, redisClient);
+        return regions.computeIfAbsent(region, v -> "hash".equalsIgnoreCase(this.storage)?new RedisHashCache(this.namespace, region, redisClient):new RedisGenericCache(this.namespace, region, redisClient));
     }
 
     @Override

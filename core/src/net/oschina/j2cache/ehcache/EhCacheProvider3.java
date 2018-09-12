@@ -72,50 +72,31 @@ public class EhCacheProvider3 implements CacheProvider {
 
     @Override
     public EhCache3 buildCache(String region, CacheExpiredListener listener) {
-        EhCache3 ehcache = caches.get(region);
-        if(ehcache == null){
-            synchronized (_g_keyLocks.computeIfAbsent(region, v -> new Object())) {
-                ehcache = caches.get(region);
-                if(ehcache == null){
-                    org.ehcache.Cache cache = manager.getCache(region, String.class, Serializable.class);
-                    if (cache == null) {
-                        try {
-                            CacheConfiguration defaultCacheConfig = manager.getRuntimeConfiguration().getCacheConfigurations().get(DEFAULT_TPL);
-                            CacheConfiguration<String, Serializable> cacheCfg = CacheConfigurationBuilder.newCacheConfigurationBuilder(defaultCacheConfig).build();
-                            cache = manager.createCache(region, cacheCfg);
-                            log.info("Could not find configuration [" + region + "]; using defaults.");
-                        } finally {
-                            _g_keyLocks.remove(region);
-                        }
-                    }
-                    ehcache = new EhCache3(region, cache, listener);
-                    caches.put(region, ehcache);
-                }
+        return caches.computeIfAbsent(region, v -> {
+            org.ehcache.Cache cache = manager.getCache(region, String.class, Serializable.class);
+            if (cache == null) {
+                CacheConfiguration defaultCacheConfig = manager.getRuntimeConfiguration().getCacheConfigurations().get(DEFAULT_TPL);
+                CacheConfiguration<String, Serializable> cacheCfg = CacheConfigurationBuilder.newCacheConfigurationBuilder(defaultCacheConfig).build();
+                cache = manager.createCache(region, cacheCfg);
+                log.info("Could not find configuration [" + region + "]; using defaults.");
             }
-        }
-        return ehcache;
+            return new EhCache3(region, cache, listener);
+        });
     }
 
     @Override
     public EhCache3 buildCache(String region, long timeToLiveInSeconds, CacheExpiredListener listener) {
-        EhCache3 ehcache = caches.get(region);
-        if (ehcache == null) {
-            synchronized (EhCacheProvider3.class) {
-                ehcache = caches.get(region);
-                if(ehcache == null) {
-                    //配置缓存
-                    CacheConfiguration<String, Object> conf = CacheConfigurationBuilder.newCacheConfigurationBuilder(
-                            String.class, Object.class, ResourcePoolsBuilder.heap(defaultHeapSize))
-                            .withExpiry(Expirations.timeToLiveExpiration(Duration.of(timeToLiveInSeconds, TimeUnit.SECONDS)))
-                            .build();
-                    org.ehcache.Cache cache = manager.createCache(region, conf);
-                    ehcache = new EhCache3(region, cache, listener);
-                    caches.put(region, ehcache);
-                    log.info(String.format("Started Ehcache region [%s] with TTL: %d", region, timeToLiveInSeconds));
-                }
-            }
-        }
-        else if (ehcache.ttl() != timeToLiveInSeconds)
+        EhCache3 ehcache = caches.computeIfAbsent(region, v -> {
+            CacheConfiguration<String, Object> conf = CacheConfigurationBuilder.newCacheConfigurationBuilder(
+                    String.class, Object.class, ResourcePoolsBuilder.heap(defaultHeapSize))
+                    .withExpiry(Expirations.timeToLiveExpiration(Duration.of(timeToLiveInSeconds, TimeUnit.SECONDS)))
+                    .build();
+            org.ehcache.Cache cache = manager.createCache(region, conf);
+            log.info(String.format("Started Ehcache region [%s] with TTL: %d", region, timeToLiveInSeconds));
+            return new EhCache3(region, cache, listener);
+        });
+
+        if (ehcache.ttl() != timeToLiveInSeconds)
             throw new IllegalArgumentException(String.format("Region [%s] TTL %d not match with %d", region, ehcache.ttl(), timeToLiveInSeconds));
 
         return ehcache;

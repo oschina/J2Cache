@@ -73,57 +73,38 @@ public class EhCacheProvider implements CacheProvider {
      */
     @Override
     public EhCache buildCache(String regionName, CacheExpiredListener listener) {
-    	EhCache ehcache = caches.get(regionName);
-    	if(ehcache == null){
-			synchronized (_g_keyLocks.computeIfAbsent(regionName, v -> new Object())) {
-				ehcache = caches.get(regionName);
-				if(ehcache == null){
-					try {
-						net.sf.ehcache.Cache cache = manager.getCache(regionName);
-						if (cache == null) {
-							log.warn("Could not find configuration [" + regionName + "]; using defaults.");
-							manager.addCache(regionName);
-							cache = manager.getCache(regionName);
-							log.info("started Ehcache region: " + regionName);
-						}
-
-						ehcache = new EhCache(cache, listener);
-						caches.put(regionName, ehcache);
-					} finally {
-						_g_keyLocks.remove(regionName);
-					}
-				}
+    	return caches.computeIfAbsent(regionName, v -> {
+			net.sf.ehcache.Cache cache = manager.getCache(regionName);
+			if (cache == null) {
+				log.warn("Could not find configuration [" + regionName + "]; using defaults.");
+				manager.addCache(regionName);
+				cache = manager.getCache(regionName);
+				log.info("started Ehcache region: " + regionName);
 			}
-    	}
-        return ehcache;
+			return new EhCache(cache, listener);
+		});
     }
 
 	@Override
 	public EhCache buildCache(String region, long timeToLiveInSeconds, CacheExpiredListener listener) {
-		EhCache ehcache = caches.get(region);
-		if (ehcache == null) {
-			synchronized (EhCacheProvider.class) {
-				ehcache = caches.get(region);
-				if(ehcache == null) {
-					//配置缓存
-					CacheConfiguration cfg = manager.getConfiguration().getDefaultCacheConfiguration().clone();
-					cfg.setName(region);
-					if(timeToLiveInSeconds > 0) {
-						cfg.setTimeToLiveSeconds(timeToLiveInSeconds);
-						cfg.setTimeToIdleSeconds(timeToLiveInSeconds);
-					}
-
-					net.sf.ehcache.Cache cache = new net.sf.ehcache.Cache(cfg);
-					manager.addCache(cache);
-
-					ehcache = new EhCache(cache, listener);
-					caches.put(region, ehcache);
-
-					log.info(String.format("Started Ehcache region [%s] with TTL: %d", region, timeToLiveInSeconds));
-				}
+		EhCache ehcache = caches.computeIfAbsent(region, v -> {
+			//配置缓存
+			CacheConfiguration cfg = manager.getConfiguration().getDefaultCacheConfiguration().clone();
+			cfg.setName(region);
+			if(timeToLiveInSeconds > 0) {
+				cfg.setTimeToLiveSeconds(timeToLiveInSeconds);
+				cfg.setTimeToIdleSeconds(timeToLiveInSeconds);
 			}
-		}
-		else if (ehcache.ttl() != timeToLiveInSeconds)
+
+			net.sf.ehcache.Cache cache = new net.sf.ehcache.Cache(cfg);
+			manager.addCache(cache);
+
+			log.info(String.format("Started Ehcache region [%s] with TTL: %d", region, timeToLiveInSeconds));
+
+			return new EhCache(cache, listener);
+		});
+
+		if (ehcache.ttl() != timeToLiveInSeconds)
 			throw new IllegalArgumentException(String.format("Region [%s] TTL %d not match with %d", region, ehcache.ttl(), timeToLiveInSeconds));
 
 		return ehcache;

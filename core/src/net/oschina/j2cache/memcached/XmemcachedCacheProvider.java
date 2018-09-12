@@ -41,6 +41,8 @@ public class XmemcachedCacheProvider implements CacheProvider {
     private static final Logger log = LoggerFactory.getLogger(XmemcachedCacheProvider.class);
     private MemcachedClient client ;
 
+    private static final ConcurrentHashMap<String, Level2Cache> regions = new ConcurrentHashMap();
+
     @Override
     public String name() {
         return "memcached";
@@ -88,7 +90,7 @@ public class XmemcachedCacheProvider implements CacheProvider {
 
     @Override
     public Cache buildCache(String region, CacheExpiredListener listener) {
-        return new MemCache(region, client);
+        return regions.computeIfAbsent(region, v -> new MemCache(region, client));
     }
 
     @Override
@@ -104,6 +106,7 @@ public class XmemcachedCacheProvider implements CacheProvider {
     @Override
     public void stop() {
         try {
+            this.regions().clear();
             this.client.shutdown();
         } catch (IOException e) {
             log.error("Failed to disconnect to memcached", e);
