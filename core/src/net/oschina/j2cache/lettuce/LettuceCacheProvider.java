@@ -132,8 +132,8 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
 
     @Override
     public void disconnect() {
-        this.publish(Command.quit());
         try {
+            this.publish(Command.quit());
             super.unsubscribed(this.channel, 1);
         } finally {
             this.pubsub.close();
