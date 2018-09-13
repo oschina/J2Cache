@@ -62,63 +62,39 @@ public class CaffeineProvider implements CacheProvider {
 
     @Override
     public Cache buildCache(String region, CacheExpiredListener listener) {
-        CaffeineCache cache = caches.get(region);
-        if(cache == null) {
-            synchronized (_g_keyLocks.computeIfAbsent(region, v -> new Object())) {
-                cache = caches.get(region);
-                if (cache != null)
-                    return cache;
-                try {
-                    CacheConfig config = cacheConfigs.get(region);
-                    if (config == null) {
-                        config = cacheConfigs.get(DEFAULT_REGION);
-                        if (config == null)
-                            throw new CacheException(String.format("Undefined caffeine cache region name = %s", region));
+        return caches.computeIfAbsent(region, v -> {
+            CacheConfig config = cacheConfigs.get(region);
+            if (config == null) {
+                config = cacheConfigs.get(DEFAULT_REGION);
+                if (config == null)
+                    throw new CacheException(String.format("Undefined [default] caffeine cache"));
 
-                        log.warn(String.format("Caffeine cache [%s] not defined, using default.", region));
-                    }
-
-                    cache = buildCache(region, config.size, config.expire, listener);
-                    caches.put(region, cache);
-                } finally {
-                    _g_keyLocks.remove(region);
-                }
+                log.warn(String.format("Caffeine cache [%s] not defined, using default.", region));
             }
-
-        }
-        return cache;
+            return newCaffeineCache(region, config.size, config.expire, listener);
+        });
     }
 
     @Override
     public Cache buildCache(String region, long timeToLiveInSeconds, CacheExpiredListener listener) {
-        CacheConfig config = cacheConfigs.get(region);
-
-        if(config != null) { //已有配置，不再创建新的
-            if(config.expire == timeToLiveInSeconds)
-                return buildCache(region, listener);
-            else
+        CaffeineCache cache = caches.computeIfAbsent(region, v -> {
+            CacheConfig config = cacheConfigs.get(region);
+            if(config != null && config.expire != timeToLiveInSeconds)
                 throw new IllegalArgumentException(String.format("Region [%s] TTL %d not match with %d", region, config.expire, timeToLiveInSeconds));
-        }
 
-        CaffeineCache cache = caches.get(region);
-        if(cache != null) {
-            if(cache.ttl() != timeToLiveInSeconds)
-                throw new IllegalArgumentException(String.format("Region [%s] TTL %d not match with %d", region, cache.ttl(), timeToLiveInSeconds));
-        }
-        else{
-            synchronized (CaffeineProvider.class) {
-                cache = caches.get(region);
-                if(cache == null) {
-                    config = cacheConfigs.get(DEFAULT_REGION);
-                    if(config == null)
-                        throw new CacheException(String.format("Undefined caffeine cache region name = %s", region));
-
-                    cache = buildCache(region, config.size, timeToLiveInSeconds, listener);
-                    caches.put(region, cache);
-                    log.info(String.format("Started caffeine region [%s] with TTL: %d", region, timeToLiveInSeconds));
-                }
+            if(config == null) {
+                config = cacheConfigs.get(DEFAULT_REGION);
+                if (config == null)
+                    throw new CacheException(String.format("Undefined caffeine cache region name = %s", region));
             }
-        }
+
+            log.info(String.format("Started caffeine region [%s] with TTL: %d", region, timeToLiveInSeconds));
+            return newCaffeineCache(region, config.size, timeToLiveInSeconds, listener);
+        });
+
+        if(cache != null && cache.ttl() != timeToLiveInSeconds)
+            throw new IllegalArgumentException(String.format("Region [%s] TTL %d not match with %d", region, cache.ttl(), timeToLiveInSeconds));
+
         return cache;
     }
 
@@ -136,7 +112,7 @@ public class CaffeineProvider implements CacheProvider {
      * @param listener  j2cache cache listener
      * @return CaffeineCache
      */
-    private CaffeineCache buildCache(String region, long size, long expire, CacheExpiredListener listener) {
+    private CaffeineCache newCaffeineCache(String region, long size, long expire, CacheExpiredListener listener) {
         com.github.benmanes.caffeine.cache.Cache<String, Object> loadingCache = Caffeine.newBuilder()
                 .maximumSize(size)
                 .expireAfterWrite(expire, TimeUnit.SECONDS)

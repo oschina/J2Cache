@@ -75,6 +75,7 @@ public class CacheFacade extends JedisPubSub implements Closeable, AutoCloseable
 
         Thread subscribeThread = new Thread(()-> {
             //当 Redis 重启会导致订阅线程断开连接，需要进行重连
+            int tryCount = 0;
             while(true) {
                 try {
                     Jedis jedis = (Jedis)redisClient.get();
@@ -82,6 +83,12 @@ public class CacheFacade extends JedisPubSub implements Closeable, AutoCloseable
                     log.info("Disconnect to redis channel: " + pubsub_channel);
                     break;
                 } catch (JedisConnectionException e) {
+                    if (tryCount++ < 3) {
+                        // 失败先快速释放再重连
+                        redisClient.release();
+                        continue;
+                    }
+                    tryCount = 0;
                     log.error("Failed connect to redis, reconnect it.", e);
                     try {
                         Thread.sleep(1000);

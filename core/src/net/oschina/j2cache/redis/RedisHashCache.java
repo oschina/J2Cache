@@ -40,7 +40,7 @@ public class RedisHashCache implements Level2Cache {
      * @param client 缓存客户端接口
      */
     public RedisHashCache(String namespace, String region, RedisClient client) {
-        if (region == null || region.isEmpty())
+        if (region == null || region.trim().isEmpty())
             region = "_"; // 缺省region
 
         this.client = client;

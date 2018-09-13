@@ -75,8 +75,8 @@ public class J2CacheConfig {
 
     /**
      * read sub properties by prefix
-     * @param i_prefix
-     * @return
+     * @param i_prefix  prefix of config
+     * @return properties without prefix
      */
     public Properties getSubProperties(String i_prefix) {
         Properties props = new Properties();
