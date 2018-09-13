@@ -218,8 +218,12 @@ public class CacheFacade extends JedisPubSub implements Closeable, AutoCloseable
             put(SessionObject.KEY_CREATE_AT, String.valueOf(session.getCreated_at()).getBytes());
             put(SessionObject.KEY_ACCESS_AT, String.valueOf(session.getLastAccess_at()).getBytes());
             session.getAttributes().entrySet().forEach((e)-> {
-                if(!discardNonSerializable || e.getValue() instanceof Serializable)
+                try {
                     put(e.getKey(), FSTSerializer.write(e.getValue()));
+                } catch (RuntimeException excp) {
+                    if(!discardNonSerializable)
+                        throw excp;
+                }
             });
         }}, cache1.getExpire());
     }
@@ -242,9 +246,12 @@ public class CacheFacade extends JedisPubSub implements Closeable, AutoCloseable
     public void setSessionAttribute(SessionObject session, String key) {
         try {
             cache1.put(session.getId(), session);
-            Object value = session.get(key);
-            if(!discardNonSerializable || value instanceof Serializable)
+            try {
                 cache2.setBytes(session.getId(), key, FSTSerializer.write(session.get(key)));
+            } catch (RuntimeException e) {
+                if(!this.discardNonSerializable)
+                    throw e;
+            }
         } finally {
             this.publish(new Command(Command.OPT_DELETE_SESSION, session.getId(), null));
         }
