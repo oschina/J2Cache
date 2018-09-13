@@ -28,13 +28,16 @@ public class SpringJ2CacheConfigUtil {
 				c.getSource().forEach((k,v) -> {
 					String key = k;
 					if (key.startsWith(config.getBroadcast() + ".")) {
-						config.getBroadcastProperties().setProperty(key.substring((config.getBroadcast() + ".").length()), (String) v);
+						config.getBroadcastProperties().setProperty(key.substring((config.getBroadcast() + ".").length()),
+								environment.getProperty(key));
 					}	
 					if (key.startsWith(config.getL1CacheName() + ".")) {
-						config.getL1CacheProperties().setProperty(key.substring((config.getL1CacheName() + ".").length()), (String) v);
+						config.getL1CacheProperties().setProperty(key.substring((config.getL1CacheName() + ".").length()),
+								environment.getProperty(key));
 					}
 					if (key.startsWith(l2_section + ".")) {
-						config.getL2CacheProperties().setProperty(key.substring((l2_section + ".").length()), (String) v);
+						config.getL2CacheProperties().setProperty(key.substring((l2_section + ".").length()),
+								environment.getProperty(key));
 					}
 				});
 			}
