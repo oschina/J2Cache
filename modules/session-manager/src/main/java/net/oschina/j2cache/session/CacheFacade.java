@@ -24,6 +24,7 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +47,11 @@ public class CacheFacade extends JedisPubSub implements Closeable, AutoCloseable
     private RedisClient redisClient;
     private String pubsub_channel;
 
-    public CacheFacade(int maxSizeInMemory, int maxAge, Properties redisConf) {
+    private boolean discardNonSerializable;
+
+    public CacheFacade(int maxSizeInMemory, int maxAge, Properties redisConf, boolean discardNonSerializable) {
+
+        this.discardNonSerializable = discardNonSerializable;
         this.cache1 = new CaffeineCache(maxSizeInMemory, maxAge, this);
 
         JedisPoolConfig poolConfig = RedisUtils.newPoolConfig(redisConf, null);
@@ -212,9 +217,10 @@ public class CacheFacade extends JedisPubSub implements Closeable, AutoCloseable
         cache2.setBytes(session.getId(), new HashMap<String, byte[]>() {{
             put(SessionObject.KEY_CREATE_AT, String.valueOf(session.getCreated_at()).getBytes());
             put(SessionObject.KEY_ACCESS_AT, String.valueOf(session.getLastAccess_at()).getBytes());
-            session.getAttributes().entrySet().forEach((e)->
-                put(e.getKey(), FSTSerializer.write(e.getValue()))
-            );
+            session.getAttributes().entrySet().forEach((e)-> {
+                if(!discardNonSerializable || e.getValue() instanceof Serializable)
+                    put(e.getKey(), FSTSerializer.write(e.getValue()));
+            });
         }}, cache1.getExpire());
     }
 
@@ -236,7 +242,9 @@ public class CacheFacade extends JedisPubSub implements Closeable, AutoCloseable
     public void setSessionAttribute(SessionObject session, String key) {
         try {
             cache1.put(session.getId(), session);
-            cache2.setBytes(session.getId(), key, FSTSerializer.write(session.get(key)));
+            Object value = session.get(key);
+            if(!discardNonSerializable || value instanceof Serializable)
+                cache2.setBytes(session.getId(), key, FSTSerializer.write(session.get(key)));
         } finally {
             this.publish(new Command(Command.OPT_DELETE_SESSION, session.getId(), null));
         }

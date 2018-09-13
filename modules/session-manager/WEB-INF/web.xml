@@ -16,6 +16,10 @@
             <param-name>session.maxAge</param-name>
             <param-value>1800</param-value>
         </init-param>
+        <init-param><!-- 是否废弃非序列化对象到 Redis 而不是抛出异常 -->
+            <param-name>session.discardNonSerializable</param-name>
+            <param-value>false</param-value>
+        </init-param>
         <!-- cookie configuration -->
         <init-param>
             <param-name>cookie.name</param-name>

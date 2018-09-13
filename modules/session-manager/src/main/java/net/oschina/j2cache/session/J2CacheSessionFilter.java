@@ -35,12 +35,15 @@ public class J2CacheSessionFilter implements Filter {
     private String cookieDomain;
     private int cookieMaxAge;
 
+    private boolean discardNonSerializable;
+
     @Override
     public void init(FilterConfig config) {
         this.cookieName     = config.getInitParameter("cookie.name");
         this.cookieDomain   = config.getInitParameter("cookie.domain");
         this.cookiePath     = config.getInitParameter("cookie.path");
         this.cookieMaxAge   = Integer.parseInt(config.getInitParameter("session.maxAge"));
+        this.discardNonSerializable = "true".equalsIgnoreCase(config.getInitParameter("session.discardNonSerializable"));
 
         Properties redisConf = new Properties();
         for(String name : Collections.list(config.getInitParameterNames())) {
@@ -51,7 +54,7 @@ public class J2CacheSessionFilter implements Filter {
 
         int maxSizeInMemory = Integer.parseInt(config.getInitParameter("session.maxSizeInMemory"));
 
-        this.g_cache = new CacheFacade(maxSizeInMemory, this.cookieMaxAge, redisConf);
+        this.g_cache = new CacheFacade(maxSizeInMemory, this.cookieMaxAge, redisConf, this.discardNonSerializable);
     }
 
     @Override
