@@ -10,6 +10,8 @@ import org.springframework.util.Assert;
 import com.test.bean.TestBean;
 import com.test.service.TestService;
 
+import net.oschina.j2cache.CacheChannel;
+import net.oschina.j2cache.CacheObject;
 import net.oschina.j2cache.autoconfigure.J2CacheAutoConfiguration;
 import net.oschina.j2cache.autoconfigure.J2CacheSpringCacheAutoConfiguration;
 import net.oschina.j2cache.autoconfigure.J2CacheSpringRedisAutoConfiguration;
@@ -18,11 +20,14 @@ import net.oschina.j2cache.autoconfigure.J2CacheSpringRedisAutoConfiguration;
 @SpringBootTest(classes = { TestService.class, J2CacheAutoConfiguration.class,
 		J2CacheSpringCacheAutoConfiguration.class, J2CacheSpringRedisAutoConfiguration.class }, properties = {
 				"j2cache.config-location=classpath:/com/test/j2cache-test.properties", "spring.cache.type=GENERIC",
-				"j2cache.open-spring-cache=true", "j2cache.j2CacheConfig.serialization=json" })
+				"j2cache.open-spring-cache=true", "j2cache.j2CacheConfig.serialization=json","j2cache.redis-client=jedis"})
 public class ApplicationTests {
 
 	@Autowired
 	private TestService testService;
+	
+	@Autowired
+	private CacheChannel cacheChannel;
 
 	@Test
 	public void testCache() {
@@ -51,5 +56,12 @@ public class ApplicationTests {
 		TestBean b = testService.testBean();
 		Integer a = b.getNum();
 		Assert.isTrue(a == 1, "对象缓存未生效！");
+	}
+	
+	@Test
+	public void test() {
+		cacheChannel.set("test", "123", "321");
+		CacheObject a = cacheChannel.get("test", "123");
+		Assert.isTrue(a.getValue().equals("321"), "失败！");
 	}
 }
