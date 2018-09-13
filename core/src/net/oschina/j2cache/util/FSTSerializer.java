@@ -15,7 +15,6 @@
  */
 package net.oschina.j2cache.util;
 
-import com.alibaba.fastjson.JSONObject;
 import org.nustaq.serialization.FSTConfiguration;
 
 /**
@@ -45,12 +44,6 @@ public class FSTSerializer implements Serializer {
 	@Override
 	public Object deserialize(byte[] bytes) {
 		return fstConfiguration.asObject(bytes);
-	}
-
-	public static void main(String[] args) {
-		JSONObject json = new JSONObject();
-		json.put("name", "测试");
-		new FSTSerializer().serialize(json);
 	}
 
 }
