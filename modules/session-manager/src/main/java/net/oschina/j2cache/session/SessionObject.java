@@ -47,7 +47,7 @@ public class SessionObject implements Serializable {
             else if(KEY_ACCESS_AT.equals(key))
                 this.access_at = Long.parseLong(new String(datas.get(i)));
             else {
-                attributes.put(key, FSTSerializer.read(datas.get(i)));
+                attributes.put(key, Serializer.read(datas.get(i)));
             }
         }
     }

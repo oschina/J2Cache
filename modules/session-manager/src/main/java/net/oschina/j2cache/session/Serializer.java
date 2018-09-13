@@ -15,28 +15,30 @@
  */
 package net.oschina.j2cache.session;
 
-import org.nustaq.serialization.FSTConfiguration;
+import java.io.*;
 
 /**
  * 使用 FST 实现序列化
  *
  * @author Winter Lau(javayou@gmail.com)
  */
-public class FSTSerializer {
+public class Serializer {
 
-	private static final FSTConfiguration fstConfiguration ;
-
-	static {
-		fstConfiguration = FSTConfiguration.getDefaultConfiguration();
-		fstConfiguration.setClassLoader(Thread.currentThread().getContextClassLoader());
+	public static byte[] write(Object obj) throws IOException {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try (ObjectOutputStream oos = new ObjectOutputStream(baos)){
+			oos.writeObject(obj);
+			return baos.toByteArray();
+		}
 	}
 
-	public static byte[] write(Object obj) {
-		return fstConfiguration.asByteArray(obj);
-	}
-
-	public static Object read(byte[] bytes) {
-		return fstConfiguration.asObject(bytes);
+	public static Object read(byte[] bytes) throws IOException , ClassNotFoundException {
+		if(bytes == null || bytes.length == 0)
+			return null;
+		ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+		try (ObjectInputStream ois = new ObjectInputStream(bais)){
+			return ois.readObject();
+		}
 	}
 
 }

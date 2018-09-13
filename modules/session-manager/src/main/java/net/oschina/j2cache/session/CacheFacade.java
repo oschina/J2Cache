@@ -24,7 +24,6 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -219,7 +218,7 @@ public class CacheFacade extends JedisPubSub implements Closeable, AutoCloseable
             put(SessionObject.KEY_ACCESS_AT, String.valueOf(session.getLastAccess_at()).getBytes());
             session.getAttributes().entrySet().forEach((e)-> {
                 try {
-                    put(e.getKey(), FSTSerializer.write(e.getValue()));
+                    put(e.getKey(), Serializer.write(e.getValue()));
                 } catch (RuntimeException excp) {
                     if(!discardNonSerializable)
                         throw excp;
@@ -247,7 +246,7 @@ public class CacheFacade extends JedisPubSub implements Closeable, AutoCloseable
         try {
             cache1.put(session.getId(), session);
             try {
-                cache2.setBytes(session.getId(), key, FSTSerializer.write(session.get(key)));
+                cache2.setBytes(session.getId(), key, Serializer.write(session.get(key)));
             } catch (RuntimeException e) {
                 if(!this.discardNonSerializable)
                     throw e;
