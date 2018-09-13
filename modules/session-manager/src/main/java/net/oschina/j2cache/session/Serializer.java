@@ -18,7 +18,7 @@ package net.oschina.j2cache.session;
 import java.io.*;
 
 /**
- * 使用 FST 实现序列化
+ * 对象序列化，为了确保兼容性，使用标准的 Java 序列化方法
  *
  * @author Winter Lau(javayou@gmail.com)
  */
