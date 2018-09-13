@@ -10,6 +10,8 @@ J2Cache 是 OSChina 目前正在使用的两级缓存框架（要求至少 Java 
 由于大量的缓存读取会导致 L2 的网络成为整个系统的瓶颈，因此 L1 的目标是降低对 L2 的读取次数。
 该缓存框架主要用于集群环境中。单机也可使用，用于避免应用重启导致的缓存冷启动后对后端业务的冲击。
 
+J2Cache 和普通缓存框架有何不同，它解决了什么问题？ [https://my.oschina.net/javayou/blog/1931381](https://my.oschina.net/javayou/blog/1931381)
+
 J2Cache 已经有 Python 语言版本了，详情请看 [https://gitee.com/ld/Py3Cache](https://gitee.com/ld/Py3Cache)
 
 J2Cache 从 1.3.0 版本开始支持 JGroups 和 Redis Pub/Sub 两种方式进行缓存事件的通知。在某些云平台上可能无法使用 JGroups 组播方式，可以采用 Redis 发布订阅的方式。详情请看 j2cache.properties 配置文件的说明。
@@ -175,7 +177,21 @@ channel.close();
     </dependency>
     ```
 
-6. **如何使用 memcached 作为二级缓存**  
+6. **如何使用 RocketMQ 作为消息通知**  
+首先修改 `j2cache.properties` 中的 `j2cache.broadcast` 为 rocketmq，然后在 j2cache.properties 中配置 rocketmq.xxx 相关信息。
+
+    需要在项目中引入对 rabbitmq 的支持：   
+
+    ```xml
+    <dependency>
+        <groupId>org.apache.rocketmq</groupId>
+        <artifactId>rocketmq-client</artifactId>
+        <version>4.3.0</version>
+        <scope>provided</scope>
+    </dependency>
+    ```
+
+7. **如何使用 memcached 作为二级缓存**  
 首先修改 `j2cache.properties` 中的 `j2cache.L2.provider_class` 为 memcached，然后在 j2cache.properties 中配置 memcached.xxx 相关信息。
 
     需要在项目中引入对 memcached 的支持：   
@@ -188,7 +204,7 @@ channel.close();
     </dependency>
     ```
 
-7. **为什么 J2Cache 初始化时，连接本机的 Redis 非常慢，要 5 秒以上？**
+8. **为什么 J2Cache 初始化时，连接本机的 Redis 非常慢，要 5 秒以上？**
 
     如果出现这种情况，请在系统 hosts 里配置机器名和IP地址的对应关系，例如：  
 
@@ -199,7 +215,7 @@ channel.close();
     ::1             winter-notebook.local
     ```
     
-7. **使用何种 Redis 的存储模式最佳？ generic 还是 hash ?**  
+9. **使用何种 Redis 的存储模式最佳？ generic 还是 hash ?**  
 
     我们推荐使用 generic 存储模式，这也是 J2Cache 默认的存储模式，hash 模式最大的问题是无法单独对 key 进行 expire 设置。
 
