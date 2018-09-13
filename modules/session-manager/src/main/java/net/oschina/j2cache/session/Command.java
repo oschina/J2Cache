@@ -15,9 +15,9 @@
  */
 package net.oschina.j2cache.session;
 
-import org.nustaq.serialization.FSTConfiguration;
-
 import java.io.Serializable;
+import java.text.MessageFormat;
+import java.text.ParseException;
 import java.util.Random;
 
 /**
@@ -27,11 +27,7 @@ import java.util.Random;
  */
 public class Command implements Serializable {
 
-	private static final FSTConfiguration conf = FSTConfiguration.createJsonConfiguration();
-
-	static {
-		conf.registerCrossPlatformClassMapping("cmd", Command.class.getName());
-	}
+	private static final String pattern = "SRC:{0},SSN:{1},OPT:{2},KEY:{3}";
 
 	private final static int SRC_ID = genRandomSrc(); //命令源标识，随机生成，每个节点都有唯一标识
 
@@ -73,7 +69,14 @@ public class Command implements Serializable {
 	}
 
 	public static Command parse(String data) {
-		return (Command)conf.asObject(data.getBytes());
+		try {
+			Object[] results = new MessageFormat(pattern).parse(data);
+			Command cmd = new Command(Byte.parseByte((String)results[2]),(String)results[1],(String)results[3]);
+			cmd.src = Integer.parseInt((String)results[0]);
+			return cmd;
+		} catch (ParseException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public boolean isLocal() {
@@ -91,10 +94,6 @@ public class Command implements Serializable {
 	public int getSrc() {
 		return src;
 	}
-
-    public void setSrc(int src) {
-        this.src = src;
-    }
 
     public void setOperator(int operator) {
         this.operator = operator;
@@ -114,11 +113,11 @@ public class Command implements Serializable {
 
 	@Override
 	public String toString(){
-		return conf.asJsonString(this);
+		return MessageFormat.format(pattern, String.valueOf(src), session, operator, key);
 	}
 
 	public static void main(String[] args) {
-		Command cmd = new Command(OPT_JOIN, "aerlkjasldfkjasldkjfas","123");
+		Command cmd = new Command(OPT_JOIN, "aerlkjasldfkjasldkjfas","|1|23");
 		System.out.println(cmd);
 		System.out.println(Command.parse(cmd.toString()));
 	}
