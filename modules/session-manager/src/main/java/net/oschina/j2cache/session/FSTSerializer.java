@@ -16,12 +16,6 @@
 package net.oschina.j2cache.session;
 
 import org.nustaq.serialization.FSTConfiguration;
-import org.nustaq.serialization.FSTObjectInput;
-import org.nustaq.serialization.FSTObjectOutput;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 /**
  * 使用 FST 实现序列化
@@ -38,21 +32,11 @@ public class FSTSerializer {
 	}
 
 	public static byte[] write(Object obj) {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		try (FSTObjectOutput fOut = new FSTObjectOutput(out, fstConfiguration)) {
-			fOut.writeObject(obj);
-			fOut.flush();
-			return out.toByteArray();
-		} catch (IOException e) {}
-		return null;
+		return fstConfiguration.asByteArray(obj);
 	}
 
-	public static Object read(byte[] bytes) throws IOException, ClassNotFoundException {
-		if(bytes == null || bytes.length == 0)
-			return null;
-		try (FSTObjectInput in = new FSTObjectInput(new ByteArrayInputStream(bytes), fstConfiguration)){
-			return in.readObject();
-		}
+	public static Object read(byte[] bytes) {
+		return fstConfiguration.asObject(bytes);
 	}
 
 }
