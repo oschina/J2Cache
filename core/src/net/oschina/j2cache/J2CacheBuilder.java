@@ -78,6 +78,7 @@ public class J2CacheBuilder {
                             opened.set(false);
                         }
                     };
+                    this.opened.set(true);
                 }
             }
         }
