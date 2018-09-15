@@ -113,6 +113,7 @@ public class J2CacheSession implements HttpSession {
         cache.deleteSession(getId());
     }
 
+    @Override
     public boolean isNew() {
         return newSession;
     }
@@ -153,6 +154,7 @@ public class J2CacheSession implements HttpSession {
     }
 
     @Deprecated
+    @Override
     public HttpSessionContext getSessionContext() {
         return null;
     }

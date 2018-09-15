@@ -61,7 +61,12 @@ public class SessionObject implements Serializable {
     }
 
     public Object put(String key, Object value) {
-        return attributes.put(key, value);
+        if (value == null) {
+            // 当值为 null 时 当remove  处理 避免 ConcurrentHashMap 抛异常
+            return remove(key);
+        } else {
+            return attributes.put(key, value);
+        }
     }
 
     public Object remove(String key) {
