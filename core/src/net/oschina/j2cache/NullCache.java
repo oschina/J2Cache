@@ -16,6 +16,7 @@
 package net.oschina.j2cache;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +48,7 @@ public class NullCache implements Level1Cache, Level2Cache {
 
 	@Override
 	public Collection<String> keys() {
-		return null;
+		return Collections.emptyList();
 	}
 
 	@Override
