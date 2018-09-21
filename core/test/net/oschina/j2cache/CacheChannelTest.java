@@ -20,13 +20,13 @@ public class CacheChannelTest {
         System.out.println("init j2cache and clear all data.");
     }
 
-    @After
+    /*@After
     public void tearDown() {
         for(CacheChannel.Region rgn : channel.regions())
             channel.clear(rgn.getName());
         channel.close();
         System.out.println("close j2cache " + Thread.activeCount());
-    }
+    }*/
 
     @Test
     public void get() {
@@ -74,6 +74,16 @@ public class CacheChannelTest {
         channel.set(region, "ld", "Winter Lau");
         channel.set(region, "zt", "Zhu tao");
         assertTrue(channel.exists(region, "zt"));
+    }
+
+    @Test
+    public void testCaffeineExpire () {
+        String region = "Users";
+        String key = "CaffeineNeverExpire";
+        channel.set(region,key,"OSChina.net");
+        assertTrue(CacheProviderHolder.getLevel1Cache(region).keys().contains(key));
+        assertTrue(CacheProviderHolder.getLevel2Cache(region).keys().contains(key));
+        assertTrue(channel.exists(region, key));
     }
 
     @Test
