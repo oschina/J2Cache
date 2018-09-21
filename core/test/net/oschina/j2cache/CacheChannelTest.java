@@ -20,13 +20,13 @@ public class CacheChannelTest {
         System.out.println("init j2cache and clear all data.");
     }
 
-    /*@After
+    @After
     public void tearDown() {
         for(CacheChannel.Region rgn : channel.regions())
             channel.clear(rgn.getName());
         channel.close();
         System.out.println("close j2cache " + Thread.activeCount());
-    }*/
+    }
 
     @Test
     public void get() {
