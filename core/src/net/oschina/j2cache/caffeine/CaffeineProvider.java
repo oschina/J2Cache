@@ -109,19 +109,23 @@ public class CaffeineProvider implements CacheProvider {
      * @param region region name
      * @param size   max cache object size in memory
      * @param expire cache object expire time in millisecond
+     *               if this parameter set to 0 or negative numbers
+     *               means never expire
      * @param listener  j2cache cache listener
      * @return CaffeineCache
      */
     private CaffeineCache newCaffeineCache(String region, long size, long expire, CacheExpiredListener listener) {
-        com.github.benmanes.caffeine.cache.Cache<String, Object> loadingCache = Caffeine.newBuilder()
-                .maximumSize(size)
-                .expireAfterWrite(expire, TimeUnit.SECONDS)
-                .removalListener((k,v, cause) -> {
-                    //程序删除的缓存不做通知处理，因为上层已经做了处理
-                    if(cause != RemovalCause.EXPLICIT && cause != RemovalCause.REPLACED)
-                        listener.notifyElementExpired(region, (String)k);
-                })
-                .build();
+        Caffeine<Object, Object> caffeine = Caffeine.newBuilder();
+        caffeine = caffeine.maximumSize(size)
+            .removalListener((k,v, cause) -> {
+                //程序删除的缓存不做通知处理，因为上层已经做了处理
+                if(cause != RemovalCause.EXPLICIT && cause != RemovalCause.REPLACED)
+                    listener.notifyElementExpired(region, (String)k);
+            });
+        if (expire > 0) {
+            caffeine = caffeine.expireAfterWrite(expire, TimeUnit.SECONDS);
+        }
+        com.github.benmanes.caffeine.cache.Cache<String, Object> loadingCache = caffeine.build();
         return new CaffeineCache(loadingCache, size, expire);
     }
 
