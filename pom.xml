@@ -128,6 +128,7 @@
         <module>core</module>
         <module>modules/hibernate3</module>
         <module>modules/hibernate4</module>
+        <module>modules/hibernate5</module>
         <module>modules/spring-boot-starter</module>
     	<module>modules/spring-boot2-starter</module>
         <module>modules/mybatis</module>
