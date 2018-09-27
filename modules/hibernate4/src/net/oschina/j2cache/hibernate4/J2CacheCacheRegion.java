@@ -17,10 +17,6 @@ package net.oschina.j2cache.hibernate4;
 
 import net.oschina.j2cache.CacheChannel;
 import net.oschina.j2cache.CacheObject;
-import org.hibernate.HibernateException;
-
-import java.io.IOException;
-import java.io.Serializable;
 
 public class J2CacheCacheRegion implements CacheRegion {
 
@@ -44,17 +40,17 @@ public class J2CacheCacheRegion implements CacheRegion {
 
     @Override
     public CacheObject get(Object key) {
-        return this.cacheChannel.get(this.region, (String) key);
+        return this.cacheChannel.get(this.region, key.toString());
     }
 
     @Override
     public void put(Object key, Object value) {
-            this.cacheChannel.set(this.region, (String) key, value);
+            this.cacheChannel.set(this.region, key.toString(), value);
     }
 
     @Override
     public void evict(Object key) {
-        this.cacheChannel.evict(this.region, (String)key);
+        this.cacheChannel.evict(this.region, key.toString());
     }
 
     public Iterable<? extends Object> keys() {
