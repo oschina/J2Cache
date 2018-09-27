@@ -1,6 +1,3 @@
-/**
- * Copyright (c) 2014-Now http://j2eplus.com All rights reserved.
- */
 package net.oschina.j2cache.hibernate5;
 
 import net.oschina.j2cache.CacheChannel;
@@ -16,11 +13,6 @@ import org.hibernate.cache.spi.access.AccessType;
 
 import java.util.Properties;
 
-/**
- * This guy is lazy, nothing left.
- *
- * @author Tandy 2018/9/16 17:37
- */
 public abstract class AbstractJ2CacheRegionFactory implements RegionFactory {
 
     protected SessionFactoryOptions settings;
