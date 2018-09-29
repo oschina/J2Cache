@@ -43,7 +43,7 @@ public class J2CacheConfig {
 
     /**
      * Read configuration from resource
-     * @param stream config resource
+     * @param configResource config resource
      */
     public final static J2CacheConfig initFromConfig(String configResource) throws IOException {
         try (InputStream stream = getConfigStream(configResource)){
@@ -53,7 +53,7 @@ public class J2CacheConfig {
 
     /**
      * Read configuration from file
-     * @param stream config file
+     * @param configFile config file
      */
     public final static J2CacheConfig initFromConfig(File configFile) throws IOException {
         try (FileInputStream stream = new FileInputStream(configFile)) {
