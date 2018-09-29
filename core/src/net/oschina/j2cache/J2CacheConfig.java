@@ -41,18 +41,30 @@ public class J2CacheConfig {
     private boolean syncTtlToRedis;
     private boolean defaultCacheNullObject;
 
+    /**
+     * Read configuration from resource
+     * @param stream config resource
+     */
     public final static J2CacheConfig initFromConfig(String configResource) throws IOException {
         try (InputStream stream = getConfigStream(configResource)){
             return initFromConfig(stream);
         }
     }
 
+    /**
+     * Read configuration from file
+     * @param stream config file
+     */
     public final static J2CacheConfig initFromConfig(File configFile) throws IOException {
         try (FileInputStream stream = new FileInputStream(configFile)) {
             return initFromConfig(stream);
         }
     }
 
+    /**
+     * Read configuration from input stream
+     * @param stream config stream
+     */
     public final static J2CacheConfig initFromConfig(InputStream stream) throws IOException {
         J2CacheConfig config = new J2CacheConfig();
         config.properties.load(stream);
