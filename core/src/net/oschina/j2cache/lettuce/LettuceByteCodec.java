@@ -27,7 +27,7 @@ public class LettuceByteCodec implements RedisCodec<String, byte[]> {
 
     @Override
     public String decodeKey(ByteBuffer byteBuffer) {
-        return new String(byteBuffer.array());
+        return byteBuffer.hasArray()?new String(byteBuffer.array()):null;
     }
 
     @Override
