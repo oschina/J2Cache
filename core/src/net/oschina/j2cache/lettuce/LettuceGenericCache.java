@@ -76,7 +76,7 @@ public class LettuceGenericCache implements Level2Cache {
     public List<byte[]> getBytes(Collection<String> keys) {
         try(StatefulRedisConnection<String, byte[]> connection = this.client.connect(codec)) {
             RedisCommands<String, byte[]> cmd = connection.sync();
-            return cmd.mget(keys.stream().map(k -> _key(k)).toArray(String[]::new)).stream().map(kv -> kv.getValue()).collect(Collectors.toList());
+            return cmd.mget(keys.stream().map(k -> _key(k)).toArray(String[]::new)).stream().map(kv -> kv.hasValue()?kv.getValue():null).collect(Collectors.toList());
         }
     }
 

@@ -73,7 +73,7 @@ public class LettuceHashCache implements Level2Cache {
     public List<byte[]> getBytes(Collection<String> keys) {
         try(StatefulRedisConnection<String, byte[]> connection = this.client.connect(codec)) {
             RedisCommands<String, byte[]> cmd = connection.sync();
-            return cmd.hmget(this.region, keys.stream().toArray(String[]::new)).stream().map(kv -> kv.getValue()).collect(Collectors.toList());
+            return cmd.hmget(this.region, keys.stream().toArray(String[]::new)).stream().map(kv -> kv.hasValue()?kv.getValue():null).collect(Collectors.toList());
         }
     }
 
