@@ -25,16 +25,16 @@ import java.nio.ByteBuffer;
  */
 public class LettuceByteCodec implements RedisCodec<String, byte[]> {
 
+    private static final byte[] EMPTY = new byte[0];
+
     @Override
     public String decodeKey(ByteBuffer byteBuffer) {
-        return byteBuffer.hasArray()?new String(byteBuffer.array()):null;
+        return new String(getBytes(byteBuffer));
     }
 
     @Override
     public byte[] decodeValue(ByteBuffer byteBuffer) {
-        byte[] result = new byte[byteBuffer.remaining()];
-        byteBuffer.get(result);
-        return result;
+        return getBytes(byteBuffer);
     }
 
     @Override
@@ -45,5 +45,18 @@ public class LettuceByteCodec implements RedisCodec<String, byte[]> {
     @Override
     public ByteBuffer encodeValue(byte[] bytes) {
         return ByteBuffer.wrap(bytes);
+    }
+
+
+    private static byte[] getBytes(ByteBuffer buffer) {
+        int remaining = buffer.remaining();
+
+        if (remaining == 0) {
+            return EMPTY;
+        }
+
+        byte[] b = new byte[remaining];
+        buffer.get(b);
+        return b;
     }
 }
