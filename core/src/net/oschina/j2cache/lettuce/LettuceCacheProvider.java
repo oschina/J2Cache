@@ -103,7 +103,7 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
     @Override
     public void start(Properties props) {
         this.namespace = props.getProperty("namespace");
-        this.storage = props.getProperty("storage", "generic");
+        this.storage = props.getProperty("storage", "hash");
         this.channel = props.getProperty("channel", "j2cache");
 
         String scheme = props.getProperty("scheme", "redis");
