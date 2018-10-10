@@ -17,6 +17,7 @@ package net.oschina.j2cache.cluster;
 
 import com.rabbitmq.client.*;
 import net.oschina.j2cache.CacheException;
+import net.oschina.j2cache.CacheProviderHolder;
 import net.oschina.j2cache.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,8 @@ public class RabbitMQClusterPolicy implements ClusterPolicy, Consumer {
     private static final Logger log = LoggerFactory.getLogger(RabbitMQClusterPolicy.class);
 
     private static final String EXCHANGE_TYPE = "fanout";
+
+    private CacheProviderHolder holder;
 
     private ConnectionFactory factory;
     private Connection conn_publisher;
@@ -54,8 +57,26 @@ public class RabbitMQClusterPolicy implements ClusterPolicy, Consumer {
         //TODO 更多的 RabbitMQ 配置
     }
 
+    /**
+     * 删除本地某个缓存条目
+     * @param region 区域名称
+     * @param keys   缓存键值
+     */
+    public void evict(String region, String... keys) {
+        holder.getLevel1Cache(region).evict(keys);
+    }
+
+    /**
+     * 清除本地整个缓存区域
+     * @param region 区域名称
+     */
+    public void clear(String region) {
+        holder.getLevel1Cache(region).clear();
+    }
+
     @Override
-    public void connect(Properties props) {
+    public void connect(Properties props,  CacheProviderHolder holder) {
+        this.holder = holder;
         try {
             long ct = System.currentTimeMillis();
             conn_publisher = factory.newConnection();

@@ -30,10 +30,12 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 
 	private static final Map<String, Object> _g_keyLocks = new ConcurrentHashMap<>();
 	private J2CacheConfig config;
+	private CacheProviderHolder holder;
     private boolean defaultCacheNullObject ;
 
-	public CacheChannel(J2CacheConfig config) {
+	public CacheChannel(J2CacheConfig config, CacheProviderHolder holder) {
 		this.config = config;
+		this.holder = holder;
 		this.defaultCacheNullObject = config.isDefaultCacheNullObject();
 	}
 
@@ -70,26 +72,26 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	public CacheObject get(String region, String key, boolean...cacheNullObject)  {
 
 		CacheObject obj = new CacheObject(region, key, CacheObject.LEVEL_1);
-		obj.setValue(CacheProviderHolder.getLevel1Cache(region).get(key));
+		obj.setValue(holder.getLevel1Cache(region).get(key));
 		if(obj.rawValue() != null)
 			return obj;
 
 		String lock_key = key + '%' + region;
 		synchronized (_g_keyLocks.computeIfAbsent(lock_key, v -> new Object())) {
-			obj.setValue(CacheProviderHolder.getLevel1Cache(region).get(key));
+			obj.setValue(holder.getLevel1Cache(region).get(key));
 			if(obj.rawValue() != null)
 				return obj;
 
 			try {
 				obj.setLevel(CacheObject.LEVEL_2);
-				obj.setValue(CacheProviderHolder.getLevel2Cache(region).get(key));
+				obj.setValue(holder.getLevel2Cache(region).get(key));
 				if (obj.rawValue() != null)
-					CacheProviderHolder.getLevel1Cache(region).put(key, obj.rawValue());
+					holder.getLevel1Cache(region).put(key, obj.rawValue());
 				else {
-                    boolean cacheNull = (cacheNullObject.length>0)?cacheNullObject[0]: defaultCacheNullObject;
-                    if(cacheNull)
-                        set(region, key, newNullObject(), true);
-                }
+					boolean cacheNull = (cacheNullObject.length > 0) ? cacheNullObject[0] : defaultCacheNullObject;
+					if (cacheNull)
+						set(region, key, newNullObject(), true);
+				}
 			} finally {
 				_g_keyLocks.remove(lock_key);
 			}
@@ -138,7 +140,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @return cache object
 	 */
 	public Map<String, CacheObject> get(String region, Collection<String> keys)  {
-		final Map<String, Object> objs = CacheProviderHolder.getLevel1Cache(region).get(keys);
+		final Map<String, Object> objs = holder.getLevel1Cache(region).get(keys);
 		List<String> level2Keys = keys.stream().filter(k -> !objs.containsKey(k) || objs.get(k) == null).collect(Collectors.toList());
 		Map<String, CacheObject> results = objs.entrySet().stream().filter(p -> p.getValue() != null).collect(
 			Collectors.toMap(
@@ -147,11 +149,11 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 			)
 		);
 
-		Map<String, Object> objs_level2 = CacheProviderHolder.getLevel2Cache(region).get(level2Keys);
+		Map<String, Object> objs_level2 = holder.getLevel2Cache(region).get(level2Keys);
 		objs_level2.forEach((k,v) -> {
 			results.put(k, new CacheObject(region, k, CacheObject.LEVEL_2, v));
 			if (v != null)
-				CacheProviderHolder.getLevel1Cache(region).put(k, v);
+				holder.getLevel1Cache(region).put(k, v);
 		});
 
 		return results;
@@ -207,9 +209,9 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @return  0(不存在),1(一级),2(二级)
 	 */
 	public int check(String region, String key) {
-		if(CacheProviderHolder.getLevel1Cache(region).exists(key))
+		if(holder.getLevel1Cache(region).exists(key))
 			return 1;
-		if(CacheProviderHolder.getLevel2Cache(region).exists(key))
+		if(holder.getLevel2Cache(region).exists(key))
 			return 2;
 		return 0;
 	}
@@ -238,9 +240,9 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 			return ;
 
 		try {
-			Level1Cache level1 = CacheProviderHolder.getLevel1Cache(region);
+			Level1Cache level1 = holder.getLevel1Cache(region);
 			level1.put(key, (value==null && cacheNullObject)?newNullObject():value);
-			Level2Cache level2 = CacheProviderHolder.getLevel2Cache(region);
+			Level2Cache level2 = holder.getLevel2Cache(region);
 			if(config.isSyncTtlToRedis())
 				level2.put(key, (value==null && cacheNullObject)?newNullObject():value, level1.ttl());
 			else
@@ -284,8 +286,8 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
     		set(region, key, value, cacheNullObject);
     	else {
 			try {
-				CacheProviderHolder.getLevel1Cache(region, timeToLiveInSeconds).put(key, (value==null && cacheNullObject)?newNullObject():value);
-				Level2Cache level2 = CacheProviderHolder.getLevel2Cache(region);
+				holder.getLevel1Cache(region, timeToLiveInSeconds).put(key, (value==null && cacheNullObject)?newNullObject():value);
+				Level2Cache level2 = holder.getLevel2Cache(region);
 				if(config.isSyncTtlToRedis())
 					level2.put(key, (value==null && cacheNullObject)?newNullObject():value, timeToLiveInSeconds);
 				else
@@ -320,21 +322,21 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 					if (v == null)
 						newElems.put(k, newNullObject());
 				});
-				Level1Cache level1 = CacheProviderHolder.getLevel1Cache(region);
+				Level1Cache level1 = holder.getLevel1Cache(region);
 				level1.put(newElems);
 				if(config.isSyncTtlToRedis())
-					CacheProviderHolder.getLevel2Cache(region).put(newElems, level1.ttl());
+					holder.getLevel2Cache(region).put(newElems, level1.ttl());
 				else
-					CacheProviderHolder.getLevel2Cache(region).put(newElems);
+					holder.getLevel2Cache(region).put(newElems);
 			}
 			else {
-				Level1Cache level1 = CacheProviderHolder.getLevel1Cache(region);
+				Level1Cache level1 = holder.getLevel1Cache(region);
 				level1.put(elements);
 				if(config.isSyncTtlToRedis())
-					CacheProviderHolder.getLevel2Cache(region).put(elements, level1.ttl());
+					holder.getLevel2Cache(region).put(elements, level1.ttl());
 				else
 
-					CacheProviderHolder.getLevel2Cache(region).put(elements);
+					holder.getLevel2Cache(region).put(elements);
 			}
 		} finally {
 			//广播
@@ -377,18 +379,18 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 						if (v == null)
 							newElems.put(k, newNullObject());
 					});
-					CacheProviderHolder.getLevel1Cache(region, timeToLiveInSeconds).put(newElems);
+					holder.getLevel1Cache(region, timeToLiveInSeconds).put(newElems);
 					if(config.isSyncTtlToRedis())
-						CacheProviderHolder.getLevel2Cache(region).put(newElems, timeToLiveInSeconds);
+						holder.getLevel2Cache(region).put(newElems, timeToLiveInSeconds);
 					else
-						CacheProviderHolder.getLevel2Cache(region).put(newElems);
+						holder.getLevel2Cache(region).put(newElems);
 				}
 				else {
-					CacheProviderHolder.getLevel1Cache(region, timeToLiveInSeconds).put(elements);
+					holder.getLevel1Cache(region, timeToLiveInSeconds).put(elements);
 					if(config.isSyncTtlToRedis())
-						CacheProviderHolder.getLevel2Cache(region).put(elements, timeToLiveInSeconds);
+						holder.getLevel2Cache(region).put(elements, timeToLiveInSeconds);
 					else
-						CacheProviderHolder.getLevel2Cache(region).put(elements);
+						holder.getLevel2Cache(region).put(elements);
 				}
 			} finally {
 				//广播
@@ -406,8 +408,8 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	public void evict(String region, String...keys)  {
 		try {
 			//先清比较耗时的二级缓存，再清一级缓存
-			CacheProviderHolder.getLevel2Cache(region).evict(keys);
-			CacheProviderHolder.getLevel1Cache(region).evict(keys);
+			holder.getLevel2Cache(region).evict(keys);
+			holder.getLevel1Cache(region).evict(keys);
 		} finally {
 			this.sendEvictCmd(region, keys); //发送广播
 		}
@@ -421,8 +423,8 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	public void clear(String region)  {
 		try {
 			//先清比较耗时的二级缓存，再清一级缓存
-			CacheProviderHolder.getLevel2Cache(region).clear();
-			CacheProviderHolder.getLevel1Cache(region).clear();
+			holder.getLevel2Cache(region).clear();
+			holder.getLevel1Cache(region).clear();
 		}finally {
 			this.sendClearCmd(region);
 		}
@@ -433,7 +435,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @return all the regions
 	 */
 	public Collection<Region> regions() {
-		return CacheProviderHolder.regions();
+		return holder.regions();
 	}
 
 	/**
@@ -441,7 +443,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @param region Cache Region Name
 	 */
 	public void removeRegion(String region) {
-		CacheProviderHolder.getL1Provider().removeCache(region);
+		holder.getL1Provider().removeCache(region);
 	}
 
 	/**
@@ -453,8 +455,8 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 */
 	public Collection<String> keys(String region)  {
 		Set<String> keys = new HashSet<>();
-		keys.addAll(CacheProviderHolder.getLevel1Cache(region).keys());
-		keys.addAll(CacheProviderHolder.getLevel2Cache(region).keys());
+		keys.addAll(holder.getLevel1Cache(region).keys());
+		keys.addAll(holder.getLevel2Cache(region).keys());
 		return keys;
     }
 
@@ -469,7 +471,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @return 返回一级缓存的 CacheProvider 实例
 	 */
 	public CacheProvider getL1Provider() {
-		return CacheProviderHolder.getL1Provider();
+		return holder.getL1Provider();
 	}
 
 	/**
@@ -487,7 +489,7 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 * @return 返回二级缓存的 CacheProvider 实例
 	 */
 	public CacheProvider getL2Provider() {
-		return CacheProviderHolder.getL2Provider();
+		return holder.getL2Provider();
 	}
 
 	/**

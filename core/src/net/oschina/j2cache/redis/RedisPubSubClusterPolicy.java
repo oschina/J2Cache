@@ -15,6 +15,7 @@
  */
 package net.oschina.j2cache.redis;
 
+import net.oschina.j2cache.CacheProviderHolder;
 import net.oschina.j2cache.cluster.ClusterPolicy;
 import net.oschina.j2cache.Command;
 import org.slf4j.Logger;
@@ -39,6 +40,7 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
 
     private Pool<Jedis> client;
     private String channel;
+    private CacheProviderHolder holder;
 
     public RedisPubSubClusterPolicy(String channel, Properties props){
         this.channel = channel;
@@ -71,11 +73,31 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
     }
 
     /**
+     * 删除本地某个缓存条目
+     * @param region 区域名称
+     * @param keys   缓存键值
+     */
+    @Override
+    public void evict(String region, String... keys) {
+        holder.getLevel1Cache(region).evict(keys);
+    }
+
+    /**
+     * 清除本地整个缓存区域
+     * @param region 区域名称
+     */
+    @Override
+    public void clear(String region) {
+        holder.getLevel1Cache(region).clear();
+    }
+
+    /**
      * 加入 Redis 的发布订阅频道
      */
     @Override
-    public void connect(Properties props) {
+    public void connect(Properties props, CacheProviderHolder holder) {
         long ct = System.currentTimeMillis();
+        this.holder = holder;
 
         this.publish(Command.join());
 

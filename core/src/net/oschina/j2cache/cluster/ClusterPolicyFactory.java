@@ -16,6 +16,7 @@
 package net.oschina.j2cache.cluster;
 
 import net.oschina.j2cache.CacheException;
+import net.oschina.j2cache.CacheProviderHolder;
 import net.oschina.j2cache.lettuce.LettuceCacheProvider;
 import net.oschina.j2cache.redis.RedisPubSubClusterPolicy;
 
@@ -35,22 +36,24 @@ public class ClusterPolicyFactory {
      * @param props  broadcast configuations
      * @return ClusterPolicy instance
      */
-    public final static ClusterPolicy init(String broadcast, Properties props) {
+    public final static ClusterPolicy init(CacheProviderHolder holder, String broadcast, Properties props) {
+
         ClusterPolicy policy;
         if ("redis".equalsIgnoreCase(broadcast))
-            policy = ClusterPolicyFactory.redis(props);
+            policy = ClusterPolicyFactory.redis(props, holder);
         else if ("jgroups".equalsIgnoreCase(broadcast))
-            policy = ClusterPolicyFactory.jgroups(props);
+            policy = ClusterPolicyFactory.jgroups(props, holder);
         else if ("rabbitmq".equalsIgnoreCase(broadcast))
-            policy = ClusterPolicyFactory.rabbitmq(props);
+            policy = ClusterPolicyFactory.rabbitmq(props, holder);
         else if ("rocketmq".equalsIgnoreCase(broadcast))
-            policy = ClusterPolicyFactory.rocketmq(props);
+            policy = ClusterPolicyFactory.rocketmq(props, holder);
         else if ("lettuce".equalsIgnoreCase(broadcast))
-            policy = ClusterPolicyFactory.lettuce(props);
+            policy = ClusterPolicyFactory.lettuce(props, holder);
         else if ("none".equalsIgnoreCase(broadcast))
             policy = new NoneClusterPolicy();
         else
-            policy = ClusterPolicyFactory.custom(broadcast, props);
+            policy = ClusterPolicyFactory.custom(broadcast, props, holder);
+
         return policy;
     }
 
@@ -59,10 +62,10 @@ public class ClusterPolicyFactory {
      * @param props 框架配置
      * @return 返回 Redis 集群策略的实例
      */
-    private final static ClusterPolicy redis(Properties props) {
+    private final static ClusterPolicy redis(Properties props, CacheProviderHolder holder) {
         String name = props.getProperty("channel");
         RedisPubSubClusterPolicy policy = new RedisPubSubClusterPolicy(name, props);
-        policy.connect(props);
+        policy.connect(props, holder);
         return policy;
     }
 
@@ -71,10 +74,10 @@ public class ClusterPolicyFactory {
      * @param props 框架配置
      * @return 返回 JGroups 集群策略的实例
      */
-    private final static ClusterPolicy jgroups(Properties props) {
+    private final static ClusterPolicy jgroups(Properties props, CacheProviderHolder holder) {
         String name = props.getProperty("channel.name");
         JGroupsClusterPolicy policy = new JGroupsClusterPolicy(name, props);
-        policy.connect(props);
+        policy.connect(props, holder);
         return policy;
     }
 
@@ -83,21 +86,21 @@ public class ClusterPolicyFactory {
      * @param props 框架配置
      * @return 返回 RabbitMQ 集群策略的实例
      */
-    private final static ClusterPolicy rabbitmq(Properties props) {
+    private final static ClusterPolicy rabbitmq(Properties props, CacheProviderHolder holder) {
         RabbitMQClusterPolicy policy = new RabbitMQClusterPolicy(props);
-        policy.connect(props);
+        policy.connect(props, holder);
         return policy;
     }
 
-    private final static ClusterPolicy rocketmq(Properties props) {
+    private final static ClusterPolicy rocketmq(Properties props, CacheProviderHolder holder) {
         RocketMQClusterPolicy policy = new RocketMQClusterPolicy(props);
-        policy.connect(props);
+        policy.connect(props, holder);
         return policy;
     }
 
-    private final static ClusterPolicy lettuce(Properties props) {
+    private final static ClusterPolicy lettuce(Properties props, CacheProviderHolder holder) {
         LettuceCacheProvider policy = new LettuceCacheProvider();
-        policy.connect(props);
+        policy.connect(props, holder);
         return policy;
     }
 
@@ -107,10 +110,10 @@ public class ClusterPolicyFactory {
      * @param props
      * @return
      */
-    private final static ClusterPolicy custom(String classname, Properties props) {
+    private final static ClusterPolicy custom(String classname, Properties props, CacheProviderHolder holder) {
         try {
             ClusterPolicy policy = (ClusterPolicy)Class.forName(classname).newInstance();
-            policy.connect(props);
+            policy.connect(props, holder);
             return policy;
         } catch (Exception e) {
             throw new CacheException("Failed in load custom cluster policy. class = " + classname, e);

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import net.oschina.j2cache.CacheProviderHolder;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
@@ -23,6 +24,7 @@ public class SpringRedisPubSubPolicy implements ClusterPolicy {
 	private RedisTemplate<String, Serializable> redisTemplate;
 
 	private net.oschina.j2cache.autoconfigure.J2CacheConfig config;
+	private CacheProviderHolder holder;
 
 	/**
 	 * 是否是主动模式
@@ -33,7 +35,8 @@ public class SpringRedisPubSubPolicy implements ClusterPolicy {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void connect(Properties props) {
+	public void connect(Properties props, CacheProviderHolder holder) {
+		this.holder = holder;
 		J2CacheConfig j2config = SpringUtil.getBean(J2CacheConfig.class);
 		this.config = SpringUtil.getBean(net.oschina.j2cache.autoconfigure.J2CacheConfig.class);
 		this.redisTemplate = SpringUtil.getBean("j2CacheRedisTemplate", RedisTemplate.class);
@@ -64,6 +67,23 @@ public class SpringRedisPubSubPolicy implements ClusterPolicy {
 			listenerContainer.addMessageListener(new SpringRedisActiveMessageListener(this, namespace), topics);
 		}
 
+	}
+
+	/**
+	 * 删除本地某个缓存条目
+	 * @param region 区域名称
+	 * @param keys   缓存键值
+	 */
+	public void evict(String region, String... keys) {
+		holder.getLevel1Cache(region).evict(keys);
+	}
+
+	/**
+	 * 清除本地整个缓存区域
+	 * @param region 区域名称
+	 */
+	public void clear(String region) {
+		holder.getLevel1Cache(region).clear();
 	}
 
 	// @Override

@@ -15,6 +15,7 @@
  */
 package net.oschina.j2cache.cluster;
 
+import net.oschina.j2cache.CacheProviderHolder;
 import net.oschina.j2cache.Command;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
@@ -40,6 +41,7 @@ public class RocketMQClusterPolicy implements ClusterPolicy, MessageListenerConc
 
     private static final Logger log = LoggerFactory.getLogger(RocketMQClusterPolicy.class);
 
+    private CacheProviderHolder holder;
     private String hosts;
     private String topic;
     private DefaultMQProducer producer;
@@ -57,10 +59,29 @@ public class RocketMQClusterPolicy implements ClusterPolicy, MessageListenerConc
         this.consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
         this.consumer.setNamesrvAddr(this.hosts);
         this.consumer.setMessageModel(MessageModel.BROADCASTING);
+
+    }
+
+    /**
+     * 删除本地某个缓存条目
+     * @param region 区域名称
+     * @param keys   缓存键值
+     */
+    public void evict(String region, String... keys) {
+        holder.getLevel1Cache(region).evict(keys);
+    }
+
+    /**
+     * 清除本地整个缓存区域
+     * @param region 区域名称
+     */
+    public void clear(String region) {
+        holder.getLevel1Cache(region).clear();
     }
 
     @Override
-    public void connect(Properties props) {
+    public void connect(Properties props,  CacheProviderHolder holder) {
+        this.holder = holder;
         try {
             this.producer.start();
             publish(Command.join());

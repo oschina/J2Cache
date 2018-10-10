@@ -36,40 +36,49 @@ public class CacheProviderHolder {
 
 	private final static Logger log = LoggerFactory.getLogger(CacheProviderHolder.class);
 
-	private static CacheProvider l1_provider;
-	private static CacheProvider l2_provider;
+	private CacheProvider l1_provider;
+	private CacheProvider l2_provider;
 
-	private static CacheExpiredListener listener;
+	private CacheExpiredListener listener;
+
+	private CacheProviderHolder(){}
 
 	/**
 	 * Initialize Cache Provider
 	 * @param config j2cache config instance
 	 * @param listener cache listener
+	 *
+	 * @return holder : return CacheProviderHolder instance
 	 */
-	public static void init(J2CacheConfig config, CacheExpiredListener listener){
-		CacheProviderHolder.listener = listener;
-		CacheProviderHolder.l1_provider = loadProviderInstance(config.getL1CacheName());
-		if (!l1_provider.isLevel(CacheObject.LEVEL_1))
-			throw new CacheException(l1_provider.getClass().getName() + " is not level_1 cache provider");
-		CacheProviderHolder.l1_provider.start(config.getL1CacheProperties());
-		log.info("Using L1 CacheProvider : " + l1_provider.getClass().getName());
+	public static CacheProviderHolder init(J2CacheConfig config, CacheExpiredListener listener){
 
-		CacheProviderHolder.l2_provider = loadProviderInstance(config.getL2CacheName());
-		if (!l2_provider.isLevel(CacheObject.LEVEL_2))
-			throw new CacheException(l2_provider.getClass().getName() + " is not level_2 cache provider");
-		CacheProviderHolder.l2_provider.start(config.getL2CacheProperties());
-		log.info("Using L2 CacheProvider : " + l2_provider.getClass().getName());
+		CacheProviderHolder holder = new CacheProviderHolder();
+
+		holder.listener = listener;
+		holder.l1_provider = loadProviderInstance(config.getL1CacheName());
+		if (!holder.l1_provider.isLevel(CacheObject.LEVEL_1))
+			throw new CacheException(holder.l1_provider.getClass().getName() + " is not level_1 cache provider");
+		holder.l1_provider.start(config.getL1CacheProperties());
+		log.info("Using L1 CacheProvider : " + holder.l1_provider.getClass().getName());
+
+		holder.l2_provider = loadProviderInstance(config.getL2CacheName());
+		if (!holder.l2_provider.isLevel(CacheObject.LEVEL_2))
+			throw new CacheException(holder.l2_provider.getClass().getName() + " is not level_2 cache provider");
+		holder.l2_provider.start(config.getL2CacheProperties());
+		log.info("Using L2 CacheProvider : " + holder.l2_provider.getClass().getName());
+
+		return holder;
 	}
 
 	/**
 	 * 关闭缓存
 	 */
-	public final static void shutdown() {
+	public void shutdown() {
 		l1_provider.stop();
 		l2_provider.stop();
 	}
 
-	private final static CacheProvider loadProviderInstance(String cacheIdent) {
+	private static CacheProvider loadProviderInstance(String cacheIdent) {
 		if("ehcache".equalsIgnoreCase(cacheIdent))
 			return new EhCacheProvider();
 		if("ehcache3".equalsIgnoreCase(cacheIdent))
@@ -93,11 +102,11 @@ public class CacheProviderHolder {
 		}
 	}
 
-	public final static CacheProvider getL1Provider() {
+	public CacheProvider getL1Provider() {
 		return l1_provider;
 	}
 
-	public final static CacheProvider getL2Provider() {
+	public CacheProvider getL2Provider() {
 		return l2_provider;
 	}
 
@@ -106,7 +115,7 @@ public class CacheProviderHolder {
 	 * @param region  cache region
 	 * @return level 1 cache instance
 	 */
-	public final static Level1Cache getLevel1Cache(String region) {
+	public Level1Cache getLevel1Cache(String region) {
 		return (Level1Cache)l1_provider.buildCache(region, listener);
 	}
 
@@ -116,7 +125,7 @@ public class CacheProviderHolder {
 	 * @param timeToLiveSeconds  cache ttl
 	 * @return level 1 cache instance
 	 */
-	public final static Level1Cache getLevel1Cache(String region, long timeToLiveSeconds) {
+	public Level1Cache getLevel1Cache(String region, long timeToLiveSeconds) {
 		return (Level1Cache)l1_provider.buildCache(region, timeToLiveSeconds, listener);
 	}
 
@@ -125,7 +134,7 @@ public class CacheProviderHolder {
 	 * @param region cache region
 	 * @return level 2 cache instance
 	 */
-	public final static Level2Cache getLevel2Cache(String region) {
+	public Level2Cache getLevel2Cache(String region) {
 		return (Level2Cache)l2_provider.buildCache(region, listener);
 	}
 
@@ -133,7 +142,7 @@ public class CacheProviderHolder {
 	 * return all regions
 	 * @return all regions
 	 */
-	public final static Collection<CacheChannel.Region> regions() {
+	public Collection<CacheChannel.Region> regions() {
 		return l1_provider.regions();
 	}
 

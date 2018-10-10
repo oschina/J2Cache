@@ -15,6 +15,7 @@
  */
 package net.oschina.j2cache.cluster;
 
+import net.oschina.j2cache.CacheProviderHolder;
 import net.oschina.j2cache.Command;
 
 import java.util.Properties;
@@ -26,17 +27,22 @@ import java.util.Properties;
 public class NoneClusterPolicy implements ClusterPolicy {
 
     @Override
-    public void connect(Properties props) {
-
+    public void connect(Properties props, CacheProviderHolder holder) {
     }
 
     @Override
     public void disconnect() {
-
     }
 
     @Override
     public void publish(Command cmd) {
+    }
 
+    @Override
+    public void evict(String region, String... keys) {
+    }
+
+    @Override
+    public void clear(String region) {
     }
 }

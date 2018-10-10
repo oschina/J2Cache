@@ -33,6 +33,7 @@ public class J2CacheBuilder {
     private final static Logger log = LoggerFactory.getLogger(J2CacheBuilder.class);
 
     private CacheChannel channel;
+    private CacheProviderHolder holder;
     private ClusterPolicy policy; //不同的广播策略
     private AtomicBoolean opened = new AtomicBoolean(false);
     private J2CacheConfig config;
@@ -55,12 +56,12 @@ public class J2CacheBuilder {
      * @return CacheChannel
      */
     public CacheChannel getChannel(){
-        if(!this.opened.get()) {
+        if(this.channel == null || !this.opened.get()) {
             synchronized (J2CacheBuilder.class) {
-                if(!this.opened.get()) {
+                if(this.channel == null || !this.opened.get()) {
                     this.initFromConfig(config);
                     /* 初始化缓存接口 */
-                    this.channel = new CacheChannel(config) {
+                    this.channel = new CacheChannel(config, holder) {
                         @Override
                         public void sendClearCmd(String region) {
                             policy.sendClearCmd(region);
@@ -74,7 +75,7 @@ public class J2CacheBuilder {
                         @Override
                         public void close() {
                             policy.disconnect();
-                            CacheProviderHolder.shutdown();
+                            holder.shutdown();
                             opened.set(false);
                         }
                     };
@@ -90,6 +91,8 @@ public class J2CacheBuilder {
      */
     public void close() {
         this.channel.close();
+        this.opened.set(false);
+        this.channel = null;
     }
 
     /**
@@ -100,20 +103,21 @@ public class J2CacheBuilder {
     private void initFromConfig(J2CacheConfig config) {
         SerializationUtils.init(config.getSerialization(), config.getSubProperties(config.getSerialization()));
         //初始化两级的缓存管理
-        CacheProviderHolder.init(config, (region, key)->{
+        this.holder = CacheProviderHolder.init(config, (region, key)->{
             //当一级缓存中的对象失效时，自动清除二级缓存中的数据
-            Level2Cache level2 = CacheProviderHolder.getLevel2Cache(region);
+            Level2Cache level2 = this.holder.getLevel2Cache(region);
             level2.evict(key);
             if(!level2.supportTTL()) {
                 //再一次清除一级缓存是为了避免缓存失效时再次从 L2 获取到值
-                CacheProviderHolder.getLevel1Cache(region).evict(key);
+                this.holder.getLevel1Cache(region).evict(key);
             }
             log.debug(String.format("Level 1 cache object expired, evict level 2 cache object [%s,%s]", region, key));
             if(policy != null)
                 policy.sendEvictCmd(region, key);
         });
 
-        policy = ClusterPolicyFactory.init(config.getBroadcast(), config.getBroadcastProperties());
+        policy = ClusterPolicyFactory.init(holder, config.getBroadcast(), config.getBroadcastProperties());
         log.info("Using cluster policy : " + policy.getClass().getName());
     }
+
 }

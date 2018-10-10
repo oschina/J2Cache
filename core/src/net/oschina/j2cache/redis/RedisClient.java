@@ -173,6 +173,7 @@ public class RedisClient implements Closeable, AutoCloseable {
                 client = sharded.getResource();
             else if (cluster != null)
                 client = toBinaryJedisCommands(cluster);
+
             clients.set(client);
         }
         return client;

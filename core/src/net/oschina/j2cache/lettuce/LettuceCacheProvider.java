@@ -49,6 +49,8 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
     private StatefulRedisPubSubConnection<String, String> pubsub;
     private String storage;
 
+    private CacheProviderHolder holder;
+
     private String channel;
     private String namespace;
 
@@ -79,6 +81,25 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
         return Collections.emptyList();
     }
 
+    /**
+     * 删除本地某个缓存条目
+     * @param region 区域名称
+     * @param keys   缓存键值
+     */
+    @Override
+    public void evict(String region, String... keys) {
+        holder.getLevel1Cache(region).evict(keys);
+    }
+
+    /**
+     * 清除本地整个缓存区域
+     * @param region 区域名称
+     */
+    @Override
+    public void clear(String region) {
+        holder.getLevel1Cache(region).clear();
+    }
+
     @Override
     public void start(Properties props) {
         this.namespace = props.getProperty("namespace");
@@ -103,9 +124,9 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
     }
 
     @Override
-    public void connect(Properties props) {
+    public void connect(Properties props, CacheProviderHolder holder) {
         long ct = System.currentTimeMillis();
-
+        this.holder = holder;
         this.channel = props.getProperty("channel", "j2cache");
         this.publish(Command.join());
 
