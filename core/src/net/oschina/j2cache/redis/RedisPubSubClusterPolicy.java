@@ -103,13 +103,14 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
 
         Thread subscribeThread = new Thread(()-> {
             //当 Redis 重启会导致订阅线程断开连接，需要进行重连
-            while(true) {
+            while(!client.isClosed()) {
                 try (Jedis jedis = client.getResource()){
                     jedis.subscribe(this, channel);
                     log.info("Disconnect to redis channel: " + channel);
                     break;
                 } catch (JedisConnectionException e) {
                     log.error("Failed connect to redis, reconnect it.", e);
+                    if(!client.isClosed())
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException ie){
