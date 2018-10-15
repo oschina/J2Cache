@@ -74,6 +74,7 @@ public class J2CacheBuilder {
 
                         @Override
                         public void close() {
+                            super.close();
                             policy.disconnect();
                             holder.shutdown();
                             opened.set(false);
@@ -91,7 +92,6 @@ public class J2CacheBuilder {
      */
     public void close() {
         this.channel.close();
-        this.opened.set(false);
         this.channel = null;
     }
 
