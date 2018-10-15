@@ -15,7 +15,9 @@
  */
 package net.oschina.j2cache.lettuce;
 
+import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisClient;
+import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.pubsub.RedisPubSubAdapter;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import io.lettuce.core.pubsub.api.async.RedisPubSubAsyncCommands;
@@ -45,8 +47,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> implements CacheProvider, ClusterPolicy {
 
-    private static RedisClient redisClient;
-    private StatefulRedisPubSubConnection<String, String> pubsub;
+    private static AbstractRedisClient redisClient;
+    private StatefulRedisPubSubConnection<String, String> pubsub_subscriber;
     private String storage;
 
     private CacheProviderHolder holder;
@@ -67,8 +69,39 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
     }
 
     @Override
+    public void start(Properties props) {
+        this.namespace = props.getProperty("namespace");
+        this.storage = props.getProperty("storage", "hash");
+        this.channel = props.getProperty("channel", "j2cache");
+
+        String scheme = props.getProperty("scheme", "redis");
+        String hosts = props.getProperty("hosts", "127.0.0.1:6379");
+        String password = props.getProperty("password");
+        int database = Integer.parseInt(props.getProperty("database", "0"));
+        String sentinelMasterId = props.getProperty("sentinelMasterId");
+
+        boolean isCluster = false;
+        if("redis-cluster".equalsIgnoreCase(scheme)) {
+            scheme = "redis";
+            isCluster = true;
+        }
+
+        String redis_url = String.format("%s://%s@%s/%d#%s", scheme, password, hosts, database, sentinelMasterId);
+
+        redisClient = isCluster?RedisClusterClient.create(redis_url):RedisClient.create(redis_url);
+    }
+
+    @Override
+    public void stop() {
+        regions.clear();
+        redisClient.shutdown();
+    }
+
+    @Override
     public Cache buildCache(String region, CacheExpiredListener listener) {
-        return regions.computeIfAbsent(region, v -> "hash".equalsIgnoreCase(this.storage)?new LettuceHashCache(this.namespace, region, redisClient):new LettuceGenericCache(this.namespace, region, redisClient));
+        return regions.computeIfAbsent(region, v -> "hash".equalsIgnoreCase(this.storage)?
+                new LettuceHashCache(this.namespace, region, redisClient):
+                new LettuceGenericCache(this.namespace, region, redisClient));
     }
 
     @Override
@@ -100,27 +133,16 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
         holder.getLevel1Cache(region).clear();
     }
 
-    @Override
-    public void start(Properties props) {
-        this.namespace = props.getProperty("namespace");
-        this.storage = props.getProperty("storage", "hash");
-        this.channel = props.getProperty("channel", "j2cache");
-
-        String scheme = props.getProperty("scheme", "redis");
-        String hosts = props.getProperty("hosts", "127.0.0.1:6379");
-        String password = props.getProperty("password");
-        int database = Integer.parseInt(props.getProperty("database", "0"));
-        String sentinelMasterId = props.getProperty("sentinelMasterId");
-
-        String redis_url = String.format("%s://%s@%s/%d#%s", scheme, password, hosts, database, sentinelMasterId);
-
-        redisClient = RedisClient.create(redis_url);
-    }
-
-    @Override
-    public void stop() {
-        regions.clear();
-        redisClient.shutdown();
+    /**
+     * Get PubSub connection
+     * @return connection instance
+     */
+    private StatefulRedisPubSubConnection pubsub() {
+        if(redisClient instanceof RedisClient)
+            return ((RedisClient)redisClient).connectPubSub();
+        else if(redisClient instanceof RedisClusterClient)
+            return ((RedisClusterClient)redisClient).connectPubSub();
+        return null;
     }
 
     @Override
@@ -130,9 +152,9 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
         this.channel = props.getProperty("channel", "j2cache");
         this.publish(Command.join());
 
-        this.pubsub = redisClient.connectPubSub();
-        this.pubsub.addListener(this);
-        RedisPubSubAsyncCommands<String, String> async = this.pubsub.async();
+        this.pubsub_subscriber = this.pubsub();
+        this.pubsub_subscriber.addListener(this);
+        RedisPubSubAsyncCommands<String, String> async = this.pubsub_subscriber.async();
         async.subscribe(this.channel);
 
         log.info("Connected to redis channel:" + this.channel + ", time " + (System.currentTimeMillis()-ct) + " ms.");
@@ -146,7 +168,7 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
 
     @Override
     public void publish(Command cmd) {
-        try (StatefulRedisPubSubConnection<String, String> connection = redisClient.connectPubSub()){
+        try (StatefulRedisPubSubConnection<String, String> connection = this.pubsub()){
             RedisPubSubCommands<String, String> sync = connection.sync();
             sync.publish(this.channel, cmd.json());
         }
@@ -158,7 +180,7 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
             this.publish(Command.quit());
             super.unsubscribed(this.channel, 1);
         } finally {
-            this.pubsub.close();
+            this.pubsub_subscriber.close();
         }
     }
 }

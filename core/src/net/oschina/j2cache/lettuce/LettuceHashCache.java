@@ -15,10 +15,10 @@
  */
 package net.oschina.j2cache.lettuce;
 
-import io.lettuce.core.RedisClient;
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.api.sync.RedisCommands;
-import net.oschina.j2cache.Level2Cache;
+import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.api.StatefulConnection;
+import io.lettuce.core.api.sync.RedisHashCommands;
+import io.lettuce.core.api.sync.RedisKeyCommands;
 
 import java.util.Collection;
 import java.util.List;
@@ -31,21 +31,15 @@ import java.util.stream.Collectors;
  *
  * 重要提示！！！  hash 存储模式无法单独对 key 设置 expire
  */
-public class LettuceHashCache implements Level2Cache {
+public class LettuceHashCache extends LettuceCache {
 
-    private static final LettuceByteCodec codec = new LettuceByteCodec();
-
-    private String namespace;
-    private String region;
-    private RedisClient client;
-
-    public LettuceHashCache(String namespace, String region, RedisClient client) {
+    public LettuceHashCache(String namespace, String region, AbstractRedisClient client) {
         if (region == null || region.isEmpty())
             region = "_"; // 缺省region
 
-        this.client = client;
-        this.namespace = namespace;
-        this.region = getRegionName(region);
+        super.client = client;
+        super.namespace = namespace;
+        super.region = getRegionName(region);
     }
 
     /**
@@ -63,56 +57,56 @@ public class LettuceHashCache implements Level2Cache {
 
     @Override
     public byte[] getBytes(String key) {
-        try(StatefulRedisConnection<String, byte[]> connection = this.client.connect(codec)) {
-            RedisCommands<String, byte[]> cmd = connection.sync();
+        try(StatefulConnection<String, byte[]> connection = super.connect()) {
+            RedisHashCommands<String, byte[]> cmd = (RedisHashCommands)super.sync(connection);
             return cmd.hget(this.region, key);
         }
     }
 
     @Override
     public List<byte[]> getBytes(Collection<String> keys) {
-        try(StatefulRedisConnection<String, byte[]> connection = this.client.connect(codec)) {
-            RedisCommands<String, byte[]> cmd = connection.sync();
+        try(StatefulConnection<String, byte[]> connection = super.connect()) {
+            RedisHashCommands<String, byte[]> cmd = (RedisHashCommands)super.sync(connection);
             return cmd.hmget(this.region, keys.stream().toArray(String[]::new)).stream().map(kv -> kv.hasValue()?kv.getValue():null).collect(Collectors.toList());
         }
     }
 
     @Override
     public void setBytes(String key, byte[] bytes) {
-        try(StatefulRedisConnection<String, byte[]> connection = this.client.connect(codec)) {
-            RedisCommands<String, byte[]> cmd = connection.sync();
+        try(StatefulConnection<String, byte[]> connection = super.connect()) {
+            RedisHashCommands<String, byte[]> cmd = (RedisHashCommands)super.sync(connection);
             cmd.hset(this.region, key, bytes);
         }
     }
 
     @Override
     public void setBytes(Map<String, byte[]> bytes) {
-        try(StatefulRedisConnection<String, byte[]> connection = this.client.connect(codec)) {
-            RedisCommands<String, byte[]> cmd = connection.sync();
+        try(StatefulConnection<String, byte[]> connection = super.connect()) {
+            RedisHashCommands<String, byte[]> cmd = (RedisHashCommands)super.sync(connection);
             cmd.hmset(this.region, bytes);
         }
     }
 
     @Override
     public Collection<String> keys() {
-        try(StatefulRedisConnection<String, byte[]> connection = this.client.connect(codec)) {
-            RedisCommands<String, byte[]> cmd = connection.sync();
+        try(StatefulConnection<String, byte[]> connection = super.connect()) {
+            RedisHashCommands<String, byte[]> cmd = (RedisHashCommands)super.sync(connection);
             return cmd.hkeys(this.region);
         }
     }
 
     @Override
     public void evict(String... keys) {
-        try(StatefulRedisConnection<String, byte[]> connection = this.client.connect(codec)) {
-            RedisCommands<String, byte[]> cmd = connection.sync();
+        try(StatefulConnection<String, byte[]> connection = super.connect()) {
+            RedisHashCommands<String, byte[]> cmd = (RedisHashCommands)super.sync(connection);
             cmd.hdel(this.region, keys);
         }
     }
 
     @Override
     public void clear() {
-        try(StatefulRedisConnection<String, byte[]> connection = this.client.connect(codec)) {
-            RedisCommands<String, byte[]> cmd = connection.sync();
+        try(StatefulConnection<String, byte[]> connection = super.connect()) {
+            RedisKeyCommands<String, byte[]> cmd = (RedisKeyCommands)super.sync(connection);
             cmd.del(this.region);
         }
     }
