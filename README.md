@@ -10,7 +10,14 @@ J2Cache 是 OSChina 目前正在使用的两级缓存框架（要求至少 Java 
 由于大量的缓存读取会导致 L2 的网络成为整个系统的瓶颈，因此 L1 的目标是降低对 L2 的读取次数。
 该缓存框架主要用于集群环境中。单机也可使用，用于避免应用重启导致的缓存冷启动后对后端业务的冲击。
 
-J2Cache 和普通缓存框架有何不同，它解决了什么问题？ [https://my.oschina.net/javayou/blog/1931381](https://my.oschina.net/javayou/blog/1931381)
+J2Cache 相关文章：
+
+- [J2Cache 和普通缓存框架有何不同，它解决了什么问题？](https://my.oschina.net/javayou/blog/1931381)
+- [如何让 J2Cache 在多种编程语言环境中使用](https://my.oschina.net/javayou/blog/2247729)
+- [J2Cache 中使用 Lettuce 替代 Jedis 管理 Redis 连接](https://my.oschina.net/javayou/blog/2247710)
+- [如何通过 J2Cache 实现分布式 session 存储](https://my.oschina.net/javayou/blog/2117109)
+- [J2Cache 没有 Redis 也可以实现多节点的缓存同步](https://my.oschina.net/javayou/blog/1865908)
+- [微服务的架构里应该使用 J2Cache 两级缓存框架](https://my.oschina.net/javayou/blog/1827480)
 
 J2Cache 已经有 Python 语言版本了，详情请看 [https://gitee.com/ld/Py3Cache](https://gitee.com/ld/Py3Cache)
 
