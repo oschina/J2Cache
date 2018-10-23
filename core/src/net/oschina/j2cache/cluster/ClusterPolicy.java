@@ -79,12 +79,19 @@ public interface ClusterPolicy {
     void clear(String region) ;
 
     /**
+     * 判断是否本地实例的命令
+     * @param cmd 命令信息
+     * @return
+     */
+    boolean isLocalCommand(Command cmd) ;
+
+    /**
      * 处理缓存事件逻辑
      * @param cmd the received command
      */
     default void handleCommand(Command cmd) {
         try {
-            if (cmd == null || cmd.isLocal())
+            if (cmd == null || isLocalCommand(cmd))
                 return;
 
             switch (cmd.getOperator()) {

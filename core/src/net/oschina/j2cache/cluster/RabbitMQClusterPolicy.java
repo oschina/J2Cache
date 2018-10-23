@@ -33,6 +33,8 @@ public class RabbitMQClusterPolicy implements ClusterPolicy, Consumer {
 
     private static final Logger log = LoggerFactory.getLogger(RabbitMQClusterPolicy.class);
 
+    private final static int LOCAL_COMMAND_ID = Command.genRandomSrc(); //命令源标识，随机生成，每个节点都有唯一标识
+
     private static final String EXCHANGE_TYPE = "fanout";
 
     private CacheProviderHolder holder;
@@ -55,6 +57,11 @@ public class RabbitMQClusterPolicy implements ClusterPolicy, Consumer {
         factory.setUsername(props.getProperty("username" , null));
         factory.setPassword(props.getProperty("password" , null));
         //TODO 更多的 RabbitMQ 配置
+    }
+
+    @Override
+    public boolean isLocalCommand(Command cmd) {
+        return cmd.getSrc() == LOCAL_COMMAND_ID;
     }
 
     /**

@@ -38,6 +38,8 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
 
     private final static Logger log = LoggerFactory.getLogger(RedisPubSubClusterPolicy.class);
 
+    private final static int LOCAL_COMMAND_ID = Command.genRandomSrc(); //命令源标识，随机生成，每个节点都有唯一标识
+
     private Pool<Jedis> client;
     private String channel;
     private CacheProviderHolder holder;
@@ -70,6 +72,11 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
             int port = (infos.length > 1)?Integer.parseInt(infos[1]):6379;
             this.client = new JedisPool(config, host, port, timeout, password, database);
         }
+    }
+
+    @Override
+    public boolean isLocalCommand(Command cmd) {
+        return cmd.getSrc() == LOCAL_COMMAND_ID;
     }
 
     /**

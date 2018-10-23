@@ -26,6 +26,13 @@ import java.util.Properties;
  */
 public class NoneClusterPolicy implements ClusterPolicy {
 
+    private final static int LOCAL_COMMAND_ID = Command.genRandomSrc(); //命令源标识，随机生成，每个节点都有唯一标识
+
+    @Override
+    public boolean isLocalCommand(Command cmd) {
+        return cmd.getSrc() == LOCAL_COMMAND_ID;
+    }
+
     @Override
     public void connect(Properties props, CacheProviderHolder holder) {
     }

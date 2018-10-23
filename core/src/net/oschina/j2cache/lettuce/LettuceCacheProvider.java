@@ -47,6 +47,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> implements CacheProvider, ClusterPolicy {
 
+    private final static int LOCAL_COMMAND_ID = Command.genRandomSrc(); //命令源标识，随机生成，每个节点都有唯一标识
+
     private static AbstractRedisClient redisClient;
     private StatefulRedisPubSubConnection<String, String> pubsub_subscriber;
     private String storage;
@@ -66,6 +68,11 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
     @Override
     public int level() {
         return CacheObject.LEVEL_2;
+    }
+
+    @Override
+    public boolean isLocalCommand(Command cmd) {
+        return cmd.getSrc() == LOCAL_COMMAND_ID;
     }
 
     @Override

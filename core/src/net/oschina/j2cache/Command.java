@@ -19,7 +19,6 @@ import java.util.Random;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.annotation.JSONField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,19 +30,18 @@ import org.slf4j.LoggerFactory;
 public class Command {
 
 	private final static Logger log = LoggerFactory.getLogger(Command.class);
-	private final static int SRC_ID = genRandomSrc(); //命令源标识，随机生成，每个节点都有唯一标识
 
 	public final static byte OPT_JOIN 	   = 0x01;	//加入集群
 	public final static byte OPT_EVICT_KEY = 0x02; 	//删除缓存
 	public final static byte OPT_CLEAR_KEY = 0x03; 	//清除缓存
 	public final static byte OPT_QUIT 	   = 0x04;	//退出集群
 	
-	private int src = SRC_ID;
+	private int src;
 	private int operator;
 	private String region;
 	private String[] keys;
 	
-	private static int genRandomSrc() {
+	public final static int genRandomSrc() {
 		long ct = System.currentTimeMillis();
 		Random rnd_seed = new Random(ct);
 		return (int)(rnd_seed.nextInt(10000) * 1000 + ct % 1000);
@@ -55,14 +53,6 @@ public class Command {
 		this.operator = o;
 		this.region = r;
 		this.keys = keys;
-	}
-
-	/**
-	 * 返回本地的专有标识
-	 * @return 节点标识
-	 */
-	public static final int LocalID() {
-		return SRC_ID;
 	}
 
 	public static Command join() {
@@ -86,11 +76,6 @@ public class Command {
 		return null;
 	}
 
-	@JSONField(serialize = false)
-	public boolean isLocal() {
-		return this.src == SRC_ID;
-	}
-	
 	public int getOperator() {
 		return operator;
 	}

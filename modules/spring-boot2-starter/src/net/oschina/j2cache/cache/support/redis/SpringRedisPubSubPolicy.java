@@ -20,7 +20,9 @@ import net.oschina.j2cache.cache.support.util.SpringUtil;
  * @author zhangsaizz
  */
 public class SpringRedisPubSubPolicy implements ClusterPolicy {
-	
+
+	private final static int LOCAL_COMMAND_ID = Command.genRandomSrc(); //命令源标识，随机生成，每个节点都有唯一标识
+
 	private RedisTemplate<String, Serializable> redisTemplate;
 	
 	private net.oschina.j2cache.autoconfigure.J2CacheConfig config;
@@ -32,7 +34,12 @@ public class SpringRedisPubSubPolicy implements ClusterPolicy {
 	private static boolean isActive = false;
 	
 	private String channel = "j2cache_channel";
-	
+
+	@Override
+	public boolean isLocalCommand(Command cmd) {
+		return cmd.getSrc() == LOCAL_COMMAND_ID;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void connect(Properties props, CacheProviderHolder holder) {
@@ -106,12 +113,10 @@ public class SpringRedisPubSubPolicy implements ClusterPolicy {
 			redisTemplate.convertAndSend(this.channel, cmd.json());
 		}
     }
-	
 
 	@Override
 	public void disconnect() {
 		redisTemplate.convertAndSend(this.channel, Command.quit().json());
 	}
 
-	
 }

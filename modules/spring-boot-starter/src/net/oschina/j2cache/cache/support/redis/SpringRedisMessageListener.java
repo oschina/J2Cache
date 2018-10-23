@@ -17,6 +17,7 @@ import net.oschina.j2cache.util.SerializationUtils;
 public class SpringRedisMessageListener implements MessageListener{
 
 	private static Logger logger = LoggerFactory.getLogger(SpringRedisMessageListener.class);
+	private final static int LOCAL_COMMAND_ID = Command.genRandomSrc(); //命令源标识，随机生成，每个节点都有唯一标识
 	
 	private ClusterPolicy clusterPolicy;
 	
@@ -26,7 +27,11 @@ public class SpringRedisMessageListener implements MessageListener{
 		this.clusterPolicy = clusterPolicy;
 		this.channel = channel;
 	}
-	
+
+	private boolean isLocalCommand(Command cmd) {
+		return cmd.getSrc() == LOCAL_COMMAND_ID;
+	}
+
 	@Override
 	public void onMessage(Message message, byte[] pattern) {
 		byte[] messageChannel = message.getChannel();
@@ -36,7 +41,7 @@ public class SpringRedisMessageListener implements MessageListener{
 		}
         try {
             Command cmd = Command.parse(String.valueOf(SerializationUtils.deserialize(messageBody)));
-            if (cmd == null || cmd.isLocal())
+            if (cmd == null || isLocalCommand(cmd))
                 return;
 
             switch (cmd.getOperator()) {

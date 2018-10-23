@@ -3,7 +3,7 @@
     <parent>
         <groupId>net.oschina.j2cache</groupId>
         <artifactId>j2cache</artifactId>
-        <version>2.7.2-release</version>
+        <version>2.7.3-release</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>

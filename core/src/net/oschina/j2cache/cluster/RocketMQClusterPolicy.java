@@ -41,6 +41,8 @@ public class RocketMQClusterPolicy implements ClusterPolicy, MessageListenerConc
 
     private static final Logger log = LoggerFactory.getLogger(RocketMQClusterPolicy.class);
 
+    private final static int LOCAL_COMMAND_ID = Command.genRandomSrc(); //命令源标识，随机生成，每个节点都有唯一标识
+
     private CacheProviderHolder holder;
     private String hosts;
     private String topic;
@@ -59,7 +61,11 @@ public class RocketMQClusterPolicy implements ClusterPolicy, MessageListenerConc
         this.consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
         this.consumer.setNamesrvAddr(this.hosts);
         this.consumer.setMessageModel(MessageModel.BROADCASTING);
+    }
 
+    @Override
+    public boolean isLocalCommand(Command cmd) {
+        return cmd.getSrc() == LOCAL_COMMAND_ID;
     }
 
     /**
