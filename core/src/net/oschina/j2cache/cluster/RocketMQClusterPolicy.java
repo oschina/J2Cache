@@ -41,7 +41,7 @@ public class RocketMQClusterPolicy implements ClusterPolicy, MessageListenerConc
 
     private static final Logger log = LoggerFactory.getLogger(RocketMQClusterPolicy.class);
 
-    private final static int LOCAL_COMMAND_ID = Command.genRandomSrc(); //命令源标识，随机生成，每个节点都有唯一标识
+    private int LOCAL_COMMAND_ID = Command.genRandomSrc(); //命令源标识，随机生成，每个节点都有唯一标识
 
     private CacheProviderHolder holder;
     private String hosts;

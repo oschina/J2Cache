@@ -38,7 +38,7 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
 
     private final static Logger log = LoggerFactory.getLogger(RedisPubSubClusterPolicy.class);
 
-    private final static int LOCAL_COMMAND_ID = Command.genRandomSrc(); //命令源标识，随机生成，每个节点都有唯一标识
+    private int LOCAL_COMMAND_ID = Command.genRandomSrc(); //命令源标识，随机生成，每个节点都有唯一标识
 
     private Pool<Jedis> client;
     private String channel;
