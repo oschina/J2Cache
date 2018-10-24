@@ -102,6 +102,7 @@ public class RocketMQClusterPolicy implements ClusterPolicy, MessageListenerConc
 
     @Override
     public void publish(Command cmd) {
+    	cmd.setSrc(LOCAL_COMMAND_ID);
         Message msg = new Message(topic,"","", cmd.json().getBytes());
         try {
             this.producer.send(msg);

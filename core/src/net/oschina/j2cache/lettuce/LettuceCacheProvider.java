@@ -175,6 +175,7 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
 
     @Override
     public void publish(Command cmd) {
+    	cmd.setSrc(LOCAL_COMMAND_ID);
         try (StatefulRedisPubSubConnection<String, String> connection = this.pubsub()){
             RedisPubSubCommands<String, String> sync = connection.sync();
             sync.publish(this.channel, cmd.json());

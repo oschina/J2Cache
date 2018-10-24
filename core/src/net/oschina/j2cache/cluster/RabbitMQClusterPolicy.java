@@ -125,6 +125,7 @@ public class RabbitMQClusterPolicy implements ClusterPolicy, Consumer {
             }
         }
         try {
+        	cmd.setSrc(LOCAL_COMMAND_ID);
             channel_publisher.basicPublish(exchange, "", null, cmd.json().getBytes());
         } catch (IOException e ) {
             throw new CacheException("Failed to publish cmd to RabbitMQ!", e);

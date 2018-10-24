@@ -125,6 +125,7 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
     @Override
     public void publish(Command cmd) {
         try {
+        	cmd.setSrc(LOCAL_COMMAND_ID);
             Message msg = new Message(null, cmd.json());
             channel.send(msg);
         } catch (Exception e) {
