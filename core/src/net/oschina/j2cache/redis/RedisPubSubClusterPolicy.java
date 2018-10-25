@@ -150,6 +150,7 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
 
     @Override
     public void publish(Command cmd) {
+    	cmd.setSrc(LOCAL_COMMAND_ID);
         try (Jedis jedis = client.getResource()) {
             jedis.publish(channel, cmd.json());
         }
