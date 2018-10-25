@@ -111,6 +111,7 @@ public class SpringRedisPubSubPolicy implements ClusterPolicy {
 
 	@Override
 	public void publish(Command cmd) {
+		cmd.setSrc(LOCAL_COMMAND_ID);
 		if (!isActive || "blend".equals(config.getCacheCleanMode())) {
 			redisTemplate.convertAndSend(this.channel, cmd.json());
 		}
