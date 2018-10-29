@@ -34,7 +34,10 @@ j2cache.broadcast = net.oschina.j2cache.cache.support.redis.SpringRedisPubSubPol
 j2cache.L2.provider_class = net.oschina.j2cache.cache.support.redis.SpringRedisProvider
 j2cache.L2.config_section = redis
 ```
-
-
-
+在application.properties中支持redis客户端
+* jedis
+* lettuce
+```
+j2cache.redis-client=jedis
+```
 
