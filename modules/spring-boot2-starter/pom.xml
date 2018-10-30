@@ -23,7 +23,7 @@
             		<artifactId>slf4j-simple</artifactId>
                 </exclusion>
            	</exclusions>
-			<scope>compile</scope>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
