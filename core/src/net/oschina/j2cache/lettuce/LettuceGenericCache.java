@@ -90,6 +90,35 @@ public class LettuceGenericCache extends LettuceCache {
         }
     }
 
+
+    /**
+     * 设置缓存数据字节数组（带有效期）
+     * @param key  cache key
+     * @param bytes cache data
+     * @param timeToLiveInSeconds cache ttl
+     */
+    @Override
+    public void setBytes(String key, byte[] bytes, long timeToLiveInSeconds){
+        try(StatefulConnection<String, byte[]> connection = super.connect()) {
+            RedisStringCommands<String, byte[]> cmd = (RedisStringCommands)super.sync(connection);
+            cmd.setex(_key(key), timeToLiveInSeconds, bytes);
+        }
+    }
+
+    /**
+     * 批量设置带 TTL 的缓存数据
+     * @param bytes  cache data
+     * @param timeToLiveInSeconds cache ttl
+     */
+    @Override
+    public void setBytes(Map<String,byte[]> bytes, long timeToLiveInSeconds) {
+        try(StatefulConnection<String, byte[]> connection = super.connect()) {
+            RedisStringCommands<String, byte[]> cmd = (RedisStringCommands)super.sync(connection);
+            bytes.forEach((k,v)->cmd.setex(_key(k), timeToLiveInSeconds, v));
+        }
+    }
+
+
     @Override
     public Collection<String> keys() {
         try(StatefulConnection<String, byte[]> connection = super.connect()) {
