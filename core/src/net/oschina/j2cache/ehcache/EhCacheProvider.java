@@ -76,10 +76,9 @@ public class EhCacheProvider implements CacheProvider {
     	return caches.computeIfAbsent(regionName, v -> {
 			net.sf.ehcache.Cache cache = manager.getCache(regionName);
 			if (cache == null) {
-				log.warn("Could not find configuration [" + regionName + "]; using defaults.");
 				manager.addCache(regionName);
 				cache = manager.getCache(regionName);
-				log.info("started Ehcache region: " + regionName);
+				log.warn(String.format("Could not find configuration [" + regionName + "]; using defaults (TTL:%d).", cache.getCacheConfiguration().getTimeToLiveSeconds()));
 			}
 			return new EhCache(cache, listener);
 		});
