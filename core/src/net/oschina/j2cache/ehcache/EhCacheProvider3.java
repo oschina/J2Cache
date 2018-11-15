@@ -78,7 +78,9 @@ public class EhCacheProvider3 implements CacheProvider {
                 CacheConfiguration defaultCacheConfig = manager.getRuntimeConfiguration().getCacheConfigurations().get(DEFAULT_TPL);
                 CacheConfiguration<String, Serializable> cacheCfg = CacheConfigurationBuilder.newCacheConfigurationBuilder(defaultCacheConfig).build();
                 cache = manager.createCache(region, cacheCfg);
-                log.info("Could not find configuration [" + region + "]; using defaults.");
+                Duration dura = cache.getRuntimeConfiguration().getExpiry().getExpiryForCreation(null, null);
+                long ttl = dura.isInfinite()?-1:dura.getTimeUnit().toSeconds(dura.getLength());
+                log.warn(String.format("Could not find configuration [%s]; using defaults (TTL:%d seconds).", region, ttl));
             }
             return new EhCache3(region, cache, listener);
         });

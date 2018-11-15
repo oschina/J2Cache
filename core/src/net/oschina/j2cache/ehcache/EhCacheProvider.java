@@ -78,7 +78,7 @@ public class EhCacheProvider implements CacheProvider {
 			if (cache == null) {
 				manager.addCache(regionName);
 				cache = manager.getCache(regionName);
-				log.warn(String.format("Could not find configuration [" + regionName + "]; using defaults (TTL:%d).", cache.getCacheConfiguration().getTimeToLiveSeconds()));
+				log.warn(String.format("Could not find configuration [%s]; using defaults (TTL:%d seconds).", regionName, cache.getCacheConfiguration().getTimeToLiveSeconds()));
 			}
 			return new EhCache(cache, listener);
 		});
