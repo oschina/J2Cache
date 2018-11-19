@@ -72,12 +72,12 @@ public class XmemcachedCacheProvider implements CacheProvider {
         try {
             client = builder.build();
 
-            log.info(String.format("Memcached client starts with servers(%s),auth(%s),pool-size(%s),time(%dms)",
+            log.info("Memcached client starts with servers({}),auth({}),pool-size({}),time({}ms)",
                     servers,
                     needAuth,
                     builder.getConfiguration().getSelectorPoolSize(),
                     System.currentTimeMillis() - ct
-            ));
+            );
         } catch (IOException e) {
             log.error("Failed to connect to memcached", e);
         }

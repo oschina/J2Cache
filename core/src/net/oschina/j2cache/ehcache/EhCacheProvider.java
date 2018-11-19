@@ -78,7 +78,7 @@ public class EhCacheProvider implements CacheProvider {
 			if (cache == null) {
 				manager.addCache(regionName);
 				cache = manager.getCache(regionName);
-				log.warn(String.format("Could not find configuration [%s]; using defaults (TTL:%d seconds).", regionName, cache.getCacheConfiguration().getTimeToLiveSeconds()));
+				log.warn("Could not find configuration [{}]; using defaults (TTL:{} seconds).", regionName, cache.getCacheConfiguration().getTimeToLiveSeconds());
 			}
 			return new EhCache(cache, listener);
 		});
@@ -98,7 +98,7 @@ public class EhCacheProvider implements CacheProvider {
 			net.sf.ehcache.Cache cache = new net.sf.ehcache.Cache(cfg);
 			manager.addCache(cache);
 
-			log.info(String.format("Started Ehcache region [%s] with TTL: %d", region, timeToLiveInSeconds));
+			log.info("Started Ehcache region [{}] with TTL: {}", region, timeToLiveInSeconds);
 
 			return new EhCache(cache, listener);
 		});

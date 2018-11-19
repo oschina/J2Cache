@@ -152,7 +152,7 @@ public class RedisClient implements Closeable, AutoCloseable {
                     break;
                 }
                 if(!"single".equalsIgnoreCase(mode))
-                    log.warn("Redis mode [" + mode + "] not defined. Using 'single'.");
+                    log.warn("Redis mode [{}] not defined. Using 'single'.", mode);
                 break;
         }
     }

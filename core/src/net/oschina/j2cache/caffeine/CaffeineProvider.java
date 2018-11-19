@@ -69,7 +69,7 @@ public class CaffeineProvider implements CacheProvider {
                 if (config == null)
                     throw new CacheException(String.format("Undefined [default] caffeine cache"));
 
-                log.warn(String.format("Caffeine cache [%s] not defined, using default.", region));
+                log.warn("Caffeine cache [{}] not defined, using default.", region);
             }
             return newCaffeineCache(region, config.size, config.expire, listener);
         });
@@ -88,7 +88,7 @@ public class CaffeineProvider implements CacheProvider {
                     throw new CacheException(String.format("Undefined caffeine cache region name = %s", region));
             }
 
-            log.info(String.format("Started caffeine region [%s] with TTL: %d", region, timeToLiveInSeconds));
+            log.info("Started caffeine region [{}] with TTL: {}", region, timeToLiveInSeconds);
             return newCaffeineCache(region, config.size, timeToLiveInSeconds, listener);
         });
 
@@ -166,7 +166,7 @@ public class CaffeineProvider implements CacheProvider {
     private void saveCacheConfig(String region, String region_config) {
         CacheConfig cfg = CacheConfig.parse(region_config);
         if(cfg == null)
-            log.warn(String.format("Illegal caffeine cache config [%s=%s]", region, region_config));
+            log.warn("Illegal caffeine cache config [{}={}]", region, region_config);
         else
             cacheConfigs.put(region, cfg);
     }

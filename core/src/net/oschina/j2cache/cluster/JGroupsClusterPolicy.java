@@ -94,7 +94,7 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
             channel.connect(name);
 
             this.publish(Command.join());
-            log.info("Connected to jgroups channel:" + name + ", time " + (System.currentTimeMillis()-ct) + " ms.");
+            log.info("Connected to jgroups channel:{}, time {}ms.", name, (System.currentTimeMillis()-ct));
 
         } catch (Exception e){
             throw new CacheException(e);
@@ -117,8 +117,8 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
 
     @Override
     public void viewAccepted(View view) {
-        log.info(String.format("Group Members Changed, LIST: %s",
-                String.join(",", view.getMembers().stream().map(a -> a.toString()).toArray(String[]::new)))
+        log.info("Group Members Changed, LIST: {}",
+                String.join(",", view.getMembers().stream().map(a -> a.toString()).toArray(String[]::new))
         );
     }
 

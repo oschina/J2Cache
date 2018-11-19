@@ -99,7 +99,7 @@ public class RabbitMQClusterPolicy implements ClusterPolicy, Consumer {
 
             channel_consumer.basicConsume(queueName, true, this);
 
-            log.info("Connected to RabbitMQ:" + conn_consumer + ", time " + (System.currentTimeMillis()-ct) + " ms.");
+            log.info("Connected to RabbitMQ:{}, time {}ms", conn_consumer, System.currentTimeMillis()-ct);
         } catch (Exception e) {
             throw new CacheException(String.format("Failed to connect to RabbitMQ (%s:%d)", factory.getHost(), factory.getPort()), e);
         }

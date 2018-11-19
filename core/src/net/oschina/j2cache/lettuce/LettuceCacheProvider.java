@@ -164,7 +164,7 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
         RedisPubSubAsyncCommands<String, String> async = this.pubsub_subscriber.async();
         async.subscribe(this.channel);
 
-        log.info("Connected to redis channel:" + this.channel + ", time " + (System.currentTimeMillis()-ct) + " ms.");
+        log.info("Connected to redis channel:{}, time {}ms.", this.channel, System.currentTimeMillis()-ct);
     }
 
     @Override

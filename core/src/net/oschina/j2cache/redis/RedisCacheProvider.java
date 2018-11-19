@@ -80,13 +80,13 @@ public class RedisCacheProvider implements CacheProvider {
                 .database(database)
                 .poolConfig(poolConfig).newClient();
 
-        log.info(String.format("Redis client starts with mode(%s),db(%d),storage(%s),namespace(%s),time(%dms)",
+        log.info("Redis client starts with mode({}),db({}),storage({}),namespace({}),time({}ms)",
                 mode,
                 database,
                 storage,
                 namespace,
                 (System.currentTimeMillis()-ct)
-        ));
+        );
     }
 
     @Override
