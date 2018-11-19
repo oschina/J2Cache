@@ -59,13 +59,13 @@ public class CacheProviderHolder {
 		if (!holder.l1_provider.isLevel(CacheObject.LEVEL_1))
 			throw new CacheException(holder.l1_provider.getClass().getName() + " is not level_1 cache provider");
 		holder.l1_provider.start(config.getL1CacheProperties());
-		log.info("Using L1 CacheProvider : " + holder.l1_provider.getClass().getName());
+		log.info("Using L1 CacheProvider : {}", holder.l1_provider.getClass().getName());
 
 		holder.l2_provider = loadProviderInstance(config.getL2CacheName());
 		if (!holder.l2_provider.isLevel(CacheObject.LEVEL_2))
 			throw new CacheException(holder.l2_provider.getClass().getName() + " is not level_2 cache provider");
 		holder.l2_provider.start(config.getL2CacheProperties());
-		log.info("Using L2 CacheProvider : " + holder.l2_provider.getClass().getName());
+		log.info("Using L2 CacheProvider : {}", holder.l2_provider.getClass().getName());
 
 		return holder;
 	}

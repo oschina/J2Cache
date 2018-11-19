@@ -63,7 +63,7 @@ public class SerializationUtils {
                 }
             }
         }
-        log.info("Using Serializer -> [" + g_serializer.name() + ":" + g_serializer.getClass().getName() + ']');
+        log.info("Using Serializer -> [{}:{}]", g_serializer.name(), g_serializer.getClass().getName());
     }
 
     /**
