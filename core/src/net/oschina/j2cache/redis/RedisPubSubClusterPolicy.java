@@ -113,7 +113,7 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
             while(!client.isClosed()) {
                 try (Jedis jedis = client.getResource()){
                     jedis.subscribe(this, channel);
-                    log.info("Disconnect to redis channel: " + channel);
+                    log.info("Disconnect to redis channel: {}", channel);
                     break;
                 } catch (JedisConnectionException e) {
                     log.error("Failed connect to redis, reconnect it.", e);
@@ -130,7 +130,7 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
         subscribeThread.setDaemon(true);
         subscribeThread.start();
 
-        log.info("Connected to redis channel:" + channel + ", time " + (System.currentTimeMillis()-ct) + " ms.");
+        log.info("Connected to redis channel:{}, time {} ms.", channel, (System.currentTimeMillis()-ct));
     }
 
     /**
