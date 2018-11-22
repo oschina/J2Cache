@@ -158,7 +158,7 @@ public class CaffeineProvider implements CacheProvider {
                     this.saveCacheConfig(region, s_config);
                 }
             } catch (IOException e) {
-                log.error("Failed to load caffeine regions define " + propertiesFile, e);
+                log.error("Failed to load caffeine regions define {}", propertiesFile, e);
             }
         }
     }

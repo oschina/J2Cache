@@ -107,7 +107,7 @@ public class RocketMQClusterPolicy implements ClusterPolicy, MessageListenerConc
         try {
             this.producer.send(msg);
         } catch (Exception e) {
-            log.error(String.format("Failed to publish %s to RocketMQ", cmd.json()), e);
+            log.error("Failed to publish {} to RocketMQ", cmd.json(), e);
         }
     }
 

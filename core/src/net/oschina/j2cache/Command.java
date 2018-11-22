@@ -71,7 +71,7 @@ public class Command {
 		try {
 			return JSON.parseObject(json, Command.class);
 		} catch (JSONException e) {
-			log.warn("Failed to parse j2cache command: " + json, e);
+			log.warn("Failed to parse j2cache command: {}", json, e);
 		}
 		return null;
 	}

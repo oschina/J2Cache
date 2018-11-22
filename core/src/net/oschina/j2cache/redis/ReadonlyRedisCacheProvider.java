@@ -74,7 +74,7 @@ public class ReadonlyRedisCacheProvider extends RedisCacheProvider {
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             String methodName = method.getName();
             if(ignoreMethods.contains(methodName)) {
-                log.debug(String.format("Cache [%s] skipped.", methodName));
+                log.debug("Cache [{}] skipped.", methodName);
                 return null;
             }
             try {

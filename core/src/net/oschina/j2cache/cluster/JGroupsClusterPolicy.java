@@ -129,7 +129,7 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
             Message msg = new Message(null, cmd.json());
             channel.send(msg);
         } catch (Exception e) {
-            log.error("Failed to send message to jgroups -> " + cmd, e);
+            log.error("Failed to send message to jgroups -> {}", cmd, e);
         }
     }
 }
