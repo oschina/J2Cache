@@ -32,7 +32,7 @@ j2cache.broadcast = net.oschina.j2cache.cache.support.redis.SpringRedisPubSubPol
 在j2cache.properties中配置,使用springRedis替换二级缓存
 ```
 j2cache.L2.provider_class = net.oschina.j2cache.cache.support.redis.SpringRedisProvider
-j2cache.L2.config_section = redis
+j2cache.L2.config_section = redis (如果要使用lettuce客户端请配置为lettuce)
 ```
 在application.properties中支持redis客户端
 * jedis
