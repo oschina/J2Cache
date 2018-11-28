@@ -26,9 +26,9 @@ public class J2CacheConfig {
     private String cacheCleanMode = "passive";
     
     /**
-     * 是否允许缓存空值,默认:true
+     * 是否允许缓存空值,默认:false
      */
-    private boolean allowNullValues = true;
+    private boolean allowNullValues = false;
     
     /**
      * 使用哪种redis客户端,默认：jedis
