@@ -90,9 +90,9 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 			try {
 				obj.setLevel(CacheObject.LEVEL_2);
 				obj.setValue(holder.getLevel2Cache(region).get(key));
-				if (obj.rawValue() != null)
+				if (obj.rawValue() != null) {
 					holder.getLevel1Cache(region).put(key, obj.rawValue());
-				else {
+				}else {
 					boolean cacheNull = (cacheNullObject.length > 0) ? cacheNullObject[0] : defaultCacheNullObject;
 					if (cacheNull)
 						set(region, key, newNullObject(), true);
@@ -257,11 +257,11 @@ public abstract class CacheChannel implements Closeable , AutoCloseable {
 	 */
 	public void set(String region, String key, Object value, boolean cacheNullObject) {
 
-		if(closed)
-			throw new IllegalStateException("CacheChannel closed");
-
 		if (!cacheNullObject && value == null)
 			return ;
+
+		if(closed)
+			throw new IllegalStateException("CacheChannel closed");
 
 		try {
 			Level1Cache level1 = holder.getLevel1Cache(region);
