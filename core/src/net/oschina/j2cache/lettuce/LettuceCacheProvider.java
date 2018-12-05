@@ -58,7 +58,7 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
     private String channel;
     private String namespace;
 
-    private static final ConcurrentHashMap<String, Level2Cache> regions = new ConcurrentHashMap();
+    private final ConcurrentHashMap<String, Level2Cache> regions = new ConcurrentHashMap();
 
     @Override
     public String name() {
@@ -106,7 +106,7 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
 
     @Override
     public Cache buildCache(String region, CacheExpiredListener listener) {
-        return regions.computeIfAbsent(region, v -> "hash".equalsIgnoreCase(this.storage)?
+        return regions.computeIfAbsent(this.namespace + ":" + region, v -> "hash".equalsIgnoreCase(this.storage)?
                 new LettuceHashCache(this.namespace, region, redisClient):
                 new LettuceGenericCache(this.namespace, region, redisClient));
     }

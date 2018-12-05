@@ -41,7 +41,7 @@ public class XmemcachedCacheProvider implements CacheProvider {
     private static final Logger log = LoggerFactory.getLogger(XmemcachedCacheProvider.class);
     private MemcachedClient client ;
 
-    private static final ConcurrentHashMap<String, Level2Cache> regions = new ConcurrentHashMap();
+    private final ConcurrentHashMap<String, Level2Cache> regions = new ConcurrentHashMap();
 
     @Override
     public String name() {
