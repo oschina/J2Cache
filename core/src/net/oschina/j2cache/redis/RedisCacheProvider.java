@@ -101,7 +101,7 @@ public class RedisCacheProvider implements CacheProvider {
 
     @Override
     public Cache buildCache(String region, CacheExpiredListener listener) {
-        return regions.computeIfAbsent(region, v -> "hash".equalsIgnoreCase(this.storage)?
+        return regions.computeIfAbsent(this.namespace+":"+region, v -> "hash".equalsIgnoreCase(this.storage)?
                 new RedisHashCache(this.namespace, region, redisClient):
                 new RedisGenericCache(this.namespace, region, redisClient));
     }
