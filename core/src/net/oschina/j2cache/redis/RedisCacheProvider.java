@@ -40,7 +40,7 @@ public class RedisCacheProvider implements CacheProvider {
     private String namespace;
     private String storage;
 
-    private static final ConcurrentHashMap<String, Level2Cache> regions = new ConcurrentHashMap();
+    private final ConcurrentHashMap<String, Level2Cache> regions = new ConcurrentHashMap();
 
     @Override
     public String name() {
