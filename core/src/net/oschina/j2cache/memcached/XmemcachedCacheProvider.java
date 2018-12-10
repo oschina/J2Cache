@@ -53,21 +53,21 @@ public class XmemcachedCacheProvider implements CacheProvider {
 
         long ct = System.currentTimeMillis();
 
-        String servers = props.getProperty("servers");
-        String username = props.getProperty("username");
-        String password = props.getProperty("password");
+        String servers = props.getProperty("servers", "127.0.0.1:11211");
+        String username = props.getProperty("username", "");
+        String password = props.getProperty("password", "");
         MemcachedClientBuilder builder = new XMemcachedClientBuilder(AddrUtil.getAddresses(servers));
         builder.setCommandFactory(new BinaryCommandFactory());
         boolean needAuth = username != null && password != null && username.trim().length() > 0 && password.trim().length() > 0;
         if(needAuth)
             builder.addAuthInfo(AddrUtil.getOneAddress(servers), AuthInfo.typical(username, password));
 
-        builder.setConnectionPoolSize(Integer.valueOf(props.getProperty("connectionPoolSize")));
-        builder.setConnectTimeout(Long.valueOf(props.getProperty("connectTimeout")));
-        builder.setHealSessionInterval(Long.valueOf(props.getProperty("healSessionInterval")));
-        builder.setMaxQueuedNoReplyOperations(Integer.valueOf(props.getProperty("maxQueuedNoReplyOperations")));
-        builder.setOpTimeout(Long.valueOf(props.getProperty("opTimeout")));
-        builder.setSanitizeKeys("true".equalsIgnoreCase(props.getProperty("sanitizeKeys")));
+        builder.setConnectionPoolSize(Integer.valueOf(props.getProperty("connectionPoolSize", "10")));
+        builder.setConnectTimeout(Long.valueOf(props.getProperty("connectTimeout", "1000")));
+        builder.setHealSessionInterval(Long.valueOf(props.getProperty("healSessionInterval", "1000")));
+        builder.setMaxQueuedNoReplyOperations(Integer.valueOf(props.getProperty("maxQueuedNoReplyOperations", "100")));
+        builder.setOpTimeout(Long.valueOf(props.getProperty("opTimeout", "100")));
+        builder.setSanitizeKeys("true".equalsIgnoreCase(props.getProperty("sanitizeKeys", "false")));
 
         try {
             client = builder.build();
