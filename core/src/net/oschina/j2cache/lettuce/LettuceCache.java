@@ -15,14 +15,13 @@
  */
 package net.oschina.j2cache.lettuce;
 
-import io.lettuce.core.AbstractRedisClient;
-import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.BaseRedisCommands;
-import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
+import net.oschina.j2cache.CacheException;
 import net.oschina.j2cache.Level2Cache;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 
 /**
  * Lettuce 的基类，封装了普通 Redis 连接和集群 Redis 连接的差异
@@ -31,18 +30,16 @@ import net.oschina.j2cache.Level2Cache;
  */
 public abstract class LettuceCache implements Level2Cache {
 
-    private static final LettuceByteCodec codec = new LettuceByteCodec();
-
     protected String namespace;
     protected String region;
-    protected AbstractRedisClient client;
+    protected GenericObjectPool<StatefulConnection<String, byte[]>> pool;
 
     protected StatefulConnection connect() {
-        if(client instanceof RedisClient)
-            return ((RedisClient)client).connect(codec);
-        else if(client instanceof RedisClusterClient)
-            return ((RedisClusterClient)client).connect(codec);
-        return null;
+        try {
+            return pool.borrowObject();
+        } catch (Exception e) {
+            throw new CacheException(e);
+        }
     }
 
     protected BaseRedisCommands sync(StatefulConnection conn) {

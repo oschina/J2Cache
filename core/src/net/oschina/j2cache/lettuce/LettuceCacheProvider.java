@@ -17,13 +17,17 @@ package net.oschina.j2cache.lettuce;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisClient;
+import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.pubsub.RedisPubSubAdapter;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import io.lettuce.core.pubsub.api.async.RedisPubSubAsyncCommands;
 import io.lettuce.core.pubsub.api.sync.RedisPubSubCommands;
+import io.lettuce.core.support.ConnectionPoolSupport;
 import net.oschina.j2cache.*;
 import net.oschina.j2cache.cluster.ClusterPolicy;
+import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -49,7 +53,10 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
 
     private int LOCAL_COMMAND_ID = Command.genRandomSrc(); //命令源标识，随机生成，每个节点都有唯一标识
 
+    private static final LettuceByteCodec codec = new LettuceByteCodec();
+
     private static AbstractRedisClient redisClient;
+    GenericObjectPool<StatefulConnection<String, byte[]>> pool;
     private StatefulRedisPubSubConnection<String, String> pubsub_subscriber;
     private String storage;
 
@@ -96,10 +103,25 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
         String redis_url = String.format("%s://%s@%s/%d#%s", scheme, password, hosts, database, sentinelMasterId);
 
         redisClient = isCluster?RedisClusterClient.create(redis_url):RedisClient.create(redis_url);
+
+        //connection pool configurations
+        GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
+        poolConfig.setMaxTotal(Integer.parseInt(props.getProperty("maxTotal", "100")));
+        poolConfig.setMaxIdle(Integer.parseInt(props.getProperty("maxIdle", "10")));
+        poolConfig.setMinIdle(Integer.parseInt(props.getProperty("minIdle", "10")));
+
+        pool = ConnectionPoolSupport.createGenericObjectPool(() -> {
+            if(redisClient instanceof RedisClient)
+                return ((RedisClient)redisClient).connect(codec);
+            else if(redisClient instanceof RedisClusterClient)
+                return ((RedisClusterClient)redisClient).connect(codec);
+            return null;
+        }, poolConfig);
     }
 
     @Override
     public void stop() {
+        pool.close();
         regions.clear();
         redisClient.shutdown();
     }
@@ -107,8 +129,8 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
     @Override
     public Cache buildCache(String region, CacheExpiredListener listener) {
         return regions.computeIfAbsent(this.namespace + ":" + region, v -> "hash".equalsIgnoreCase(this.storage)?
-                new LettuceHashCache(this.namespace, region, redisClient):
-                new LettuceGenericCache(this.namespace, region, redisClient));
+                new LettuceHashCache(this.namespace, region, pool):
+                new LettuceGenericCache(this.namespace, region, pool));
     }
 
     @Override
