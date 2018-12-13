@@ -34,5 +34,8 @@ j2cache.broadcast = net.oschina.j2cache.cache.support.redis.SpringRedisPubSubPol
 j2cache.L2.provider_class = net.oschina.j2cache.cache.support.redis.SpringRedisProvider
 j2cache.L2.config_section = redis
 ```
-
+在application.properties中支持关闭二级缓存
+```
+j2cache.l2-cache-open=false（默认开启）
+```
 

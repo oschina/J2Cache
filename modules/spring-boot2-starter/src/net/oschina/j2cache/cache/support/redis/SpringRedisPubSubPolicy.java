@@ -22,7 +22,7 @@ import net.oschina.j2cache.cluster.ClusterPolicy;
 public class SpringRedisPubSubPolicy implements ClusterPolicy {
 
 	private int LOCAL_COMMAND_ID = Command.genRandomSrc(); //命令源标识，随机生成，每个节点都有唯一标识
-
+	
 	private RedisTemplate<String, Serializable> redisTemplate;
 	
 	private net.oschina.j2cache.autoconfigure.J2CacheConfig config;
@@ -101,7 +101,7 @@ public class SpringRedisPubSubPolicy implements ClusterPolicy {
 
 	@Override
     public void publish(Command cmd) {
-		if(!isActive) {
+		if(!isActive && config.getL2CacheOpen()) {
 			cmd.setSrc(LOCAL_COMMAND_ID);
 			redisTemplate.convertAndSend(this.channel, cmd.json());
 		}
@@ -109,7 +109,7 @@ public class SpringRedisPubSubPolicy implements ClusterPolicy {
 
 	@Override
 	public void disconnect() {
-		if(!isActive) {
+		if(!isActive && config.getL2CacheOpen()) {
 			Command cmd = new Command();
 			cmd.setSrc(LOCAL_COMMAND_ID);
 			cmd.setOperator(Command.OPT_QUIT);
