@@ -13,6 +13,7 @@ import net.oschina.j2cache.CacheChannel;
 import net.oschina.j2cache.CacheExpiredListener;
 import net.oschina.j2cache.CacheObject;
 import net.oschina.j2cache.CacheProvider;
+import net.oschina.j2cache.NullCache;
 import net.oschina.j2cache.cache.support.util.SpringUtil;
 
 /**
@@ -49,6 +50,9 @@ public class SpringRedisProvider implements CacheProvider {
 
 	@Override
 	public Cache buildCache(String region, CacheExpiredListener listener) {
+		if(config.getL2CacheOpen() == false) {
+			return new NullCache();
+		}
 		Cache cache = caches.get(region);
 		if (cache == null) {
 			synchronized (SpringRedisProvider.class) {

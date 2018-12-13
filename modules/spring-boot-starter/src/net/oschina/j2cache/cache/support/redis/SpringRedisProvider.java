@@ -13,6 +13,7 @@ import net.oschina.j2cache.CacheChannel;
 import net.oschina.j2cache.CacheExpiredListener;
 import net.oschina.j2cache.CacheObject;
 import net.oschina.j2cache.CacheProvider;
+import net.oschina.j2cache.NullCache;
 import net.oschina.j2cache.cache.support.util.SpringUtil;
 
 /**
@@ -23,6 +24,8 @@ import net.oschina.j2cache.cache.support.util.SpringUtil;
 public class SpringRedisProvider implements CacheProvider {
 
 	private RedisTemplate<String, Serializable> redisTemplate;
+	
+	private net.oschina.j2cache.autoconfigure.J2CacheConfig config;	
 
 	private String namespace;
 
@@ -47,6 +50,9 @@ public class SpringRedisProvider implements CacheProvider {
 
 	@Override
 	public Cache buildCache(String region, CacheExpiredListener listener) {
+		if(config.getL2CacheOpen() == false) {
+			return new NullCache();
+		}
 		Cache cache = caches.get(region);
 		if (cache == null) {
 			synchronized (SpringRedisProvider.class) {
@@ -74,6 +80,10 @@ public class SpringRedisProvider implements CacheProvider {
 	public void start(Properties props) {
 		this.namespace = props.getProperty("namespace");
 		this.storage = props.getProperty("storage");
+		this.config =  SpringUtil.getBean(net.oschina.j2cache.autoconfigure.J2CacheConfig.class);
+		if(config.getL2CacheOpen() == false) {
+			return;
+		}
 		this.redisTemplate = SpringUtil.getBean("j2CacheRedisTemplate", RedisTemplate.class);
 	}
 
