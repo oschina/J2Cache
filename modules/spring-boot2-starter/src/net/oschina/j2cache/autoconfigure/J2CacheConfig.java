@@ -38,6 +38,11 @@ public class J2CacheConfig {
      * </ul>
      */
     private String redisClient = "jedis";
+    
+    /**
+     * 是否开启二级缓存
+     */
+    private boolean l2CacheOpen = true;
 
     
     public String getConfigLocation() {
@@ -79,4 +84,13 @@ public class J2CacheConfig {
 	public void setRedisClient(String redisClient) {
 		this.redisClient = redisClient;
 	}
+	
+	public boolean getL2CacheOpen() {
+		return l2CacheOpen;
+	}
+
+	public void setL2CacheOpen(boolean l2CacheOpen) {
+		this.l2CacheOpen = l2CacheOpen;
+	}
+
 }

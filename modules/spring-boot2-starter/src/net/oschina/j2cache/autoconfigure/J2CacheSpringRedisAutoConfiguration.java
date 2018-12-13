@@ -53,6 +53,7 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 @Configuration
 @AutoConfigureAfter({ RedisAutoConfiguration.class })
 @AutoConfigureBefore({ J2CacheAutoConfiguration.class })
+@ConditionalOnProperty(value = "j2cache.l2-cache-open", havingValue = "true", matchIfMissing = true)
 public class J2CacheSpringRedisAutoConfiguration {
 
 	private final static int MAX_ATTEMPTS = 3;
