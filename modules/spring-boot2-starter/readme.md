@@ -40,4 +40,8 @@ j2cache.L2.config_section = redis (如果要使用lettuce客户端请配置为le
 ```
 j2cache.redis-client=jedis
 ```
+在application.properties中支持关闭二级缓存
+```
+j2cache.l2-cache-open=false（默认开启）
+```
 
