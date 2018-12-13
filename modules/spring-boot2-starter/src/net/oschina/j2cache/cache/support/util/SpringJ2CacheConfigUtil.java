@@ -1,7 +1,7 @@
 package net.oschina.j2cache.cache.support.util;
 
+import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.StandardEnvironment;
-import org.springframework.core.io.support.ResourcePropertySource;
 
 import net.oschina.j2cache.J2CacheConfig;
 
@@ -23,8 +23,8 @@ public class SpringJ2CacheConfigUtil {
 			l2_config_section = config.getL2CacheName();
 		final String l2_section = l2_config_section;
 		environment.getPropertySources().forEach(a -> {
-			if(a instanceof ResourcePropertySource) {
-				ResourcePropertySource c = (ResourcePropertySource) a;
+			if(a instanceof MapPropertySource) {
+				MapPropertySource c = (MapPropertySource) a;
 				c.getSource().forEach((k,v) -> {
 					String key = k;
 					if (key.startsWith(config.getBroadcast() + ".")) {
