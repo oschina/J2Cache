@@ -95,7 +95,7 @@ public class SpringRedisGenericCache implements Level2Cache {
 			log.debug(String.format("Invalid timeToLiveInSeconds value : %d , skipped it.", timeToLiveInSeconds));
 			setBytes(key, bytes);
 		} else {
-			redisTemplate.opsForValue().getOperations().execute((RedisCallback<List<byte[]>>) redis -> {
+			redisTemplate.execute((RedisCallback<List<byte[]>>) redis -> {
 				redis.setEx(_key(key), (int) timeToLiveInSeconds, bytes);
 				return null;
 			});

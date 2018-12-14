@@ -15,10 +15,10 @@
  */
 package net.oschina.j2cache.lettuce;
 
-import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.sync.RedisKeyCommands;
 import io.lettuce.core.api.sync.RedisStringCommands;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,11 +32,11 @@ import java.util.stream.Collectors;
  */
 public class LettuceGenericCache extends LettuceCache {
 
-    public LettuceGenericCache(String namespace, String region, AbstractRedisClient client) {
+    public LettuceGenericCache(String namespace, String region, GenericObjectPool<StatefulConnection<String, byte[]>> pool) {
         if (region == null || region.isEmpty())
             region = "_"; // 缺省region
 
-        this.client = client;
+        super.pool = pool;
         this.namespace = namespace;
         this.region = getRegionName(region);
     }
