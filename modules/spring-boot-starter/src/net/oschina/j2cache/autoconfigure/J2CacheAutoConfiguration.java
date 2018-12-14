@@ -24,7 +24,7 @@ import net.oschina.j2cache.cache.support.util.SpringUtil;
 @ConditionalOnClass(J2Cache.class)
 @EnableConfigurationProperties({J2CacheConfig.class})
 @Configuration
-@PropertySource(value = "${j2cache.config-location}")
+@PropertySource(value = {"${j2cache.config-location}","file:${j2cache.config-location}"},ignoreResourceNotFound = true )
 public class J2CacheAutoConfiguration {
     
     @Autowired
