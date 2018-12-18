@@ -18,6 +18,7 @@ J2Cache 相关文章：
 - [如何通过 J2Cache 实现分布式 session 存储](https://my.oschina.net/javayou/blog/2117109)
 - [J2Cache 没有 Redis 也可以实现多节点的缓存同步](https://my.oschina.net/javayou/blog/1865908)
 - [微服务的架构里应该使用 J2Cache 两级缓存框架](https://my.oschina.net/javayou/blog/1827480)
+- [J2Cache 和 JetCache 框架有何不同？](https://my.oschina.net/javayou/blog/2988523)
 
 J2Cache 已经有 Python 语言版本了，详情请看 [https://gitee.com/ld/Py3Cache](https://gitee.com/ld/Py3Cache)
 
