@@ -10,7 +10,7 @@
     <dependency>
       <groupId>net.oschina.j2cache</groupId>  
       <artifactId>j2cache-session-manager</artifactId>  
-      <version>1.0.0</version>  
+      <version>xxx</version>  
     </dependency>
     ```
 2. 配置 web.xml
