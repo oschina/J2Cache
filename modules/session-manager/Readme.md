@@ -39,7 +39,18 @@
             <param-name>cookie.domain</param-name>
             <param-value></param-value>
         </init-param>
+     
         <!-- redis configuration -->
+
+        <!--
+        # redis.mode : Redis Cluster Mode
+        #
+        # single -> single redis server
+        # sentinel -> master-slaves servers
+        # cluster -> cluster servers (数据库配置无效，使用 database = 0）
+        # sharded -> sharded servers  (密码、数据库必须在 hosts 中指定，且连接池配置无效 ; redis://user:password@127.0.0.1:6379/0）
+        #
+        -->
         <init-param>
             <param-name>redis.mode</param-name>
             <param-value>single</param-value>
@@ -87,4 +98,7 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
     ```
+    
+    更详细配置请参考 j2cache.properties 说明。
+    
 3. 启动应用并检查日志看是否启动正常
