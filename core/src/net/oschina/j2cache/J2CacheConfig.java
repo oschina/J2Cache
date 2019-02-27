@@ -20,6 +20,7 @@ import java.util.Properties;
 
 /**
  * J2Cache configurations
+ *
  * @author Winter Lau (javayou@gmail.com)
  */
 public class J2CacheConfig {
@@ -38,16 +39,18 @@ public class J2CacheConfig {
 
     /**
      * Read configuration from resource
+     *
      * @param configResource config resource
      */
     public final static J2CacheConfig initFromConfig(String configResource) throws IOException {
-        try (InputStream stream = getConfigStream(configResource)){
+        try (InputStream stream = getConfigStream(configResource)) {
             return initFromConfig(stream);
         }
     }
 
     /**
      * Read configuration from file
+     *
      * @param configFile config file
      */
     public final static J2CacheConfig initFromConfig(File configFile) throws IOException {
@@ -58,11 +61,24 @@ public class J2CacheConfig {
 
     /**
      * Read configuration from input stream
+     *
      * @param stream config stream
      */
     public final static J2CacheConfig initFromConfig(InputStream stream) throws IOException {
+        Properties properties = new Properties();
+        properties.load(stream);
+        return initFromConfig(properties);
+    }
+
+    /**
+     * Read configuration from properties
+     *
+     * @param properties config properties
+     */
+    public final static J2CacheConfig initFromConfig(Properties properties) {
         J2CacheConfig config = new J2CacheConfig();
-        config.properties.load(stream);
+        config.properties = properties;
+
         config.serialization = trim(config.properties.getProperty("j2cache.serialization"));
         config.broadcast = trim(config.properties.getProperty("j2cache.broadcast"));
         config.l1CacheName = trim(config.properties.getProperty("j2cache.L1.provider_class"));
@@ -71,8 +87,9 @@ public class J2CacheConfig {
         config.defaultCacheNullObject = "true".equalsIgnoreCase(trim(config.properties.getProperty("j2cache.default_cache_null_object")));
 
         String l2_config_section = trim(config.properties.getProperty("j2cache.L2.config_section"));
-        if (l2_config_section == null || l2_config_section.trim().equals(""))
+        if (l2_config_section == null || "".equals(l2_config_section.trim())) {
             l2_config_section = config.l2CacheName;
+        }
 
         config.broadcastProperties = config.getSubProperties(config.broadcast);
         config.l1CacheProperties = config.getSubProperties(config.l1CacheName);
@@ -82,40 +99,45 @@ public class J2CacheConfig {
 
     /**
      * read sub properties by prefix
-     * @param i_prefix  prefix of config
+     *
+     * @param i_prefix prefix of config
      * @return properties without prefix
      */
     public Properties getSubProperties(String i_prefix) {
         Properties props = new Properties();
         final String prefix = i_prefix + '.';
-        properties.forEach((k,v) -> {
-            String key = (String)k;
-            if(key.startsWith(prefix))
-                props.setProperty(key.substring(prefix.length()), trim((String)v));
+        properties.forEach((k, v) -> {
+            String key = (String) k;
+            if (key.startsWith(prefix)) {
+                props.setProperty(key.substring(prefix.length()), trim((String) v));
+            }
         });
         return props;
     }
 
     /**
      * get j2cache properties stream
+     *
      * @return
      */
     private static InputStream getConfigStream(String resource) {
         InputStream configStream = J2Cache.class.getResourceAsStream(resource);
-        if(configStream == null)
+        if (configStream == null) {
             configStream = J2Cache.class.getClassLoader().getParent().getResourceAsStream(resource);
-        if(configStream == null)
+        }
+        if (configStream == null) {
             throw new CacheException("Cannot find " + resource + " !!!");
+        }
         return configStream;
     }
 
     public void dump(PrintStream writer) {
         writer.printf("j2cache.serialization = %s%n", this.serialization);
-        writer.printf("[%s]%n",this.broadcast);
+        writer.printf("[%s]%n", this.broadcast);
         broadcastProperties.list(writer);
-        writer.printf("[%s]%n",this.l1CacheName);
+        writer.printf("[%s]%n", this.l1CacheName);
         l1CacheProperties.list(writer);
-        writer.printf("[%s]%n",this.l2CacheName);
+        writer.printf("[%s]%n", this.l2CacheName);
         l2CacheProperties.list(writer);
     }
 
