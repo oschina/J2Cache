@@ -87,6 +87,7 @@ J2Cache 默认使用 [Caffeine](https://www.oschina.net/p/ben-manes-caffeine) �
   <version>xxxxx</version>  
 </dependency>
 ```
+中央仓库地址：[>>飞机](https://mvnrepository.com/artifact/net.oschina.j2cache/j2cache-core)
 
 **二. 准备配置**
  
