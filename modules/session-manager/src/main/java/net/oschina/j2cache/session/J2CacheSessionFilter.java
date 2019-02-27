@@ -24,7 +24,6 @@ import java.util.UUID;
 
 /**
  * 实现基于 J2Cache 的分布式的 Session 管理
- *
  * @author Winter Lau (javayou@gmail.com)
  */
 public class J2CacheSessionFilter implements Filter {
@@ -40,15 +39,15 @@ public class J2CacheSessionFilter implements Filter {
 
     @Override
     public void init(FilterConfig config) {
-        this.cookieName = config.getInitParameter("cookie.name");
-        this.cookieDomain = config.getInitParameter("cookie.domain");
-        this.cookiePath = config.getInitParameter("cookie.path");
-        this.cookieMaxAge = Integer.parseInt(config.getInitParameter("session.maxAge"));
+        this.cookieName     = config.getInitParameter("cookie.name");
+        this.cookieDomain   = config.getInitParameter("cookie.domain");
+        this.cookiePath     = config.getInitParameter("cookie.path");
+        this.cookieMaxAge   = Integer.parseInt(config.getInitParameter("session.maxAge"));
         this.discardNonSerializable = "true".equalsIgnoreCase(config.getInitParameter("session.discardNonSerializable"));
 
         Properties redisConf = new Properties();
-        for (String name : Collections.list(config.getInitParameterNames())) {
-            if (name.startsWith("redis.")) {
+        for(String name : Collections.list(config.getInitParameterNames())) {
+            if(name.startsWith("redis.")) {
                 redisConf.setProperty(name.substring(6), config.getInitParameter(name));
             }
         }
@@ -65,10 +64,9 @@ public class J2CacheSessionFilter implements Filter {
             chain.doFilter(j2cacheRequest, res);
         } finally {
             //更新 session 的有效时间
-            J2CacheSession session = (J2CacheSession) j2cacheRequest.getSession(false);
-            if (session != null && !session.isNew()) {
+            J2CacheSession session = (J2CacheSession)j2cacheRequest.getSession(false);
+            if(session != null && !session.isNew())
                 g_cache.updateSessionAccessTime(session.getSessionObject());
-            }
         }
     }
 
@@ -77,39 +75,6 @@ public class J2CacheSessionFilter implements Filter {
         g_cache.close();
     }
 
-    /**
-     * 根据sessionId销毁session
-     *
-     * @param servletContext 上下文
-     * @param sessionId      id
-     * @return true 存在并销毁
-     */
-    public boolean invalidateById(ServletContext servletContext, String sessionId) {
-        J2CacheSession session = createSessionById(servletContext, sessionId);
-        if (session == null) {
-            return false;
-        }
-        session.invalidate();
-        return true;
-    }
-
-    /**
-     * 缓存中创建session 对象
-     *
-     * @param servletContext 上下文
-     * @param sessionId      id
-     * @return 如果缓存中存在则返回
-     */
-    private J2CacheSession createSessionById(ServletContext servletContext, String sessionId) {
-        J2CacheSession session = null;
-        SessionObject ssnObject = g_cache.getSession(sessionId);
-        if (ssnObject != null) {
-            session = new J2CacheSession(servletContext, sessionId, g_cache);
-            session.setSessionObject(ssnObject);
-            session.setNew(false);
-        }
-        return session;
-    }
 
     /*************************************************
      * request 封装，用于重新处理 session 的实现
@@ -120,21 +85,26 @@ public class J2CacheSessionFilter implements Filter {
         private J2CacheSession session;
 
         public J2CacheRequestWrapper(ServletRequest req, ServletResponse res) {
-            super((HttpServletRequest) req);
-            this.response = (HttpServletResponse) res;
+            super((HttpServletRequest)req);
+            this.response = (HttpServletResponse)res;
         }
 
         @Override
         public HttpSession getSession(boolean create) {
-            if (session == null) {
+            if(session == null){
                 Cookie ssnCookie = getCookie(cookieName);
 
                 if (ssnCookie != null) {
                     String session_id = ssnCookie.getValue();
-                    session = createSessionById(getServletContext(), session_id);
+                    SessionObject ssnObject = g_cache.getSession(session_id);
+                    if(ssnObject != null) {
+                        session = new J2CacheSession(getServletContext(), session_id, g_cache);
+                        session.setSessionObject(ssnObject);
+                        session.setNew(false);
+                    }
                 }
 
-                if (session == null && create) {
+                if(session == null && create) {
                     String session_id = UUID.randomUUID().toString().replaceAll("-", "");
                     session = new J2CacheSession(getServletContext(), session_id, g_cache);
                     g_cache.saveSession(session.getSessionObject());
@@ -154,13 +124,10 @@ public class J2CacheSessionFilter implements Filter {
          */
         private Cookie getCookie(String name) {
             Cookie[] cookies = ((HttpServletRequest) getRequest()).getCookies();
-            if (cookies != null) {
-                for (Cookie cookie : cookies) {
-                    if (cookie.getName().equalsIgnoreCase(name)) {
+            if (cookies != null)
+                for (Cookie cookie : cookies)
+                    if (cookie.getName().equalsIgnoreCase(name))
                         return cookie;
-                    }
-                }
-            }
             return null;
         }
 
