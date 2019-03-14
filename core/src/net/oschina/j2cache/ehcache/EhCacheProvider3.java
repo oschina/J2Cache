@@ -121,7 +121,7 @@ public class EhCacheProvider3 implements CacheProvider {
         String configXml = props.getProperty("configXml");
         if(configXml == null || configXml.trim().length() == 0)
             configXml = "/ehcache3.xml";
-        URL myUrl = getClass().getResource(configXml);
+        URL myUrl = getClass().getClassLoader().getResource(configXml);
         Configuration xmlConfig = new XmlConfiguration(myUrl);
         manager = CacheManagerBuilder.newCacheManager(xmlConfig);
         manager.init();
