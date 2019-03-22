@@ -1,7 +1,9 @@
-![J2Cache](docs/J2Cache.png)
-
-# J2Cache —— 基于内存和 Redis 的两级 Java 缓存框架
-
+<p align="center">
+	<img src="https://gitee.com/ld/J2Cache/raw/master/docs/J2Cache.png" alt="J2Cache">
+</p>
+<p align="center">
+<h2>J2Cache —— 基于内存和 Redis 的两级 Java 缓存框架</h2>
+</p>
 专用QQ群: `379110351`
 
 JavaDoc [https://apidoc.gitee.com/ld/J2Cache/](https://apidoc.gitee.com/ld/J2Cache/)
