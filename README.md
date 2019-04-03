@@ -15,6 +15,7 @@ J2Cache 是 OSChina 目前正在使用的两级缓存框架（要求至少 Java 
 J2Cache 相关文章：
 
 - [J2Cache 和普通缓存框架有何不同，它解决了什么问题？](https://my.oschina.net/javayou/blog/1931381)
+- [J2Cache 两级缓存中的 Region 到底是什么东西？](https://my.oschina.net/javayou/blog/3031773)
 - [如何让 J2Cache 在多种编程语言环境中使用](https://my.oschina.net/javayou/blog/2247729)
 - [J2Cache 中使用 Lettuce 替代 Jedis 管理 Redis 连接](https://my.oschina.net/javayou/blog/2247710)
 - [如何通过 J2Cache 实现分布式 session 存储](https://my.oschina.net/javayou/blog/2117109)
