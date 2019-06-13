@@ -41,6 +41,8 @@ public class J2CacheConfig {
      * Read configuration from resource
      *
      * @param configResource config resource
+     * @return config instance
+     * @throws IOException config read io exception
      */
     public final static J2CacheConfig initFromConfig(String configResource) throws IOException {
         try (InputStream stream = getConfigStream(configResource)) {
@@ -52,6 +54,8 @@ public class J2CacheConfig {
      * Read configuration from file
      *
      * @param configFile config file
+     * @return config instance
+     * @throws IOException config read io exception
      */
     public final static J2CacheConfig initFromConfig(File configFile) throws IOException {
         try (FileInputStream stream = new FileInputStream(configFile)) {
@@ -63,6 +67,8 @@ public class J2CacheConfig {
      * Read configuration from input stream
      *
      * @param stream config stream
+     * @return config instance
+     * @throws IOException config read io exception
      */
     public final static J2CacheConfig initFromConfig(InputStream stream) throws IOException {
         Properties properties = new Properties();
@@ -74,6 +80,7 @@ public class J2CacheConfig {
      * Read configuration from properties
      *
      * @param properties config properties
+     * @return config instance
      */
     public final static J2CacheConfig initFromConfig(Properties properties) {
         J2CacheConfig config = new J2CacheConfig();
@@ -118,7 +125,7 @@ public class J2CacheConfig {
     /**
      * get j2cache properties stream
      *
-     * @return
+     * @return config stream
      */
     private static InputStream getConfigStream(String resource) {
         InputStream configStream = J2Cache.class.getResourceAsStream(resource);

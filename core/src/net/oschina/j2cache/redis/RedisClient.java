@@ -201,7 +201,7 @@ public class RedisClient implements Closeable, AutoCloseable {
 
     /**
      * 释放连接池
-     * @throws IOException
+     * @throws IOException  io close exception
      */
     @Override
     public void close() throws IOException {

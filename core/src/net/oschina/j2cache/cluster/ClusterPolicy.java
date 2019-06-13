@@ -81,7 +81,7 @@ public interface ClusterPolicy {
     /**
      * 判断是否本地实例的命令
      * @param cmd 命令信息
-     * @return
+     * @return  true if the cmd sent by self
      */
     boolean isLocalCommand(Command cmd) ;
 
