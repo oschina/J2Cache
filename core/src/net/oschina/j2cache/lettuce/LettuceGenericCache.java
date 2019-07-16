@@ -101,7 +101,10 @@ public class LettuceGenericCache extends LettuceCache {
     public void setBytes(String key, byte[] bytes, long timeToLiveInSeconds){
         try(StatefulConnection<String, byte[]> connection = super.connect()) {
             RedisStringCommands<String, byte[]> cmd = (RedisStringCommands)super.sync(connection);
-            cmd.setex(_key(key), timeToLiveInSeconds, bytes);
+            if (timeToLiveInSeconds > 0)
+                cmd.setex(_key(key), timeToLiveInSeconds, bytes);
+            else
+                cmd.set(_key(key), bytes);
         }
     }
 
@@ -114,7 +117,10 @@ public class LettuceGenericCache extends LettuceCache {
     public void setBytes(Map<String,byte[]> bytes, long timeToLiveInSeconds) {
         try(StatefulConnection<String, byte[]> connection = super.connect()) {
             RedisStringCommands<String, byte[]> cmd = (RedisStringCommands)super.sync(connection);
-            bytes.forEach((k,v)->cmd.setex(_key(k), timeToLiveInSeconds, v));
+            if (timeToLiveInSeconds > 0)
+                bytes.forEach((k,v)->cmd.setex(_key(k), timeToLiveInSeconds, v));
+            else
+                bytes.forEach((k,v)->cmd.set(_key(k), v));
         }
     }
 
