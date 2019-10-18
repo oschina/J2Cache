@@ -26,17 +26,16 @@ import net.oschina.j2cache.cache.support.util.SpringUtil;
 @Configuration
 @PropertySource(value = "${j2cache.config-location}", encoding = "UTF-8", ignoreResourceNotFound = true)
 public class J2CacheAutoConfiguration {
-	
+
     @Autowired
     private StandardEnvironment standardEnvironment;
 
     @Bean
     public net.oschina.j2cache.J2CacheConfig j2CacheConfig() throws IOException{
-    	net.oschina.j2cache.J2CacheConfig cacheConfig = new net.oschina.j2cache.J2CacheConfig();
-    	cacheConfig = SpringJ2CacheConfigUtil.initFromConfig(standardEnvironment);
+    	net.oschina.j2cache.J2CacheConfig cacheConfig = SpringJ2CacheConfigUtil.initFromConfig(standardEnvironment);
     	return cacheConfig;
     }
-    
+
     @Bean
     @DependsOn({"springUtil","j2CacheConfig"})
     public CacheChannel cacheChannel(net.oschina.j2cache.J2CacheConfig j2CacheConfig) throws IOException {
