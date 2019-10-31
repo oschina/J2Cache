@@ -68,4 +68,5 @@ Defining the validity period of the cached data in the program will cause the ca
 * https://gitee.com/jfinal/jfinal
 * https://gitee.com/fuhai/jboot
 * https://gitee.com/tywo45/t-io
+* https://gitee.com/noear/weed3
 * ...
