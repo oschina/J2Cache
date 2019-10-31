@@ -244,6 +244,7 @@ channel.close();
 * https://gitee.com/fuyang_lipengjun/platform
 * https://gitee.com/xcOschina/freeter-admin
 * https://gitee.com/thinkgem/jeesite4
+* https://gitee.com/noear/weed3
 
 更多项目收集中，如果你的项目用了，请告诉我
 
