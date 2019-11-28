@@ -150,7 +150,7 @@ public class CaffeineProvider implements CacheProvider {
         //加载 Caffeine 独立配置文件
         String propertiesFile = props.getProperty("properties");
         if(propertiesFile != null && propertiesFile.trim().length() > 0) {
-            try (InputStream stream = getClass().getResourceAsStream(propertiesFile)) {
+            try (InputStream stream = getClass().getClassLoader().getResourceAsStream(propertiesFile)) {
                 Properties regionsProps = new Properties();
                 regionsProps.load(stream);
                 for(String region : regionsProps.stringPropertyNames()) {
