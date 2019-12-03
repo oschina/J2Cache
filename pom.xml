@@ -4,7 +4,7 @@
     
     <groupId>net.oschina.j2cache</groupId>
     <artifactId>j2cache</artifactId>
-    <version>2.7.6-release</version>
+    <version>2.7.9-release</version>
     <packaging>pom</packaging>
 
     <name>j2cache</name>
@@ -133,7 +133,7 @@
     	<module>modules/spring-boot2-starter</module>
         <module>modules/mybatis</module>
         <module>modules/springcache</module>
-        <module>modules/session-manager</module>
+        <!--module>modules/session-manager</module-->
     </modules>
 
     <dependencies>

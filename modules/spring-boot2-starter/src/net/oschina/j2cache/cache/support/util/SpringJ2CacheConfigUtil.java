@@ -9,6 +9,8 @@ public class SpringJ2CacheConfigUtil {
 
 	/**
 	 * 从spring环境变量中查找j2cache配置
+	 * @param environment configuration
+	 * @return j2cache configuration
 	 */
 	public final static J2CacheConfig initFromConfig(StandardEnvironment environment){
 		J2CacheConfig config = new J2CacheConfig();
