@@ -133,7 +133,7 @@
     	<module>modules/spring-boot2-starter</module>
         <module>modules/mybatis</module>
         <module>modules/springcache</module>
-        <!--module>modules/session-manager</module-->
+        <module>modules/session-manager</module>
     </modules>
 
     <dependencies>
