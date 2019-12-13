@@ -15,20 +15,21 @@
  */
 package net.oschina.j2cache.ehcache;
 
-import net.oschina.j2cache.CacheChannel;
-import net.oschina.j2cache.CacheExpiredListener;
-import net.oschina.j2cache.CacheObject;
-import net.oschina.j2cache.CacheProvider;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.config.CacheConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+
+import net.oschina.j2cache.CacheChannel;
+import net.oschina.j2cache.CacheObject;
+import net.sf.ehcache.config.CacheConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.oschina.j2cache.CacheExpiredListener;
+import net.oschina.j2cache.CacheProvider;
+import net.sf.ehcache.CacheManager;
 
 /**
  * EhCache 2.x 缓存管理器的封装，用来管理多个缓存区域
@@ -59,7 +60,7 @@ public class EhCacheProvider implements CacheProvider {
     @Override
     public Collection<CacheChannel.Region> regions() {
         Collection<CacheChannel.Region> regions = new ArrayList<>();
-        caches.forEach((k, c) -> regions.add(new CacheChannel.Region(k, c.size(), c.ttl())));
+        caches.forEach((k,c) -> regions.add(new CacheChannel.Region(k, c.size(), c.ttl())));
         return regions;
     }
 
@@ -67,7 +68,7 @@ public class EhCacheProvider implements CacheProvider {
      * Builds a Cache.
      *
      * @param regionName the regionName of the cache. Must match a cache configured in ehcache.xml
-     * @param listener   cache listener
+     * @param listener cache listener
      * @return a newly built cache will be built and initialised
      */
     @Override
@@ -77,7 +78,7 @@ public class EhCacheProvider implements CacheProvider {
             if (cache == null) {
                 manager.addCache(regionName);
                 cache = manager.getCache(regionName);
-                log.warn("Could not find configuration [{}]; using defaults (TTL:{} seconds)." , regionName, cache.getCacheConfiguration().getTimeToLiveSeconds());
+                log.warn("Could not find configuration [{}]; using defaults (TTL:{} seconds).", regionName, cache.getCacheConfiguration().getTimeToLiveSeconds());
             }
             return new EhCache(cache, listener);
         });
@@ -89,7 +90,7 @@ public class EhCacheProvider implements CacheProvider {
             //配置缓存
             CacheConfiguration cfg = manager.getConfiguration().getDefaultCacheConfiguration().clone();
             cfg.setName(region);
-            if (timeToLiveInSeconds > 0) {
+            if(timeToLiveInSeconds > 0) {
                 cfg.setTimeToLiveSeconds(timeToLiveInSeconds);
                 cfg.setTimeToIdleSeconds(timeToLiveInSeconds);
             }
@@ -97,13 +98,13 @@ public class EhCacheProvider implements CacheProvider {
             net.sf.ehcache.Cache cache = new net.sf.ehcache.Cache(cfg);
             manager.addCache(cache);
 
-            log.info("Started Ehcache region [{}] with TTL: {}" , region, timeToLiveInSeconds);
+            log.info("Started Ehcache region [{}] with TTL: {}", region, timeToLiveInSeconds);
 
             return new EhCache(cache, listener);
         });
 
         if (ehcache.ttl() != timeToLiveInSeconds)
-            throw new IllegalArgumentException(String.format("Region [%s] TTL %d not match with %d" , region, ehcache.ttl(), timeToLiveInSeconds));
+            throw new IllegalArgumentException(String.format("Region [%s] TTL %d not match with %d", region, ehcache.ttl(), timeToLiveInSeconds));
 
         return ehcache;
     }
@@ -126,7 +127,7 @@ public class EhCacheProvider implements CacheProvider {
         }
 
         // 如果指定了名称,那么尝试获取已有实例
-        String ehcacheName = (String) props.get(KEY_EHCACHE_NAME);
+        String ehcacheName = (String)props.get(KEY_EHCACHE_NAME);
         if (ehcacheName != null && ehcacheName.trim().length() > 0)
             manager = CacheManager.getCacheManager(ehcacheName);
         if (manager == null) {
