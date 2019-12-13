@@ -66,7 +66,7 @@ public class EhCacheProvider3 implements CacheProvider {
     @Override
     public Collection<CacheChannel.Region> regions() {
         Collection<CacheChannel.Region> regions = new ArrayList<>();
-        caches.forEach((k,c) -> regions.add(new CacheChannel.Region(k, c.size(), c.ttl())));
+        caches.forEach((k, c) -> regions.add(new CacheChannel.Region(k, c.size(), c.ttl())));
         return regions;
     }
 
@@ -79,8 +79,8 @@ public class EhCacheProvider3 implements CacheProvider {
                 CacheConfiguration<String, Serializable> cacheCfg = CacheConfigurationBuilder.newCacheConfigurationBuilder(defaultCacheConfig).build();
                 cache = manager.createCache(region, cacheCfg);
                 Duration dura = cache.getRuntimeConfiguration().getExpiry().getExpiryForCreation(null, null);
-                long ttl = dura.isInfinite()?-1:dura.getTimeUnit().toSeconds(dura.getLength());
-                log.warn("Could not find configuration [{}]; using defaults (TTL:{} seconds).", region, ttl);
+                long ttl = dura.isInfinite() ? -1 : dura.getTimeUnit().toSeconds(dura.getLength());
+                log.warn("Could not find configuration [{}]; using defaults (TTL:{} seconds)." , region, ttl);
             }
             return new EhCache3(region, cache, listener);
         });
@@ -94,12 +94,12 @@ public class EhCacheProvider3 implements CacheProvider {
                     .withExpiry(Expirations.timeToLiveExpiration(Duration.of(timeToLiveInSeconds, TimeUnit.SECONDS)))
                     .build();
             org.ehcache.Cache cache = manager.createCache(region, conf);
-            log.info("Started Ehcache region [{}] with TTL: {}", region, timeToLiveInSeconds);
+            log.info("Started Ehcache region [{}] with TTL: {}" , region, timeToLiveInSeconds);
             return new EhCache3(region, cache, listener);
         });
 
         if (ehcache.ttl() != timeToLiveInSeconds)
-            throw new IllegalArgumentException(String.format("Region [%s] TTL %d not match with %d", region, ehcache.ttl(), timeToLiveInSeconds));
+            throw new IllegalArgumentException(String.format("Region [%s] TTL %d not match with %d" , region, ehcache.ttl(), timeToLiveInSeconds));
 
         return ehcache;
     }
@@ -115,14 +115,17 @@ public class EhCacheProvider3 implements CacheProvider {
         String sDefaultHeapSize = props.getProperty("defaultHeapSize");
         try {
             this.defaultHeapSize = Long.parseLong(sDefaultHeapSize);
-        }catch(Exception e) {
-            log.warn("Failed to read ehcache3.defaultHeapSize = {} , use default {}", sDefaultHeapSize, defaultHeapSize);
+        } catch (Exception e) {
+            log.warn("Failed to read ehcache3.defaultHeapSize = {} , use default {}" , sDefaultHeapSize, defaultHeapSize);
         }
         String configXml = props.getProperty("configXml");
-        if(configXml == null || configXml.trim().length() == 0)
+        if (configXml == null || configXml.trim().length() == 0)
             configXml = "/ehcache3.xml";
-        URL myUrl = getClass().getClassLoader().getResource(configXml);
-        Configuration xmlConfig = new XmlConfiguration(myUrl);
+
+        URL url = getClass().getResource(configXml);
+        url = (url == null) ? getClass().getClassLoader().getResource(configXml) : url;
+
+        Configuration xmlConfig = new XmlConfiguration(url);
         manager = CacheManagerBuilder.newCacheManager(xmlConfig);
         manager.init();
     }
