@@ -1,6 +1,8 @@
 package net.oschina.j2cache.springcache;
 
 import net.oschina.j2cache.CacheChannel;
+import net.oschina.j2cache.CacheObject;
+import net.oschina.j2cache.NullObject;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.support.AbstractValueAdaptingCache;
 
@@ -42,7 +44,11 @@ public class J2CacheSpringCacheAdapter extends AbstractValueAdaptingCache {
 
     @Override
     protected Object lookup(Object key) {
-        return j2Cache.get(name, getKey(key)).getValue();
+        Object value = j2Cache.get(name, getKey(key)).rawValue();
+        if (value == null || value.getClass().equals(Object.class)) {
+            return null;
+        }
+        return value;
     }
 
     /**
@@ -82,6 +88,9 @@ public class J2CacheSpringCacheAdapter extends AbstractValueAdaptingCache {
     public <T> T get(Object key, Callable<T> valueLoader) throws ValueRetrievalException {
         ValueWrapper val = get(key);
         if (val != null) {
+            if (val.get() instanceof NullObject) {
+                return null;
+            }
             return (T) val.get();
         }
         T t;
