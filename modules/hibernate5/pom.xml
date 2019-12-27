@@ -5,14 +5,13 @@
     <parent>
         <artifactId>j2cache</artifactId>
         <groupId>net.oschina.j2cache</groupId>
-        <version>2.7.9-release</version>
+        <version>2.8.0-release</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>j2cache-hibernate5</artifactId>
-    <version>1.0.0-beta1</version>
     <packaging>jar</packaging>
     <description>J2Cache - hibernate5</description>
 

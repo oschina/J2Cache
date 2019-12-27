@@ -120,7 +120,7 @@ public class CaffeineProvider implements CacheProvider {
             .removalListener((k,v, cause) -> {
                 /*
                  * 程序删除的缓存不做通知处理，因为上层已经做了处理
-                 * 当缓存数据不是因为手工删除和超出容量限制而被删除的情况，就不需要通知上层侦听器
+                 * 当缓存数据不是因为手工删除和超出容量限制而被删除的情况，就需要通知上层侦听器
                  */
                 if(cause != RemovalCause.EXPLICIT && cause != RemovalCause.REPLACED && cause != RemovalCause.SIZE)
                     listener.notifyElementExpired(region, (String)k);
