@@ -20,7 +20,6 @@
         <dependency>
             <groupId>net.oschina.j2cache</groupId>
             <artifactId>j2cache-core</artifactId>
-            <version>${j2cache-version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

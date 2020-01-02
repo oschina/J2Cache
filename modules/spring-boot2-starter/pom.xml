@@ -16,7 +16,6 @@
 		<dependency>
 			<groupId>net.oschina.j2cache</groupId>
 			<artifactId>j2cache-core</artifactId>
-			<version>${j2cache-version}</version>
 			<exclusions>
                 <exclusion>
             		<groupId>org.slf4j</groupId>
