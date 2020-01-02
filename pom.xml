@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
+    
     <groupId>net.oschina.j2cache</groupId>
     <artifactId>j2cache</artifactId>
     <version>2.8.0-release</version>
@@ -36,9 +36,10 @@
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
-
+    
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <j2cache-version>2.8.0-release</j2cache-version>
     </properties>
 
     <build>
@@ -134,16 +135,6 @@
         <module>modules/springcache</module>
         <module>modules/session-manager</module>
     </modules>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>net.oschina.j2cache</groupId>
-                <artifactId>j2cache-core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <!-- https://mvnrepository.com/artifact/junit/junit -->
