@@ -51,7 +51,7 @@ public class JGroupsClusterPolicy extends ReceiverAdapter implements ClusterPoli
      */
     public JGroupsClusterPolicy(String name, Properties props) {
         this.name = name;
-        if(this.name == null || this.name.trim().equalsIgnoreCase(""))
+        if(this.name == null || "".equalsIgnoreCase(this.name.trim()))
             this.name = "j2cache";
         this.configXml = props.getProperty("configXml");
         if(configXml == null || configXml.trim().length() == 0)

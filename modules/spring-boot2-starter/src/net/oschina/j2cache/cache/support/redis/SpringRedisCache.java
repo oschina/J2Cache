@@ -1,11 +1,7 @@
 package net.oschina.j2cache.cache.support.redis;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -54,7 +50,7 @@ public class SpringRedisCache implements Level2Cache {
 	@Override
 	public void evict(String... keys) {
 		for (String k : keys) {
-			if (!k.equals("null")) {
+			if (!Objects.equals(k, "null")) {
 				redisTemplate.opsForHash().delete(region, k);		
 			} else {
 				redisTemplate.delete(region);

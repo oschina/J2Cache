@@ -40,7 +40,7 @@ public class J2CacheCmd {
 			try {
 				line = reader.readLine("> ");
 
-				if(line == null || line.equalsIgnoreCase("quit") || line.equalsIgnoreCase("exit"))
+				if(line == null || "quit".equalsIgnoreCase(line) || "exit".equalsIgnoreCase(line))
 					break;
 
 				String[] cmds = line.split(" ");
