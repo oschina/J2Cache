@@ -5,6 +5,8 @@ import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.StandardEnvironment;
 
+import java.util.Objects;
+
 public class SpringJ2CacheConfigUtil {
 
 	/**
@@ -21,7 +23,7 @@ public class SpringJ2CacheConfigUtil {
 		config.setSyncTtlToRedis(!"false".equalsIgnoreCase(environment.getProperty("j2cache.sync_ttl_to_redis")));
 		config.setDefaultCacheNullObject("true".equalsIgnoreCase(environment.getProperty("j2cache.default_cache_null_object")));
 		String l2_config_section = environment.getProperty("j2cache.L2.config_section");
-		if (l2_config_section == null || l2_config_section.trim().equals(""))
+		if (l2_config_section == null || Objects.equals(l2_config_section.trim(),""))
 			l2_config_section = config.getL2CacheName();
 		final String l2_section = l2_config_section;
 		environment.getPropertySources().forEach(a -> {
