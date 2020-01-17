@@ -45,7 +45,7 @@ public class J2CacheSpringCacheAdapter extends AbstractValueAdaptingCache {
     @Override
     protected Object lookup(Object key) {
         Object value = j2Cache.get(name, getKey(key)).rawValue();
-        if (value == null || value.getClass().equals(Object.class)) {
+        if (value == null || value.getClass().equals(NullObject.class) || value.getClass().equals(Object.class)) {
             return null;
         }
         return value;
