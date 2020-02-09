@@ -55,6 +55,8 @@ public class SerializationUtils {
                 g_serializer = new FstJSONSerializer(props);
             } else if ("fastjson".equals(ser)) {
                 g_serializer = new FastjsonSerializer();
+            } else if ("fse".equals(ser)) {
+                g_serializer = new FseSerializer();
             } else {
                 try {
                     g_serializer = (Serializer) Class.forName(ser).newInstance();
