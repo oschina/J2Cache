@@ -123,6 +123,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.jfireframework</groupId>
+            <artifactId>fse</artifactId>
+            <version>aegean-2.0</version>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
 
     <description> J2Cache - core </description>
