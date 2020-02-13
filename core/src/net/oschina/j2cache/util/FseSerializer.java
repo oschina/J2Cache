@@ -15,8 +15,8 @@
  */
 package net.oschina.j2cache.util;
 
-import com.jfireframework.fse.ByteArray;
-import com.jfireframework.fse.Fse;
+import com.jfirer.fse.ByteArray;
+import com.jfirer.fse.Fse;
 
 /**
  * 使用 fse 实现序列化
