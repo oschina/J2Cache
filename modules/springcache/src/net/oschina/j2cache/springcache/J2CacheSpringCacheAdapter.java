@@ -5,6 +5,7 @@ import net.oschina.j2cache.CacheObject;
 import net.oschina.j2cache.NullObject;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.support.AbstractValueAdaptingCache;
+import org.springframework.cache.support.NullValue;
 
 import java.util.concurrent.Callable;
 
