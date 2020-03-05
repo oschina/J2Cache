@@ -82,7 +82,7 @@ public class J2CacheCache extends AbstractValueAdaptingCache {
 
 	@Override
 	protected Object lookup(Object key) {
-		CacheObject cacheObject = cacheChannel.get(j2CacheName, String.valueOf(key));
+		CacheObject cacheObject = cacheChannel.get(j2CacheName, String.valueOf(key), false);
 		if(cacheObject.rawValue() != null && cacheObject.rawValue().getClass().equals(NullObject.class) && super.isAllowNullValues()) {
 			return NullValue.INSTANCE;
 		}
