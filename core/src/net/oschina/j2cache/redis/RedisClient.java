@@ -61,6 +61,7 @@ public class RedisClient implements Closeable, AutoCloseable {
         private String cluster;
         private int database;
         private JedisPoolConfig poolConfig;
+        private boolean ssl;
 
         public Builder(){}
 
@@ -98,8 +99,12 @@ public class RedisClient implements Closeable, AutoCloseable {
             this.poolConfig = poolConfig;
             return this;
         }
+        public Builder ssl(boolean ssl) {
+            this.ssl = ssl;
+            return this;
+        }
         public RedisClient newClient() {
-            return new RedisClient(mode, hosts, password, cluster, database, poolConfig);
+            return new RedisClient(mode, hosts, password, cluster, database, poolConfig, ssl);
         }
     }
 
@@ -112,8 +117,9 @@ public class RedisClient implements Closeable, AutoCloseable {
      * @param cluster_name  集群名称
      * @param database 数据库
      * @param poolConfig    连接池配置
+     * @param ssl    使用ssl
      */
-    private RedisClient(String mode, String hosts, String password, String cluster_name, int database, JedisPoolConfig poolConfig) {
+    private RedisClient(String mode, String hosts, String password, String cluster_name, int database, JedisPoolConfig poolConfig, boolean ssl) {
         password = (password != null && password.trim().length() > 0)? password.trim(): null;
         this.clients = new ThreadLocal<>();
         switch(mode){
@@ -148,7 +154,7 @@ public class RedisClient implements Closeable, AutoCloseable {
                     String[] infos = node.split(":");
                     String host = infos[0];
                     int port = (infos.length > 1)?Integer.parseInt(infos[1]):6379;
-                    this.single = new JedisPool(poolConfig, host, port, CONNECT_TIMEOUT, password, database);
+                    this.single = new JedisPool(poolConfig, host, port, CONNECT_TIMEOUT, password, database, ssl);
                     break;
                 }
                 if(!"single".equalsIgnoreCase(mode))
