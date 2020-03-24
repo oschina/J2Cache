@@ -52,6 +52,7 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
             password = null;
 
         int database = Integer.parseInt(props.getProperty("database", "0"));
+        boolean ssl = Boolean.valueOf(props.getProperty("ssl", "false"));
 
         JedisPoolConfig config = RedisUtils.newPoolConfig(props, null);
 
@@ -70,7 +71,7 @@ public class RedisPubSubClusterPolicy extends JedisPubSub implements ClusterPoli
             String[] infos = node.split(":");
             String host = infos[0];
             int port = (infos.length > 1)?Integer.parseInt(infos[1]):6379;
-            this.client = new JedisPool(config, host, port, timeout, password, database);
+            this.client = new JedisPool(config, host, port, timeout, password, database, ssl);
         }
     }
 
