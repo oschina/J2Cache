@@ -15,8 +15,20 @@
  */
 package net.oschina.j2cache.lettuce;
 
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisClient;
+import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.pubsub.RedisPubSubAdapter;
@@ -24,17 +36,15 @@ import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import io.lettuce.core.pubsub.api.async.RedisPubSubAsyncCommands;
 import io.lettuce.core.pubsub.api.sync.RedisPubSubCommands;
 import io.lettuce.core.support.ConnectionPoolSupport;
-import net.oschina.j2cache.*;
+import net.oschina.j2cache.Cache;
+import net.oschina.j2cache.CacheChannel;
+import net.oschina.j2cache.CacheExpiredListener;
+import net.oschina.j2cache.CacheObject;
+import net.oschina.j2cache.CacheProvider;
+import net.oschina.j2cache.CacheProviderHolder;
+import net.oschina.j2cache.Command;
+import net.oschina.j2cache.Level2Cache;
 import net.oschina.j2cache.cluster.ClusterPolicy;
-import org.apache.commons.pool2.impl.GenericObjectPool;
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-
-import java.time.Duration;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 /**
  *  使用 Lettuce 进行 Redis 的操作
@@ -96,15 +106,28 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
         int database = Integer.parseInt(props.getProperty("database", "0"));
         String sentinelMasterId = props.getProperty("sentinelMasterId");
 
-        boolean isCluster = false;
         if("redis-cluster".equalsIgnoreCase(scheme)) {
             scheme = "redis";
-            isCluster = true;
+            List<RedisURI> redisURIs = new ArrayList<>();
+            String[] hostArray = hosts.split(",");
+            for(String host : hostArray) {
+            	String[] redisArray = host.split(":");
+            	RedisURI uri = RedisURI.create(redisArray[0], Integer.valueOf(redisArray[1]));
+            	uri.setDatabase(database);
+            	uri.setPassword(password);
+            	uri.setSentinelMasterId(sentinelMasterId);
+            	redisURIs.add(uri);
+            }
+            RedisClusterClient.create(redisURIs);
         }
-
-        String redis_url = String.format("%s://%s@%s/%d#%s", scheme, password, hosts, database, sentinelMasterId);
-
-        redisClient = isCluster?RedisClusterClient.create(redis_url):RedisClient.create(redis_url);
+        else {
+        	String[] redisArray = hosts.split(":");
+        	RedisURI uri = RedisURI.create(redisArray[0], Integer.valueOf(redisArray[1]));
+        	uri.setDatabase(database);
+        	uri.setPassword(password);
+        	redisClient = RedisClient.create(uri);
+        }
+        
         try {
             int timeout = Integer.parseInt(props.getProperty("timeout", "10000"));
             redisClient.setDefaultTimeout(Duration.ofMillis(timeout));
