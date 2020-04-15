@@ -1,5 +1,12 @@
 # J2Cache 版本更新记录
 
+**j2cache-core 2.8.1 (2020-4-16)**
+
+* 修复redis使用lettuce连接时，设置密码中出现特殊字符'@'时连接地址及密码解析出错的异常(感谢 [@eddy](https://gitee.com/xqxyxchy))  
+详情请看 [https://gitee.com/ld/J2Cache/pulls/149](https://gitee.com/ld/J2Cache/pulls/149)
+
+
+------
 
 **J2Cache 2.4.1-release (2018-8-xx)**
 
