@@ -15,16 +15,21 @@
  */
 package net.oschina.j2cache.lettuce;
 
-import io.lettuce.core.api.StatefulConnection;
-import io.lettuce.core.api.sync.RedisKeyCommands;
-import io.lettuce.core.api.sync.RedisStringCommands;
-import org.apache.commons.pool2.impl.GenericObjectPool;
-
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.apache.commons.pool2.impl.GenericObjectPool;
+
+import io.lettuce.core.KeyScanCursor;
+import io.lettuce.core.ScanArgs;
+import io.lettuce.core.ScanCursor;
+import io.lettuce.core.api.StatefulConnection;
+import io.lettuce.core.api.sync.RedisKeyCommands;
+import io.lettuce.core.api.sync.RedisStringCommands;
 
 /**
  * Redis 缓存操作封装，基于 region+_key 实现多个 Region 的缓存（
@@ -32,13 +37,14 @@ import java.util.stream.Collectors;
  */
 public class LettuceGenericCache extends LettuceCache {
 
-    public LettuceGenericCache(String namespace, String region, GenericObjectPool<StatefulConnection<String, byte[]>> pool) {
+    public LettuceGenericCache(String namespace, String region, GenericObjectPool<StatefulConnection<String, byte[]>> pool, int scanCount) {
         if (region == null || region.isEmpty())
             region = "_"; // 缺省region
 
         super.pool = pool;
         this.namespace = namespace;
         this.region = getRegionName(region);
+        this.scanCount = scanCount;
     }
 
     /**
@@ -125,13 +131,47 @@ public class LettuceGenericCache extends LettuceCache {
     }
 
 
+    /**
+     * 1、线上redis服务大概率会禁用或重命名keys命令；
+     * 2、keys命令效率太低容易致使redis宕机；
+     * 所以使用scan命令替换keys命令操作，增加可用性及提升执行性能
+     */
     @Override
     public Collection<String> keys() {
         try(StatefulConnection<String, byte[]> connection = super.connect()) {
             RedisKeyCommands<String, byte[]> cmd = (RedisKeyCommands)super.sync(connection);
-            return cmd.keys(this.region + ":*").stream().map(k -> k.substring(this.region.length()+1)).collect(Collectors.toList());
+            
+            Collection<String> keys = keys(cmd);
+            
+            return keys.stream().map(k -> k.substring(this.region.length()+1)).collect(Collectors.toList());
         }
     }
+
+	private Collection<String> keys(RedisKeyCommands<String, byte[]> cmd) {
+		Collection<String> keys = new ArrayList<>();
+		String cursor = "0";
+		Collection<String> partKeys = null;
+		ScanCursor scanCursor = ScanCursor.INITIAL;
+		ScanArgs scanArgs = new ScanArgs();
+		scanArgs.match(this.region + ":*").limit(scanCount);
+		KeyScanCursor<String> keyScanCursor = null;
+		while (!scanCursor.isFinished()) {
+			keyScanCursor = cmd.scan(scanCursor, scanArgs);
+			partKeys = keyScanCursor.getKeys();
+			if(partKeys != null && partKeys.size() != 0) {
+				keys.addAll(partKeys);
+			}
+			cursor = keyScanCursor.getCursor();
+			if("0".equals(cursor)) {
+				scanCursor = ScanCursor.FINISHED;
+			}
+			else {
+				scanCursor = ScanCursor.of(cursor);
+			}
+		}
+		
+		return keys;
+	}
 
     @Override
     public void evict(String... keys) {
@@ -145,7 +185,7 @@ public class LettuceGenericCache extends LettuceCache {
     public void clear() {
         try(StatefulConnection<String, byte[]> connection = super.connect()) {
             RedisKeyCommands<String, byte[]> cmd = (RedisKeyCommands)super.sync(connection);
-            List<String> keys = cmd.keys(this.region + ":*");
+            Collection<String> keys = keys(cmd);
             if(keys != null && keys.size() > 0)
                 cmd.del(keys.stream().toArray(String[]::new));
         }
