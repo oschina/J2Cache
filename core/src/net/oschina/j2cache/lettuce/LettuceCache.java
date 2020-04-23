@@ -33,6 +33,7 @@ public abstract class LettuceCache implements Level2Cache {
     protected String namespace;
     protected String region;
     protected GenericObjectPool<StatefulConnection<String, byte[]>> pool;
+    protected int scanCount;
 
     protected StatefulConnection connect() {
         try {

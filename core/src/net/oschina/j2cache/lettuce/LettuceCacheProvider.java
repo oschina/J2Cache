@@ -76,6 +76,7 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
 
     private String channel;
     private String namespace;
+    private int scanCount;
 
     private final ConcurrentHashMap<String, Level2Cache> regions = new ConcurrentHashMap();
 
@@ -97,6 +98,7 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
     @Override
     public void start(Properties props) {
         this.namespace = props.getProperty("namespace");
+        this.scanCount = Integer.valueOf(props.getProperty("scanCount", "1000"));
         this.storage = props.getProperty("storage", "hash");
         this.channel = props.getProperty("channel", "j2cache");
 
@@ -161,7 +163,7 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
     public Cache buildCache(String region, CacheExpiredListener listener) {
         return regions.computeIfAbsent(this.namespace + ":" + region, v -> "hash".equalsIgnoreCase(this.storage)?
                 new LettuceHashCache(this.namespace, region, pool):
-                new LettuceGenericCache(this.namespace, region, pool));
+                new LettuceGenericCache(this.namespace, region, pool, scanCount));
     }
 
     @Override

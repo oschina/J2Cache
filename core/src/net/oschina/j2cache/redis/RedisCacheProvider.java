@@ -39,6 +39,7 @@ public class RedisCacheProvider implements CacheProvider {
     private RedisClient redisClient;
     private String namespace;
     private String storage;
+    private int scanCount;
 
     private final ConcurrentHashMap<String, Level2Cache> regions = new ConcurrentHashMap();
 
@@ -58,7 +59,7 @@ public class RedisCacheProvider implements CacheProvider {
      */
     @Override
     public void start(Properties props) {
-
+    	this.scanCount = Integer.valueOf(props.getProperty("scanCount", "1000"));
         this.namespace = props.getProperty("namespace");
         this.storage = props.getProperty("storage");
 
@@ -106,7 +107,7 @@ public class RedisCacheProvider implements CacheProvider {
     public Cache buildCache(String region, CacheExpiredListener listener) {
         return regions.computeIfAbsent(this.namespace+":"+region, v -> "hash".equalsIgnoreCase(this.storage)?
                 new RedisHashCache(this.namespace, region, redisClient):
-                new RedisGenericCache(this.namespace, region, redisClient));
+                new RedisGenericCache(this.namespace, region, redisClient, scanCount));
     }
 
     @Override
