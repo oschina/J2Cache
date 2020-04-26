@@ -1,5 +1,10 @@
 # J2Cache 版本更新记录
 
+**j2cache-core 2.8.2 (2020-4-26)**
+
+1. 修复在使用redis-cluster时redisClient未初始化导致NPE
+2. redis二级缓存的keys、clear方法使用scan命令实现（以应对云平台Redis服务对keys命令的限制）
+
 **j2cache-core 2.8.1 (2020-4-16)**
 
 * 修复redis使用lettuce连接时，设置密码中出现特殊字符'@'时连接地址及密码解析出错的异常(感谢 [@eddy](https://gitee.com/xqxyxchy))  
