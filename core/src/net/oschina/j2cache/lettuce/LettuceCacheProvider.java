@@ -120,7 +120,7 @@ public class LettuceCacheProvider extends RedisPubSubAdapter<String, String> imp
             	uri.setSentinelMasterId(sentinelMasterId);
             	redisURIs.add(uri);
             }
-            RedisClusterClient.create(redisURIs);
+            redisClient = RedisClusterClient.create(redisURIs);
         }
         else {
         	String[] redisArray = hosts.split(":");
